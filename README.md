@@ -13,53 +13,38 @@ The project World Sync AI was developed as part of the ["Google Cloud x MLB(TM) 
 ## Installation
 
 1. Clone the repository:
-
-```
-git clone https://github.com/vero-git-hub/world-sync-ai
-cd world-sync-ai
-```
-
+    ```
+    git clone https://github.com/vero-git-hub/world-sync-ai
+    cd world-sync-ai
+    ```
 2. Install dependencies:
-
-```
-mvn clean install
-```
-
+    ```
+    mvn clean install
+    ```
 3. Run the application:
-
-```
-mvn spring-boot:run
-```
-
+    ```
+    mvn spring-boot:run
+    ```
 4. Open your browser and navigate to http://localhost:8080.
-
 
 ## Contribution
 
 Contributions are welcome! Please follow these steps:
 
 1. Fork the repository.
-
 2. Create a feature branch:
-
-```
-git checkout -b feature-name
-```
-
+    ```
+    git checkout -b feature-name
+    ```
 3. Commit your changes:
-
-```
-git commit -m "Added new feature"
-```
-
+    ```
+    git commit -m "Added new feature"
+    ```
 4. Push your branch:
-
-```
-git push origin feature-name
-```
-
+    ```
+    git push origin feature-name
+    ```
 5. Open a pull request.
-
 
 ## License
 
