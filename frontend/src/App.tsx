@@ -1,4 +1,4 @@
-import Schedule from './Schedule';
+import Schedule from './components/Schedule.tsx';
 
 function App() {
     return (

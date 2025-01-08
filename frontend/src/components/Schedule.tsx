@@ -1,21 +1,11 @@
-import React, { useEffect, useState } from 'react';
-
-interface Game {
-    homeTeam: string;
-    awayTeam: string;
-    time: string;
-}
-
-interface ScheduleDate {
-    date: string;
-    games: Game[];
-}
+import React, {useEffect, useState} from 'react';
+import {ScheduleDate} from '../types/schedule.ts';
 
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);
 
     useEffect(() => {
-        fetch('/api/schedule/local')
+        fetch('/api/schedule/mlb')
             .then((response) => response.json())
             .then((data) => setSchedule(data.dates || []))
             .catch((error) => console.error('Error fetching schedule:', error));
@@ -30,7 +20,10 @@ const Schedule: React.FC = () => {
                     <ul>
                         {scheduleDate.games.map((game, gameIndex) => (
                             <li key={gameIndex}>
-                                {game.homeTeam} vs {game.awayTeam} at {game.time}
+                                {game.teams.away.team.name} vs {game.teams.home.team.name} at {new Date(game.gameDate).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })} ({game.venue.name})
                             </li>
                         ))}
                     </ul>
