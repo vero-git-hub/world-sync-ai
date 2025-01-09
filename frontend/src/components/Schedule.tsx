@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { ScheduleDate } from '../types/schedule.ts';
-import { Card, CardContent, Typography, Box } from '@mui/material';
+import { Card, CardContent, Typography, Box, TextField } from '@mui/material';
 import "../styles/Schedule.css";
 
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);
+    const [filteredSchedule, setFilteredSchedule] = useState<ScheduleDate[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [selectedDate, setSelectedDate] = useState<string>('');
 
     const fetchSchedule = async () => {
         setLoading(true);
@@ -18,6 +20,7 @@ const Schedule: React.FC = () => {
             }
             const data = await response.json();
             setSchedule(data.dates || []);
+            setFilteredSchedule(data.dates || []);
             setError(null);
         } catch (err) {
             setError((err as Error).message);
@@ -29,6 +32,18 @@ const Schedule: React.FC = () => {
     useEffect(() => {
         fetchSchedule();
     }, []);
+
+    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedDate = event.target.value;
+        setSelectedDate(selectedDate);
+
+        if (selectedDate) {
+            const filtered = schedule.filter((item) => item.date === selectedDate);
+            setFilteredSchedule(filtered);
+        } else {
+            setFilteredSchedule(schedule);
+        }
+    };
 
     if (loading) {
         return <p>Loading schedule...</p>;
@@ -48,13 +63,21 @@ const Schedule: React.FC = () => {
     return (
         <div className="schedule-container">
             <h1>MLB Schedule</h1>
-            {schedule.map((scheduleDate, index) => (
+            <Box sx={{ marginBottom: 2 }}>
+                <TextField
+                    label="Filter by Date"
+                    type="date"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                    InputLabelProps={{
+                        shrink: true,
+                    }}
+                />
+            </Box>
+            {filteredSchedule.map((scheduleDate, index) => (
                 <div key={index}>
                     <h2>{scheduleDate.date}</h2>
-                    <Box
-                        className="grid-container"
-                        sx={{ marginTop: 2 }}
-                    >
+                    <Box className="grid-container" sx={{ marginTop: 2 }}>
                         {scheduleDate.games.map((game, gameIndex) => (
                             <Card key={gameIndex} className="game-card">
                                 <CardContent>
