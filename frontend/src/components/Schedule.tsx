@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScheduleDate } from '../types/schedule.ts';
-import { Card, CardContent, Typography, Box, TextField } from '@mui/material';
+import { Card, CardContent, Typography, Box, TextField, Button } from '@mui/material';
 import "../styles/Schedule.css";
 
 const Schedule: React.FC = () => {
@@ -45,6 +45,11 @@ const Schedule: React.FC = () => {
         }
     };
 
+    const handleResetFilter = () => {
+        setSelectedDate('');
+        setFilteredSchedule(schedule);
+    };
+
     if (loading) {
         return <p>Loading schedule...</p>;
     }
@@ -63,7 +68,7 @@ const Schedule: React.FC = () => {
     return (
         <div className="schedule-container">
             <h1>MLB Schedule</h1>
-            <Box sx={{ marginBottom: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2 }}>
                 <TextField
                     label="Filter by Date"
                     type="date"
@@ -73,6 +78,14 @@ const Schedule: React.FC = () => {
                         shrink: true,
                     }}
                 />
+                <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleResetFilter}
+                    disabled={selectedDate.length === 0}
+                >
+                    Reset Filter
+                </Button>
             </Box>
             {filteredSchedule.map((scheduleDate, index) => (
                 <div key={index}>
