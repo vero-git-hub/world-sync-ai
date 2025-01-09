@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ScheduleDate } from '../types/schedule.ts';
-import { Card, CardContent, Typography, Box, TextField, Button } from '@mui/material';
+import FilterControls from './FilterControls';
+import ScheduleGrid from './ScheduleGrid';
 import "../styles/Schedule.css";
+import "../styles/Button.css";
+import "../styles/Text.css";
 
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);
@@ -33,12 +36,10 @@ const Schedule: React.FC = () => {
         fetchSchedule();
     }, []);
 
-    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const selectedDate = event.target.value;
-        setSelectedDate(selectedDate);
-
-        if (selectedDate) {
-            const filtered = schedule.filter((item) => item.date === selectedDate);
+    const handleDateChange = (date: string) => {
+        setSelectedDate(date);
+        if (date) {
+            const filtered = schedule.filter((item) => item.date === date);
             setFilteredSchedule(filtered);
         } else {
             setFilteredSchedule(schedule);
@@ -68,47 +69,12 @@ const Schedule: React.FC = () => {
     return (
         <div className="schedule-container">
             <h1>MLB Schedule</h1>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2 }}>
-                <TextField
-                    label="Filter by Date"
-                    type="date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                />
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleResetFilter}
-                    disabled={selectedDate.length === 0}
-                >
-                    Reset Filter
-                </Button>
-            </Box>
-            {filteredSchedule.map((scheduleDate, index) => (
-                <div key={index}>
-                    <h2>{scheduleDate.date}</h2>
-                    <Box className="grid-container" sx={{ marginTop: 2 }}>
-                        {scheduleDate.games.map((game, gameIndex) => (
-                            <Card key={gameIndex} className="game-card">
-                                <CardContent>
-                                    <Typography variant="h6" component="div">
-                                        {game.teams.away.team.name} vs {game.teams.home.team.name}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Time: {new Date(game.gameDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        Venue: {game.venue.name}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </Box>
-                </div>
-            ))}
+            <FilterControls
+                selectedDate={selectedDate}
+                onDateChange={handleDateChange}
+                onResetFilter={handleResetFilter}
+            />
+            <ScheduleGrid filteredSchedule={filteredSchedule}/>
         </div>
     );
 };
