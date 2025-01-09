@@ -12,6 +12,7 @@ const Schedule: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedDate, setSelectedDate] = useState<string>('');
+    const [selectedTeam, setSelectedTeam] = useState<string>('');
 
     const fetchSchedule = async () => {
         setLoading(true);
@@ -46,8 +47,31 @@ const Schedule: React.FC = () => {
         }
     };
 
+    const handleTeamChange = (team: string) => {
+        setSelectedTeam(team);
+        filterSchedule(selectedDate, team);
+    };
+
+    const filterSchedule = (date: string, team: string) => {
+        let filtered = schedule;
+        if (date) {
+            filtered = filtered.filter((item) => item.date === date);
+        }
+        if (team) {
+            filtered = filtered.map((item) => ({
+                ...item,
+                games: item.games.filter((game) =>
+                    game.teams.away.team.name.includes(team) ||
+                    game.teams.home.team.name.includes(team)
+                ),
+            })).filter((item) => item.games.length > 0);
+        }
+        setFilteredSchedule(filtered);
+    };
+
     const handleResetFilter = () => {
         setSelectedDate('');
+        setSelectedTeam('');
         setFilteredSchedule(schedule);
     };
 
@@ -71,7 +95,9 @@ const Schedule: React.FC = () => {
             <h1>MLB Schedule</h1>
             <FilterControls
                 selectedDate={selectedDate}
+                selectedTeam={selectedTeam}
                 onDateChange={handleDateChange}
+                onTeamChange={handleTeamChange}
                 onResetFilter={handleResetFilter}
             />
             <ScheduleGrid filteredSchedule={filteredSchedule}/>

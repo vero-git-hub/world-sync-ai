@@ -3,13 +3,19 @@ import { Box, TextField, Button } from '@mui/material';
 
 interface FilterControlsProps {
     selectedDate: string;
+    selectedTeam: string;
     onDateChange: (date: string) => void;
+    onTeamChange: (team: string) => void;
     onResetFilter: () => void;
 }
 
-const FilterControls: React.FC<FilterControlsProps> = ({ selectedDate, onDateChange, onResetFilter }) => {
+const FilterControls: React.FC<FilterControlsProps> = ({ selectedDate, selectedTeam, onDateChange, onTeamChange, onResetFilter }) => {
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         onDateChange(event.target.value);
+    };
+
+    const handleTeamChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        onTeamChange(event.target.value);
     };
 
     return (
@@ -23,11 +29,20 @@ const FilterControls: React.FC<FilterControlsProps> = ({ selectedDate, onDateCha
                     shrink: true,
                 }}
             />
+            <TextField
+                label="Filter by Team"
+                type="text"
+                value={selectedTeam}
+                onChange={handleTeamChange}
+                InputLabelProps={{
+                    shrink: true,
+                }}
+            />
             <Button
                 variant="contained"
                 color="secondary"
                 onClick={onResetFilter}
-                disabled={selectedDate.length === 0}
+                disabled={selectedDate.length === 0 && selectedTeam.length === 0}
             >
                 Reset Filter
             </Button>
