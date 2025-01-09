@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScheduleDate } from '../types/schedule.ts';
 import FilterControls from './FilterControls';
 import ScheduleGrid from './ScheduleGrid';
+import PaginationControls from './PaginationControls';
 import "../styles/Schedule.css";
 import "../styles/Button.css";
 import "../styles/Text.css";
@@ -13,6 +14,8 @@ const Schedule: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedDate, setSelectedDate] = useState<string>('');
     const [selectedTeam, setSelectedTeam] = useState<string>('');
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const itemsPerPage = 3;
 
     const fetchSchedule = async () => {
         setLoading(true);
@@ -39,16 +42,13 @@ const Schedule: React.FC = () => {
 
     const handleDateChange = (date: string) => {
         setSelectedDate(date);
-        if (date) {
-            const filtered = schedule.filter((item) => item.date === date);
-            setFilteredSchedule(filtered);
-        } else {
-            setFilteredSchedule(schedule);
-        }
+        setCurrentPage(1);
+        filterSchedule(date, selectedTeam);
     };
 
     const handleTeamChange = (team: string) => {
         setSelectedTeam(team);
+        setCurrentPage(1);
         filterSchedule(selectedDate, team);
     };
 
@@ -73,7 +73,16 @@ const Schedule: React.FC = () => {
         setSelectedDate('');
         setSelectedTeam('');
         setFilteredSchedule(schedule);
+        setCurrentPage(1);
     };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredSchedule.slice(indexOfFirstItem, indexOfLastItem);
 
     if (loading) {
         return <p>Loading schedule...</p>;
@@ -100,7 +109,13 @@ const Schedule: React.FC = () => {
                 onTeamChange={handleTeamChange}
                 onResetFilter={handleResetFilter}
             />
-            <ScheduleGrid filteredSchedule={filteredSchedule}/>
+            <ScheduleGrid filteredSchedule={currentItems}/>
+            <PaginationControls
+                currentPage={currentPage}
+                totalItems={filteredSchedule.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={handlePageChange}
+            />
         </div>
     );
 };
