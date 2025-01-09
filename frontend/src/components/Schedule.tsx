@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScheduleDate } from '../types/schedule.ts';
+import "../styles/Schedule.css";
 
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);
