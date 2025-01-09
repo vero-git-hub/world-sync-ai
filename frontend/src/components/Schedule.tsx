@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ScheduleDate } from '../types/schedule.ts';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import "../styles/Schedule.css";
 
 const Schedule: React.FC = () => {
@@ -17,6 +18,7 @@ const Schedule: React.FC = () => {
             }
             const data = await response.json();
             setSchedule(data.dates || []);
+            setError(null);
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -44,20 +46,31 @@ const Schedule: React.FC = () => {
     }
 
     return (
-        <div>
+        <div className="schedule-container">
             <h1>MLB Schedule</h1>
             {schedule.map((scheduleDate, index) => (
                 <div key={index}>
                     <h2>{scheduleDate.date}</h2>
-                    <ul>
+                    <Box
+                        className="grid-container"
+                        sx={{ marginTop: 2 }}
+                    >
                         {scheduleDate.games.map((game, gameIndex) => (
-                            <li key={gameIndex}>
-                                {game.teams.away.team.name} vs {game.teams.home.team.name} at{' '}
-                                {new Date(game.gameDate).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})} (
-                                {game.venue.name})
-                            </li>
+                            <Card key={gameIndex} className="game-card">
+                                <CardContent>
+                                    <Typography variant="h6" component="div">
+                                        {game.teams.away.team.name} vs {game.teams.home.team.name}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Time: {new Date(game.gameDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </Typography>
+                                    <Typography variant="body2" color="text.secondary">
+                                        Venue: {game.venue.name}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
                         ))}
-                    </ul>
+                    </Box>
                 </div>
             ))}
         </div>
