@@ -9,6 +9,7 @@ The project World Sync AI was developed as part of the ["Google Cloud x MLB(TM) 
 * **Database:** H2 Database
 * **Build Tool:** Maven 3.9.9
 * **IDE:** IntelliJ IDEA
+* **Test:** Postman
 
 ## Features
 
