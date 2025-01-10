@@ -5,7 +5,9 @@ import org.example.worldsyncai.dto.FavoriteTeamDto;
 import org.example.worldsyncai.exception.FavoriteTeamNotFoundException;
 import org.example.worldsyncai.mapper.FavoriteTeamMapper;
 import org.example.worldsyncai.model.FavoriteTeam;
+import org.example.worldsyncai.model.User;
 import org.example.worldsyncai.repository.FavoriteTeamRepository;
+import org.example.worldsyncai.repository.UserRepository;
 import org.example.worldsyncai.service.FavoriteTeamService;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class FavoriteTeamServiceImpl implements FavoriteTeamService {
 
     private final FavoriteTeamRepository favoriteTeamRepository;
+    private final UserRepository userRepository;
     private final FavoriteTeamMapper favoriteTeamMapper;
 
     @Override
@@ -48,8 +51,12 @@ public class FavoriteTeamServiceImpl implements FavoriteTeamService {
             return Optional.empty();
         }
 
-        FavoriteTeam team = favoriteTeamMapper.toEntity(teamDto);
+        User user = userRepository.findById(teamDto.userId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + teamDto.userId()));
+
+        FavoriteTeam team = favoriteTeamMapper.toEntity(teamDto, user);
         FavoriteTeam savedTeam = favoriteTeamRepository.save(team);
+
         return Optional.of(favoriteTeamMapper.toDto(savedTeam));
     }
 

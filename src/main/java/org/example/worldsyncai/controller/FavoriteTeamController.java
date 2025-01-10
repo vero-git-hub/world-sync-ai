@@ -38,9 +38,8 @@ public class FavoriteTeamController {
     @PostMapping
     public ResponseEntity<FavoriteTeamDto> addFavoriteTeam(@RequestBody FavoriteTeamDto teamDto) {
         return favoriteTeamService.addFavoriteTeam(teamDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(null));
+                .map(savedTeam -> ResponseEntity.status(HttpStatus.CREATED).body(savedTeam))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.CONFLICT).build());
     }
 
     @DeleteMapping("/{id}")
