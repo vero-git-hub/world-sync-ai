@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ScheduleDate } from '../types/schedule.ts';
 import FilterControls from './FilterControls';
 import ScheduleGrid from './ScheduleGrid';
@@ -10,6 +11,8 @@ import "../styles/Text.css";
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);
     const [filteredSchedule, setFilteredSchedule] = useState<ScheduleDate[]>([]);
+    const [favoriteTeams, setFavoriteTeams] = useState<string[]>([]);
+    const [showFavorites, setShowFavorites] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedDate, setSelectedDate] = useState<string>('');
@@ -38,7 +41,27 @@ const Schedule: React.FC = () => {
 
     useEffect(() => {
         fetchSchedule();
+        const savedFavoriteTeams = JSON.parse(localStorage.getItem('favoriteTeams') || '[]');
+        setFavoriteTeams(savedFavoriteTeams);
     }, []);
+
+    useEffect(() => {
+        if (favoriteTeams.length === 0) {
+            setShowFavorites(false);
+        }
+        if (showFavorites && favoriteTeams.length > 0) {
+            const filtered = schedule.map((item) => ({
+                ...item,
+                games: item.games.filter((game) =>
+                    favoriteTeams.includes(game.teams.away.team.name) ||
+                    favoriteTeams.includes(game.teams.home.team.name)
+                ),
+            })).filter((item) => item.games.length > 0);
+            setFilteredSchedule(filtered);
+        } else {
+            setFilteredSchedule(schedule);
+        }
+    }, [schedule, showFavorites, favoriteTeams]);
 
     const handleDateChange = (date: string) => {
         setSelectedDate(date);
@@ -102,6 +125,15 @@ const Schedule: React.FC = () => {
     return (
         <div className="schedule-container">
             <h1>MLB Schedule</h1>
+            <p>
+                <span>{showFavorites ? "Shows favorite teams" : "Showing all teams"}</span>
+                <button onClick={() => setShowFavorites(!showFavorites)}>
+                    {showFavorites ? "Show all teams" : "Show favorite teams"}
+                </button>
+                <Link to="/profile">
+                    <button>Change commands</button>
+                </Link>
+            </p>
             <FilterControls
                 selectedDate={selectedDate}
                 selectedTeam={selectedTeam}

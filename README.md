@@ -5,7 +5,7 @@ The project World Sync AI was developed as part of the ["Google Cloud x MLB(TM) 
 ## Technologies
 
 * **Backend:** Java 23.0.1, Spring Boot 3.4.1
-* **Frontend:** Vite, React, TypeScript, Material-UI (MUI v5)
+* **Frontend:** Vite 6.0.7, React, TypeScript, Material-UI (MUI v5)
 * **Database:** H2 Database
 * **Build Tool:** Maven 3.9.9
 * **IDE:** IntelliJ IDEA
