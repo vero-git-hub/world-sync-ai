@@ -1,20 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-const teams = [
-    "Los Angeles Dodgers",
-    "Chicago Cubs",
-    "New York Yankees",
-    "Baltimore Orioles",
-];
+import {Team} from "../types/schedule.ts";
 
 const Profile: React.FC = () => {
+    const [teams, setTeams] = useState<string[]>([]);
     const [favoriteTeams, setFavoriteTeams] = useState<string[]>([]);
+    const userId = 1;
 
     useEffect(() => {
-        const savedTeams = JSON.parse(localStorage.getItem('favoriteTeams') || '[]');
-        setFavoriteTeams(savedTeams);
-    }, []);
+        let isMounted = true;
+
+        const fetchTeams = async () => {
+            try {
+                const [teamsResponse, favoriteTeamsResponse] = await Promise.all([
+                    fetch('/api/schedule/mlb/teams'),
+                    fetch(`/api/favorite-teams/user/${userId}`),
+                ]);
+
+                if (!teamsResponse.ok) {
+                    throw new Error(`Failed to fetch teams: ${teamsResponse.statusText}`);
+                }
+
+                let favoriteTeamsData = [];
+                if (favoriteTeamsResponse.status !== 204) {
+                    favoriteTeamsData = await favoriteTeamsResponse.json();
+                } else {
+                    if (isMounted) {
+                        console.log('Favorite teams response is empty (204 No Content).');
+                    }
+                }
+
+                const teamsData = await teamsResponse.json();
+
+                if (isMounted) {
+                    setTeams(teamsData?.teams?.map((team: Team) => team.teamName) || []);
+                    setFavoriteTeams(
+                        Array.isArray(favoriteTeamsData)
+                            ? favoriteTeamsData.map((team) => team.teamName)
+                            : []
+                    );
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Failed to load data. Please try again later.');
+            }
+        };
+
+        fetchTeams();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [userId]);
 
     const handleTeamToggle = (team: string) => {
         setFavoriteTeams((prev) =>
@@ -23,8 +60,22 @@ const Profile: React.FC = () => {
     };
 
     const saveFavoriteTeams = () => {
-        localStorage.setItem('favoriteTeams', JSON.stringify(favoriteTeams));
-        alert('Favorite teams saved!');
+        fetch(`/api/favorite-teams/user/${userId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(favoriteTeams),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    alert('Favorite teams saved!');
+                } else {
+                    throw new Error('Failed to save favorite teams.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error saving favorite teams:', error);
+                alert('Failed to save favorite teams. Please try again.');
+            });
     };
 
     return (

@@ -1,5 +1,6 @@
 package org.example.worldsyncai.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.worldsyncai.dto.FavoriteTeamDto;
 import org.example.worldsyncai.service.FavoriteTeamService;
@@ -26,7 +27,7 @@ public class FavoriteTeamController {
     @GetMapping
     public ResponseEntity<List<FavoriteTeamDto>> getFavoriteTeams() {
         List<FavoriteTeamDto> teams = favoriteTeamService.getAllFavoriteTeams();
-        return ResponseEntity.ok(teams);
+        return teams.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(teams);
     }
 
     @GetMapping("/user/{userId}")
@@ -36,7 +37,7 @@ public class FavoriteTeamController {
     }
 
     @PostMapping
-    public ResponseEntity<FavoriteTeamDto> addFavoriteTeam(@RequestBody FavoriteTeamDto teamDto) {
+    public ResponseEntity<FavoriteTeamDto> addFavoriteTeam(@RequestBody @Valid FavoriteTeamDto teamDto) {
         return favoriteTeamService.addFavoriteTeam(teamDto)
                 .map(savedTeam -> ResponseEntity.status(HttpStatus.CREATED).body(savedTeam))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.CONFLICT).build());

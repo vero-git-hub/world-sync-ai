@@ -1,5 +1,6 @@
 package org.example.worldsyncai.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.worldsyncai.dto.UserDto;
 import org.example.worldsyncai.service.UserService;
@@ -29,14 +30,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> addUser(@RequestBody @Valid UserDto userDto) {
         return userService.addUser(userDto)
                 .map(user -> ResponseEntity.status(HttpStatus.CREATED).body(user))
                 .orElse(ResponseEntity.status(HttpStatus.CONFLICT).build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody @Valid UserDto userDto) {
         return userService.updateUser(id, userDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -48,7 +49,8 @@ public class UserController {
             userService.deleteUser(id);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null);
         }
     }
 }
