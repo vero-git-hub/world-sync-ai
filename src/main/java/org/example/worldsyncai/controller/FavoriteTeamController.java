@@ -43,6 +43,16 @@ public class FavoriteTeamController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.CONFLICT).build());
     }
 
+    @PostMapping("/user/{userId}")
+    public ResponseEntity<?> addFavoriteTeams(@PathVariable Long userId, @RequestBody List<String> teamNames) {
+        try {
+            favoriteTeamService.addFavoriteTeams(userId, teamNames);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving favorite teams: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFavoriteTeam(@PathVariable Long id) {
         try {

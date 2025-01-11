@@ -15,5 +15,7 @@ public interface FavoriteTeamService {
 
     Optional<FavoriteTeamDto> addFavoriteTeam(FavoriteTeamDto teamDto);
 
+    void addFavoriteTeams(Long userId, List<String> teamNames);
+
     void deleteFavoriteTeam(Long id);
 }

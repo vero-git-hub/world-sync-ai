@@ -61,6 +61,21 @@ public class FavoriteTeamServiceImpl implements FavoriteTeamService {
     }
 
     @Override
+    public void addFavoriteTeams(Long userId, List<String> teamNames) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        teamNames.forEach(teamName -> {
+            if (!favoriteTeamRepository.existsByTeamNameAndUserId(teamName, userId)) {
+                FavoriteTeam team = new FavoriteTeam();
+                team.setTeamName(teamName);
+                team.setUser(user);
+                favoriteTeamRepository.save(team);
+            }
+        });
+    }
+
+    @Override
     public void deleteFavoriteTeam(Long id) {
         favoriteTeamRepository.findById(id)
                 .ifPresentOrElse(
