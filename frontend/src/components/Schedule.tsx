@@ -31,7 +31,6 @@ const Schedule: React.FC = () => {
             const data = await response.json();
             setSchedule(data.dates || []);
             setFilteredSchedule(data.dates || []);
-            setError(null);
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -39,23 +38,39 @@ const Schedule: React.FC = () => {
         }
     };
 
+    const fetchFavoriteTeams = async () => {
+        try {
+            const response = await fetch('/api/favorite-teams/user/1');
+            if (!response.ok) {
+                throw new Error(`Failed to fetch favorite teams: ${response.status} ${response.statusText}`);
+            }
+            const data = await response.json();
+            setFavoriteTeams(data.map((team: { teamName: string }) => team.teamName));
+        } catch (err) {
+            setError((err as Error).message);
+        }
+    };
+
     useEffect(() => {
         fetchSchedule();
-        const savedFavoriteTeams = JSON.parse(localStorage.getItem('favoriteTeams') || '[]');
-        setFavoriteTeams(savedFavoriteTeams);
     }, []);
 
     useEffect(() => {
-        if (favoriteTeams.length === 0) {
-            setShowFavorites(false);
+        if (showFavorites) {
+            fetchFavoriteTeams();
         }
+    }, [showFavorites]);
+
+    useEffect(() => {
         if (showFavorites && favoriteTeams.length > 0) {
             const filtered = schedule.map((item) => ({
                 ...item,
-                games: item.games.filter((game) =>
-                    favoriteTeams.includes(game.teams.away.team.name) ||
-                    favoriteTeams.includes(game.teams.home.team.name)
-                ),
+                games: item.games.filter((game) => {
+                    return favoriteTeams.some((team) =>
+                        game.teams.away.team.name.includes(team) ||
+                        game.teams.home.team.name.includes(team)
+                    );
+                }),
             })).filter((item) => item.games.length > 0);
             setFilteredSchedule(filtered);
         } else {
@@ -131,7 +146,7 @@ const Schedule: React.FC = () => {
                     {showFavorites ? "Show all teams" : "Show favorite teams"}
                 </button>
                 <Link to="/profile">
-                    <button>Change commands</button>
+                    <button>Change favorite teams</button>
                 </Link>
             </p>
             <FilterControls
