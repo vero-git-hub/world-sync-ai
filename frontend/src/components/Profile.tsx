@@ -5,6 +5,7 @@ import {Team} from "../types/schedule.ts";
 const Profile: React.FC = () => {
     const [teams, setTeams] = useState<string[]>([]);
     const [favoriteTeams, setFavoriteTeams] = useState<string[]>([]);
+    const [initialFavoriteTeams, setInitialFavoriteTeams] = useState<string[]>([]);
     const userId = 1;
 
     useEffect(() => {
@@ -39,6 +40,11 @@ const Profile: React.FC = () => {
                             ? favoriteTeamsData.map((team) => team.teamName)
                             : []
                     );
+                    setInitialFavoriteTeams(
+                        Array.isArray(favoriteTeamsData)
+                            ? favoriteTeamsData.map((team) => team.teamName)
+                            : []
+                    );
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -60,22 +66,33 @@ const Profile: React.FC = () => {
     };
 
     const saveFavoriteTeams = () => {
-        fetch(`/api/favorite-teams/user/${userId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(favoriteTeams),
-        })
-            .then((response) => {
-                if (response.ok) {
-                    alert('Favorite teams saved!');
-                } else {
-                    throw new Error('Failed to save favorite teams.');
+        const teamsToAdd = favoriteTeams.filter((team) => !initialFavoriteTeams.includes(team));
+        const teamsToRemove = initialFavoriteTeams.filter((team) => !favoriteTeams.includes(team));
+
+        const updateTeams = async (action: string, teamNames: string[]) => {
+            try {
+                const response = await fetch(`/api/favorite-teams/user/${userId}/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action, teamNames }),
+                });
+                if (!response.ok) {
+                    throw new Error(`Failed to ${action} favorite teams.`);
                 }
-            })
-            .catch((error) => {
-                console.error('Error saving favorite teams:', error);
-                alert('Failed to save favorite teams. Please try again.');
-            });
+            } catch (error) {
+                console.error(`Error ${action}ing favorite teams:`, error);
+            }
+        };
+
+        if (teamsToAdd.length > 0) {
+            updateTeams('add', teamsToAdd);
+        }
+
+        if (teamsToRemove.length > 0) {
+            updateTeams('remove', teamsToRemove);
+        }
+
+        alert('Changes saved!');
     };
 
     return (

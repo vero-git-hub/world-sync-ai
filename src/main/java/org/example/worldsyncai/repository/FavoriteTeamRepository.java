@@ -11,5 +11,5 @@ public interface FavoriteTeamRepository extends JpaRepository<FavoriteTeam, Long
 
     boolean existsByTeamNameAndUserId(String teamName, Long userId);
 
-    void deleteByUserId(Long userId);
+    void deleteByTeamNameInAndUserId(List<String> teamNames, Long userId);
 }

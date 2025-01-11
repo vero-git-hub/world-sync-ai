@@ -1,8 +1,9 @@
 package org.example.worldsyncai.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.worldsyncai.dto.FavoriteTeamDto;
+import org.example.worldsyncai.dto.FavoriteTeamsUpdateRequest;
+import org.example.worldsyncai.exception.UserNotFoundException;
 import org.example.worldsyncai.service.FavoriteTeamService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,49 +18,48 @@ public class FavoriteTeamController {
 
     private final FavoriteTeamService favoriteTeamService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FavoriteTeamDto> getFavoriteTeamById(@PathVariable Long id) {
-        return favoriteTeamService.getFavoriteTeamById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping
-    public ResponseEntity<List<FavoriteTeamDto>> getFavoriteTeams() {
-        List<FavoriteTeamDto> teams = favoriteTeamService.getAllFavoriteTeams();
-        return teams.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(teams);
-    }
-
+    /**
+     * Get the user's favorite teams.
+     *
+     * @param userId The user's ID.
+     * @return a list of favorite teams.
+     */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<FavoriteTeamDto>> getFavoriteTeamsByUserId(@PathVariable Long userId) {
         List<FavoriteTeamDto> teams = favoriteTeamService.getFavoriteTeamsByUserId(userId);
         return teams.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(teams);
     }
 
-    @PostMapping
-    public ResponseEntity<FavoriteTeamDto> addFavoriteTeam(@RequestBody @Valid FavoriteTeamDto teamDto) {
-        return favoriteTeamService.addFavoriteTeam(teamDto)
-                .map(savedTeam -> ResponseEntity.status(HttpStatus.CREATED).body(savedTeam))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.CONFLICT).build());
-    }
-
-    @PostMapping("/user/{userId}")
-    public ResponseEntity<?> addFavoriteTeams(@PathVariable Long userId, @RequestBody List<String> teamNames) {
+    /**
+     * Update the user's favorite teams list.
+     *
+     * @param userId User ID.
+     * @param request Data to update (add or remove teams).
+     * @return operation status.
+     */
+    @PostMapping("/user/{userId}/update")
+    public ResponseEntity<?> updateFavoriteTeams(
+            @PathVariable Long userId,
+            @RequestBody FavoriteTeamsUpdateRequest request) {
         try {
-            favoriteTeamService.addFavoriteTeams(userId, teamNames);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            if ("add".equalsIgnoreCase(request.getAction())) {
+                favoriteTeamService.addFavoriteTeams(userId, request.getTeamNames());
+            } else if ("remove".equalsIgnoreCase(request.getAction())) {
+                if (request.getTeamNames() == null || request.getTeamNames().isEmpty()) {
+                    return ResponseEntity.badRequest().body("No teams provided for removal.");
+                }
+                favoriteTeamService.removeFavoriteTeams(userId, request.getTeamNames());
+            } else {
+                return ResponseEntity.badRequest().body("Invalid action. Use 'add' or 'remove'.");
+            }
+            return ResponseEntity.ok("Favorite teams updated successfully.");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving favorite teams: " + e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFavoriteTeam(@PathVariable Long id) {
-        try {
-            favoriteTeamService.deleteFavoriteTeam(id);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating favorite teams: " + e.getMessage());
         }
     }
 }
