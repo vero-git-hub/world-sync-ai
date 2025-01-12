@@ -4,9 +4,6 @@ import { ScheduleDate } from '../types/schedule.ts';
 import FilterControls from './FilterControls';
 import ScheduleGrid from './ScheduleGrid';
 import PaginationControls from './PaginationControls';
-import "../styles/Schedule.css";
-import "../styles/Button.css";
-import "../styles/Text.css";
 
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);

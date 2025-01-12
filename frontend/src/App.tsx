@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Schedule from './components/Schedule.tsx';
+import SchedulePage from './pages/SchedulePage';
 import Profile from './components/Profile.tsx';
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
         <Router>
             <div className="App">
                 <Routes>
-                    <Route path="/" element={<Schedule />} />
+                    <Route path="/" element={<SchedulePage />} />
                     <Route path="/profile" element={<Profile />} />
                 </Routes>
             </div>
