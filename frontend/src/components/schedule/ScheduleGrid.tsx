@@ -1,5 +1,6 @@
 import React from 'react';
 import GameCard from './GameCard';
+import "../../styles/components/schedule/Schedule.css";
 
 const ScheduleGrid: React.FC<{ filteredSchedule: any[] }> = ({ filteredSchedule }) => {
     return (
