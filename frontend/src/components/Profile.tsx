@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {Team} from "../types/schedule.ts";
+import Select from 'react-select';
+import { Team } from "../types/schedule.ts";
+import "../styles/components/Profile.css";
+
+interface SelectOption {
+    value: string;
+    label: string;
+}
 
 const Profile: React.FC = () => {
-    const [teams, setTeams] = useState<string[]>([]);
-    const [favoriteTeams, setFavoriteTeams] = useState<string[]>([]);
+    const [teams, setTeams] = useState<SelectOption[]>([]);
+    const [favoriteTeams, setFavoriteTeams] = useState<SelectOption[]>([]);
     const [initialFavoriteTeams, setInitialFavoriteTeams] = useState<string[]>([]);
     const userId = 1;
 
@@ -22,29 +29,28 @@ const Profile: React.FC = () => {
                     throw new Error(`Failed to fetch teams: ${teamsResponse.statusText}`);
                 }
 
-                let favoriteTeamsData = [];
+                let favoriteTeamsData: Team[] = [];
                 if (favoriteTeamsResponse.status !== 204) {
                     favoriteTeamsData = await favoriteTeamsResponse.json();
-                } else {
-                    if (isMounted) {
-                        console.log('Favorite teams response is empty (204 No Content).');
-                    }
                 }
 
                 const teamsData = await teamsResponse.json();
 
                 if (isMounted) {
-                    setTeams(teamsData?.teams?.map((team: Team) => team.teamName) || []);
-                    setFavoriteTeams(
-                        Array.isArray(favoriteTeamsData)
-                            ? favoriteTeamsData.map((team) => team.teamName)
-                            : []
-                    );
-                    setInitialFavoriteTeams(
-                        Array.isArray(favoriteTeamsData)
-                            ? favoriteTeamsData.map((team) => team.teamName)
-                            : []
-                    );
+                    const mappedTeams = teamsData?.teams?.map((team: Team) => ({
+                        value: team.teamName,
+                        label: team.teamName,
+                    })) || [];
+
+                    setTeams(mappedTeams);
+
+                    const mappedFavorites = favoriteTeamsData.map((team) => ({
+                        value: team.teamName,
+                        label: team.teamName,
+                    }));
+
+                    setFavoriteTeams(mappedFavorites);
+                    setInitialFavoriteTeams(favoriteTeamsData.map((team) => team.teamName));
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -59,15 +65,10 @@ const Profile: React.FC = () => {
         };
     }, [userId]);
 
-    const handleTeamToggle = (team: string) => {
-        setFavoriteTeams((prev) =>
-            prev.includes(team) ? prev.filter((t) => t !== team) : [...prev, team]
-        );
-    };
-
     const saveFavoriteTeams = () => {
-        const teamsToAdd = favoriteTeams.filter((team) => !initialFavoriteTeams.includes(team));
-        const teamsToRemove = initialFavoriteTeams.filter((team) => !favoriteTeams.includes(team));
+        const selectedTeamNames = favoriteTeams.map((team) => team.value);
+        const teamsToAdd = selectedTeamNames.filter((team) => !initialFavoriteTeams.includes(team));
+        const teamsToRemove = initialFavoriteTeams.filter((team) => !selectedTeamNames.includes(team));
 
         const updateTeams = async (action: string, teamNames: string[]) => {
             try {
@@ -97,25 +98,29 @@ const Profile: React.FC = () => {
 
     return (
         <div className="profile-container">
-            <h1>Profile</h1>
-            <Link to="/">
-                <button>Back to schedule</button>
-            </Link>
-            <ul>
-                {teams.map((team) => (
-                    <li key={team}>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={favoriteTeams.includes(team)}
-                                onChange={() => handleTeamToggle(team)}
-                            />
-                            {team}
-                        </label>
-                    </li>
+            <h1 className="profile-header">Profile</h1>
+            <Link to="/" className="back-link">Back to schedule</Link>
+
+            <div className="selected-teams">
+                {favoriteTeams.map((team, index) => (
+                    <div key={index} className="team-chip">
+                        {team.label}
+                    </div>
                 ))}
-            </ul>
-            <button onClick={saveFavoriteTeams}>Save</button>
+            </div>
+
+            <Select
+                options={teams}
+                isMulti
+                value={favoriteTeams}
+                onChange={(selected) => setFavoriteTeams(selected as SelectOption[] || [])}
+                placeholder="Select your favorite teams"
+                className="team-select"
+            />
+
+            <button className="save-button" onClick={saveFavoriteTeams}>
+                Save
+            </button>
         </div>
     );
 };

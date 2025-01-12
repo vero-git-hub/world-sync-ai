@@ -4,6 +4,7 @@ import { ScheduleDate } from '../../types/schedule.ts';
 import FilterControls from '../FilterControls.tsx';
 import ScheduleGrid from './ScheduleGrid.tsx';
 import PaginationControls from '../PaginationControls.tsx';
+import SelectedTeams from "./SelectedTeams.tsx";
 
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);
@@ -156,6 +157,9 @@ const Schedule: React.FC = () => {
                     <button>Change favorite teams</button>
                 </Link>
             </p>
+
+            <SelectedTeams favoriteTeams={favoriteTeams} />
+
             <FilterControls
                 selectedDate={selectedDate}
                 selectedTeam={selectedTeam}
