@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScheduleDate } from '../types/schedule';
+import { ScheduleDate } from '../../types/schedule.ts';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 
 interface ScheduleGridProps {

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ScheduleDate } from '../types/schedule.ts';
-import FilterControls from './FilterControls';
-import ScheduleGrid from './ScheduleGrid';
-import PaginationControls from './PaginationControls';
+import { ScheduleDate } from '../../types/schedule.ts';
+import FilterControls from '../FilterControls.tsx';
+import ScheduleGrid from './ScheduleGrid.tsx';
+import PaginationControls from '../PaginationControls.tsx';
 
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);
