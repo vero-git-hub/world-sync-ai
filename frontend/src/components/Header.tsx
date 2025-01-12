@@ -16,9 +16,9 @@ const Header: React.FC = () => {
             </div>
             <nav className={`navigation ${menuOpen ? 'open' : ''}`}>
             <ul>
-                    <li><a href="#">Dashboard</a></li>
-                    <li><a href="#">Settings</a></li>
-                    <li><a href="#">Profile</a></li>
+                    <li><a href="/">Dashboard</a></li>
+                    <li><a href="/schedule">Schedule</a></li>
+                    <li><a href="/profile">Profile</a></li>
                 </ul>
             </nav>
             <div className="user-icon">
