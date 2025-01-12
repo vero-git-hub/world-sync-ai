@@ -38,12 +38,22 @@ const Schedule: React.FC = () => {
     const fetchFavoriteTeams = async () => {
         try {
             const response = await fetch('/api/favorite-teams/user/1');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch favorite teams: ${response.status} ${response.statusText}`);
+
+            if (response.status === 204) {
+                setFavoriteTeams([]);
+                return;
             }
-            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch favorite teams: ${response.statusText}`);
+            }
+
+            const text = await response.text();
+            const data = text ? JSON.parse(text) : [];
+
             setFavoriteTeams(data.map((team: { teamName: string }) => team.teamName));
         } catch (err) {
+            console.error("Error fetching favorite teams:", err);
             setError((err as Error).message);
         }
     };

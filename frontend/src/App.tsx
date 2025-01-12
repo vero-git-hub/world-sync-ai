@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SchedulePage from './pages/SchedulePage';
-import Profile from './components/Profile.tsx';
+import ProfilePage from './pages/ProfilePage.tsx';
 
 function App() {
     return (
@@ -8,7 +8,7 @@ function App() {
             <div className="App">
                 <Routes>
                     <Route path="/" element={<SchedulePage />} />
-                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile" element={<ProfilePage />} />
                 </Routes>
             </div>
         </Router>

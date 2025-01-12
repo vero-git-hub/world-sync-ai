@@ -2,8 +2,8 @@
     flex: 1;
     margin-top: 70px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start;
+    align-items: flex-start;
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
