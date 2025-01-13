@@ -1,0 +1,26 @@
+.team-page {
+    padding: 20px;
+}
+
+.team-info {
+    background-color: #f4f4f4;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.team-roster {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.team-roster ul {
+    list-style: none;
+    padding: 0;
+}
+
+.team-roster li {
+    padding: 5px 0;
+    border-bottom: 1px solid #ddd;
+}

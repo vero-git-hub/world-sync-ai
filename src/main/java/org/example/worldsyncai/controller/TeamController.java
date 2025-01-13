@@ -1,5 +1,6 @@
 package org.example.worldsyncai.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/teams")
@@ -28,18 +32,24 @@ public class TeamController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
-     * Fetches the details of a specific team by its ID.
+     * Fetches the details and roster of a specific team by its ID.
      *
      * @param teamId the ID of the team
-     * @return the team's details
+     * @return the team's details and roster
      */
     @GetMapping("/mlb/team/{teamId}")
     public ResponseEntity<?> getTeamDetails(@PathVariable int teamId) {
-        String url = teamUrl + "/" + teamId + "/roster?season=2025";
+        String teamInfoUrl = teamUrl + "/" + teamId;
+        String rosterUrl = teamUrl + "/" + teamId + "/roster?season=2025";
 
         try {
-            log.info("Fetching details for team ID: {}", teamId);
-            String response = restTemplate.getForObject(url, String.class);
+            String teamInfoResponse = restTemplate.getForObject(teamInfoUrl, String.class);
+            String rosterResponse = restTemplate.getForObject(rosterUrl, String.class);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("teamInfo", new ObjectMapper().readValue(teamInfoResponse, Map.class));
+            response.put("roster", new ObjectMapper().readValue(rosterResponse, Map.class).get("roster"));
+
             return ResponseEntity.ok().header("Content-Type", "application/json").body(response);
         } catch (HttpClientErrorException e) {
             log.error("Client error while fetching details for team ID {}: {} - {}", teamId, e.getStatusCode(), e.getMessage());
