@@ -4,6 +4,7 @@ import SchedulePage from './pages/SchedulePage';
 import ProfilePage from './pages/ProfilePage';
 import TeamPage from './pages/team/TeamPage.tsx';
 import TeamsPage from './pages/team/TeamsPage.tsx';
+import PlayerPage from './pages/team/PlayerPage.tsx';
 
 function App() {
     return (
@@ -15,6 +16,7 @@ function App() {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/team/:teamId" element={<TeamPage />} />
                     <Route path="/teams" element={<TeamsPage />} />
+                    <Route path="/player/:playerId" element={<PlayerPage />} />
                 </Routes>
             </div>
         </Router>

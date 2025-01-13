@@ -10,7 +10,7 @@ interface TeamInfo {
 }
 
 interface RosterPlayer {
-    person: { fullName: string };
+    person: { fullName: string; id: number };
     position: { name: string };
 }
 
@@ -63,7 +63,12 @@ const TeamDetails: React.FC = () => {
             <ul>
                 {roster.map((player, index) => (
                     <li key={index}>
-                        {player.person.fullName} - {player.position.name}
+                        <Link
+                            to={`/player/${player.person.id}`}
+                            style={{ textDecoration: 'none', color: 'blue', cursor: 'pointer' }}
+                        >
+                            {player.person.fullName}
+                        </Link> - {player.position.name}
                     </li>
                 ))}
             </ul>
