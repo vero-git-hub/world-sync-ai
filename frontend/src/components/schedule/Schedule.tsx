@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ScheduleDate } from '../../types/schedule.ts';
 import FilterControls from '../FilterControls.tsx';
 import ScheduleGrid from './ScheduleGrid.tsx';
@@ -17,6 +17,7 @@ const Schedule: React.FC = () => {
     const [selectedTeam, setSelectedTeam] = useState<string>('');
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 3;
+    const navigate = useNavigate();
 
     const fetchSchedule = async () => {
         setLoading(true);
@@ -59,19 +60,8 @@ const Schedule: React.FC = () => {
         }
     };
 
-    const handleTeamClick = async (teamId: number) => {
-        try {
-            const response = await fetch(`/api/teams/mlb/team/${teamId}`);
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch team data: ${response.statusText}`);
-            }
-            const data = await response.json();
-            alert(`Roster for team ${teamId}: ${data.roster.map((player: any) => player.person.fullName).join(', ')}`);
-        } catch (err) {
-            console.error(`Error fetching team data:`, err);
-            alert('Failed to fetch roster information.');
-        }
+    const handleTeamClick = (teamId: number) => {
+        navigate(`/team/${teamId}`);
     };
 
     useEffect(() => {
