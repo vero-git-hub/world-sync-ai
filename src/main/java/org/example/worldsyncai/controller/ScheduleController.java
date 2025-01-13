@@ -77,7 +77,7 @@ public class ScheduleController {
      * @return the response entity containing the teams or an error message
      */
     @GetMapping("/mlb/teams")
-    public ResponseEntity<?> getMlbTeams() {
+    public ResponseEntity<?> getAllTeams() {
         try {
             String response = restTemplate.getForObject(teamsUrl, String.class);
             return ResponseEntity.ok()

@@ -15,10 +15,11 @@ const Header: React.FC = () => {
                 <h1>World Sync AI</h1>
             </div>
             <nav className={`navigation ${menuOpen ? 'open' : ''}`}>
-            <ul>
+                <ul>
                     <li><a href="/">Dashboard</a></li>
                     <li><a href="/schedule">Schedule</a></li>
                     <li><a href="/profile">Profile</a></li>
+                    <li><a href="/teams">Teams</a></li>
                 </ul>
             </nav>
             <div className="user-icon">

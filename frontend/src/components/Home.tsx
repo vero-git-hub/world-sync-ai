@@ -8,7 +8,7 @@ const HomePage: React.FC = () => {
             <div className="widget big-widget">
                 <h2>Advanced AI Assistant</h2>
                 <div className="widget-content">
-                    <img src="/images/globe.jpg" alt="Globe" className="globe-image" />
+                    <img src="/images/globe.jpg" alt="Globe" className="globe-image"/>
                 </div>
             </div>
 
@@ -27,13 +27,18 @@ const HomePage: React.FC = () => {
 
             <div className="widget field-widget">
                 <h2>Game Field</h2>
-                <img src="/images/field.jpg" alt="Field" className="field-image" />
+                <img src="/images/field.jpg" alt="Field" className="field-image"/>
             </div>
 
             <div className="widget insights-widget">
                 <h2>Insights</h2>
                 <p>Win Rate: 75%</p>
                 <p>Top Player: John Doe</p>
+            </div>
+
+            <div className="widget teams-widget">
+                <h2>Teams</h2>
+                <Link to="/teams">To teams</Link>
             </div>
         </div>
     );
