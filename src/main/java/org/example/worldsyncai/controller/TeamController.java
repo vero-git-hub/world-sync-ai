@@ -22,6 +22,9 @@ public class TeamController {
     @Value("${mlb.team.url}")
     private String teamUrl;
 
+    @Value("${mlb.teams.url}")
+    private String teamsUrl;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -47,6 +50,27 @@ public class TeamController {
         } catch (Exception e) {
             log.error("Unexpected error while fetching details for team ID {}: {}", teamId, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Fetches the MLB teams from the external API.
+     *
+     * @return the response entity containing the teams or an error message
+     */
+    @GetMapping("/mlb/teams")
+    public ResponseEntity<?> getAllTeams() {
+        try {
+            String response = restTemplate.getForObject(teamsUrl, String.class);
+            return ResponseEntity.ok()
+                    .header("Content-Type", "application/json")
+                    .body(response);
+        } catch (HttpClientErrorException e) {
+            return ResponseEntity.status(e.getStatusCode())
+                    .body("Client error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching data from GitHub: " + e.getMessage());
         }
     }
 }

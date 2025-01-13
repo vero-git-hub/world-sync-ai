@@ -21,7 +21,7 @@ const Teams: React.FC = () => {
         setError(null);
 
         try {
-            const response = await fetch('/api/schedule/mlb/teams');
+            const response = await fetch('/api/teams/mlb/teams');
             if (!response.ok) {
                 throw new Error(`Failed to fetch teams: ${response.statusText}`);
             }

@@ -21,7 +21,7 @@ const Profile: React.FC = () => {
         const fetchTeams = async () => {
             try {
                 const [teamsResponse, favoriteTeamsResponse] = await Promise.all([
-                    fetch('/api/schedule/mlb/teams'),
+                    fetch('/api/teams/mlb/teams'),
                     fetch(`/api/favorite-teams/user/${userId}`),
                 ]);
 

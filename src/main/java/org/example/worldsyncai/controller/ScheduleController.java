@@ -21,9 +21,6 @@ public class ScheduleController {
     @Value("${mlb.schedule.url}")
     private String scheduleUrl;
 
-    @Value("${mlb.teams.url}")
-    private String teamsUrl;
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -33,7 +30,6 @@ public class ScheduleController {
      */
     @GetMapping("/mlb")
     public ResponseEntity<?> getMlbSchedule() {
-        RestTemplate restTemplate = new RestTemplate();
         int maxRetries = 3;
         int retryCount = 0;
         int waitTime = 3000;
@@ -69,26 +65,5 @@ public class ScheduleController {
         log.error("Max retries reached. Unable to fetch MLB schedule.");
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body("Service is currently unavailable. Please try again later.");
-    }
-
-    /**
-     * Fetches the MLB teams from the external API.
-     *
-     * @return the response entity containing the teams or an error message
-     */
-    @GetMapping("/mlb/teams")
-    public ResponseEntity<?> getAllTeams() {
-        try {
-            String response = restTemplate.getForObject(teamsUrl, String.class);
-            return ResponseEntity.ok()
-                    .header("Content-Type", "application/json")
-                    .body(response);
-        } catch (HttpClientErrorException e) {
-            return ResponseEntity.status(e.getStatusCode())
-                    .body("Client error: " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error fetching data from GitHub: " + e.getMessage());
-        }
     }
 }
