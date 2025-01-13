@@ -59,6 +59,21 @@ const Schedule: React.FC = () => {
         }
     };
 
+    const handleTeamClick = async (teamId: number) => {
+        try {
+            const response = await fetch(`/api/teams/mlb/team/${teamId}`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch team data: ${response.statusText}`);
+            }
+            const data = await response.json();
+            alert(`Roster for team ${teamId}: ${data.roster.map((player: any) => player.person.fullName).join(', ')}`);
+        } catch (err) {
+            console.error(`Error fetching team data:`, err);
+            alert('Failed to fetch roster information.');
+        }
+    };
+
     useEffect(() => {
         fetchSchedule();
     }, []);
@@ -167,7 +182,7 @@ const Schedule: React.FC = () => {
                 onTeamChange={handleTeamChange}
                 onResetFilter={handleResetFilter}
             />
-            <ScheduleGrid filteredSchedule={currentItems}/>
+            <ScheduleGrid filteredSchedule={currentItems} onTeamClick={handleTeamClick} />
             <PaginationControls
                 currentPage={currentPage}
                 totalItems={filteredSchedule.length}

@@ -28,6 +28,7 @@ public class ScheduleController {
 
     /**
      * Gets the MLB schedule from the external API.
+     *
      * @return the response entity containing the schedule or an error message
      */
     @GetMapping("/mlb")
@@ -70,6 +71,11 @@ public class ScheduleController {
                 .body("Service is currently unavailable. Please try again later.");
     }
 
+    /**
+     * Fetches the MLB teams from the external API.
+     *
+     * @return the response entity containing the teams or an error message
+     */
     @GetMapping("/mlb/teams")
     public ResponseEntity<?> getMlbTeams() {
         try {

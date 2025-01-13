@@ -2,7 +2,7 @@ import React from 'react';
 import GameCard from './GameCard';
 import "../../styles/components/schedule/ScheduleGrid.css";
 
-const ScheduleGrid: React.FC<{ filteredSchedule: any[] }> = ({ filteredSchedule }) => {
+const ScheduleGrid: React.FC<{ filteredSchedule: any[], onTeamClick: (teamId: number) => void }> = ({ filteredSchedule, onTeamClick }) => {
     return (
         <div className="schedule-grid">
             {filteredSchedule.map((dateItem) =>
@@ -15,6 +15,7 @@ const ScheduleGrid: React.FC<{ filteredSchedule: any[] }> = ({ filteredSchedule 
                         awayLogo={`/logos/${game.teams.away.team.name}.png`}
                         gameTime={game.time}
                         venue={game.venue.name}
+                        onTeamClick={onTeamClick}
                     />
                 ))
             )}
