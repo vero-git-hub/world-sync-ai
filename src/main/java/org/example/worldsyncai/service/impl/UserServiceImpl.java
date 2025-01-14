@@ -33,11 +33,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDto> addUser(UserDto userDto) {
-        return userRepository.findByUsername(userDto.username())
+        return userRepository.findByUsername(userDto.getUsername())
                 .map(existingUser -> Optional.<UserDto>empty())
                 .orElseGet(() -> {
                     User user = userMapper.toEntity(userDto);
-                    user.setPassword(passwordEncoder.encode(userDto.password()));
+                    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
                     User savedUser = userRepository.save(user);
                     return Optional.of(userMapper.toDto(savedUser));
                 });
@@ -47,10 +47,10 @@ public class UserServiceImpl implements UserService {
     public Optional<UserDto> updateUser(Long id, UserDto userDto) {
         return userRepository.findById(id)
                 .map(existingUser -> {
-                    existingUser.setUsername(userDto.username());
-                    existingUser.setEmail(userDto.email());
-                    if (userDto.password() != null && !userDto.password().isBlank()) {
-                        existingUser.setPassword(passwordEncoder.encode(userDto.password()));
+                    existingUser.setUsername(userDto.getUsername());
+                    existingUser.setEmail(userDto.getEmail());
+                    if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
+                        existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
                     }
                     User updatedUser = userRepository.save(existingUser);
                     return userMapper.toDto(updatedUser);

@@ -1,6 +1,18 @@
 package org.example.worldsyncai.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
-public record UserDto(Long id, String username, String email, String password, List<FavoriteTeamDto> favoriteTeams) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserDto {
+    private Long id;
+    private String username;
+    private String email;
+    private String password;
+    private List<FavoriteTeamDto> favoriteTeams;
 }
