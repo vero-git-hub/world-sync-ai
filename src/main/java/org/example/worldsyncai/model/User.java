@@ -2,14 +2,12 @@ package org.example.worldsyncai.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
-@RequiredArgsConstructor
 @Table(name = "users")
 public class User {
 
@@ -19,6 +17,7 @@ public class User {
 
     private String username;
     private String email;
+    private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteTeam> favoriteTeams = new ArrayList<>();

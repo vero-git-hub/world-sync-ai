@@ -6,6 +6,7 @@ import org.example.worldsyncai.mapper.UserMapper;
 import org.example.worldsyncai.model.User;
 import org.example.worldsyncai.repository.UserRepository;
 import org.example.worldsyncai.service.UserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -16,6 +17,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Optional<UserDto> getUserById(Long id) {
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
                 .map(existingUser -> Optional.<UserDto>empty())
                 .orElseGet(() -> {
                     User user = userMapper.toEntity(userDto);
+                    user.setPassword(passwordEncoder.encode(userDto.password()));
                     User savedUser = userRepository.save(user);
                     return Optional.of(userMapper.toDto(savedUser));
                 });
@@ -46,6 +49,9 @@ public class UserServiceImpl implements UserService {
                 .map(existingUser -> {
                     existingUser.setUsername(userDto.username());
                     existingUser.setEmail(userDto.email());
+                    if (userDto.password() != null && !userDto.password().isBlank()) {
+                        existingUser.setPassword(passwordEncoder.encode(userDto.password()));
+                    }
                     User updatedUser = userRepository.save(existingUser);
                     return userMapper.toDto(updatedUser);
                 });
