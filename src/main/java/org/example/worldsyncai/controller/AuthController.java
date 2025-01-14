@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.example.worldsyncai.dto.UserDto;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 @Controller
@@ -34,7 +35,8 @@ public class AuthController {
     @PostMapping("/register")
     public String handleRegister(@ModelAttribute("registerUser") @Valid UserDto userDto,
                                  BindingResult result,
-                                 Model model) {
+                                 Model model,
+                                 RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
             log.error("Validation errors: {}", result.getAllErrors());
             return "register";
@@ -42,12 +44,19 @@ public class AuthController {
 
         try {
             userService.addUser(userDto);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             log.error("Error while registering user: {}", e.getMessage());
-            model.addAttribute("error", "Registration failed: " + e.getMessage());
+            if (e.getMessage().contains("Email")) {
+                model.addAttribute("error", "An account with this email already exists.");
+            } else if (e.getMessage().contains("Username")) {
+                model.addAttribute("error", "This username is already taken.");
+            } else {
+                model.addAttribute("error", "Registration failed: " + e.getMessage());
+            }
             return "register";
         }
 
+        redirectAttributes.addFlashAttribute("successMessage", "Registration successful! Please log in.");
         return "redirect:/login";
     }
 }

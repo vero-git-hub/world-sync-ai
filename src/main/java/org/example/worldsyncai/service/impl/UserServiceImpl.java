@@ -1,6 +1,7 @@
 package org.example.worldsyncai.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.worldsyncai.dto.UserDto;
 import org.example.worldsyncai.mapper.UserMapper;
 import org.example.worldsyncai.model.User;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -33,14 +35,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDto> addUser(UserDto userDto) {
-        return userRepository.findByUsername(userDto.getUsername())
-                .map(existingUser -> Optional.<UserDto>empty())
-                .orElseGet(() -> {
-                    User user = userMapper.toEntity(userDto);
-                    user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-                    User savedUser = userRepository.save(user);
-                    return Optional.of(userMapper.toDto(savedUser));
-                });
+        if (userRepository.findByUsername(userDto.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already exists.");
+        }
+
+        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists.");
+        }
+
+        User user = userMapper.toEntity(userDto);
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        User savedUser = userRepository.save(user);
+        return Optional.of(userMapper.toDto(savedUser));
     }
 
     @Override
