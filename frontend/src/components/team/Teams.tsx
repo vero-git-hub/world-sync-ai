@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 interface Team {
     id: number;
@@ -13,6 +14,7 @@ interface Team {
 
 const Teams: React.FC = () => {
     const [teams, setTeams] = useState<Team[]>([]);
+    const [logos, setLogos] = useState<{ [key: number]: string }>({});
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +29,15 @@ const Teams: React.FC = () => {
             }
             const data = await response.json();
             setTeams(data.teams || []);
+
+            const logoPromises = data.teams.map(async (team: Team) => {
+                const response = await axios.get<Blob>(`/api/teams/mlb/team/${team.id}/logo`, { responseType: 'blob' });
+                const logoUrl = URL.createObjectURL(response.data);
+                return { [team.id]: logoUrl };
+            });
+
+            const logosArray = await Promise.all(logoPromises);
+            setLogos(Object.assign({}, ...logosArray));
         } catch (err) {
             setError((err as Error).message);
         } finally {
@@ -65,6 +76,13 @@ const Teams: React.FC = () => {
                             boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
                         }}
                     >
+                        {logos[team.id] && (
+                            <img
+                                src={logos[team.id]}
+                                alt={`${team.name} logo`}
+                                style={{ width: '50px', height: '50px', borderRadius: '50%', marginBottom: '10px' }}
+                            />
+                        )}
                         <h3>{team.name}</h3>
                         <p>{team.locationName}</p>
                         <p>Stadium: {team.venue.name}</p>
