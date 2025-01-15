@@ -29,6 +29,9 @@ public class TeamController {
     @Value("${mlb.teams.url}")
     private String teamsUrl;
 
+    @Value("${mlb.team.logo}")
+    private String teamLogo;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
@@ -81,6 +84,29 @@ public class TeamController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching data from GitHub: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Fetches the logo of a specific team by its teamId.
+     *
+     * @param teamId the ID of the team
+     * @return the logo URL or an error message
+     */
+    @GetMapping("/mlb/team/{teamId}/logo")
+    public ResponseEntity<?> getTeamLogo(@PathVariable int teamId) {
+        String logoUrl = teamLogo + "/" + teamId + ".svg";
+
+        try {
+            byte[] logoBytes = restTemplate.getForObject(logoUrl, byte[].class);
+
+            return ResponseEntity
+                    .ok()
+                    .header("Content-Type", "image/svg+xml")
+                    .body(logoBytes);
+        } catch (Exception e) {
+            log.error("Error fetching logo for team {}: {}", teamId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

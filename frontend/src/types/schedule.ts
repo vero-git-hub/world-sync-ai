@@ -62,3 +62,8 @@ export interface ScheduleDate {
     date: string;
     games: Game[];
 }
+
+export interface DateItem {
+    date: string;
+    games: Game[];
+}

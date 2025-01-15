@@ -1,19 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import GameCard from './GameCard';
 import "../../styles/components/schedule/ScheduleGrid.css";
+import axios from 'axios';
+import {DateItem, Game} from "../../types/schedule.ts";
 
-const ScheduleGrid: React.FC<{ filteredSchedule: any[], onTeamClick: (teamId: number) => void }> = ({ filteredSchedule, onTeamClick }) => {
+const ScheduleGrid: React.FC<{ filteredSchedule: DateItem[], onTeamClick: (teamId: number) => void }> = ({ filteredSchedule, onTeamClick }) => {
+    const [logos, setLogos] = useState<{ [key: number]: string }>({});
+
+    useEffect(() => {
+        const fetchLogos = async () => {
+            const teamIds = new Set<number>();
+            filteredSchedule.forEach(dateItem =>
+                dateItem.games.forEach((game: Game) => {
+                    teamIds.add(game.teams.home.team.id);
+                    teamIds.add(game.teams.away.team.id);
+                })
+            );
+
+            try {
+                const logoPromises = Array.from(teamIds).map(async (teamId: number) => {
+                    const response = await axios.get<Blob>(`/api/teams/mlb/team/${teamId}/logo`, { responseType: 'blob' });
+                    const logoUrl = URL.createObjectURL(response.data);
+                    return { [teamId]: logoUrl };
+                });
+
+                const logosArray = await Promise.all(logoPromises);
+                const logoMap = Object.assign({}, ...logosArray);
+
+                setLogos(logoMap);
+            } catch (error) {
+                console.error("Error fetching logos:", error);
+            }
+        };
+
+        fetchLogos();
+    }, [filteredSchedule]);
+
     return (
         <div className="schedule-grid">
             {filteredSchedule.map((dateItem) =>
-                dateItem.games.map((game: any, index: number) => (
+                dateItem.games.map((game: Game, index: number) => (
                     <GameCard
                         key={index}
                         homeTeam={game.teams.home.team.name}
                         awayTeam={game.teams.away.team.name}
-                        homeLogo={`/logos/${game.teams.home.team.name}.png`}
-                        awayLogo={`/logos/${game.teams.away.team.name}.png`}
-                        gameTime={game.time}
+                        homeLogo={logos[game.teams.home.team.id] || '/default-logo.png'}
+                        awayLogo={logos[game.teams.away.team.id] || '/default-logo.png'}
+                        gameTime={game.gameDate}
                         venue={game.venue.name}
                         onTeamClick={onTeamClick}
                     />
