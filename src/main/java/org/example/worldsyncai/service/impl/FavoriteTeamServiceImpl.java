@@ -38,10 +38,10 @@ public class FavoriteTeamServiceImpl implements FavoriteTeamService {
 
         teamNames.forEach(teamName -> {
             if (!favoriteTeamRepository.existsByTeamNameAndUserId(teamName, userId)) {
-                FavoriteTeam team = new FavoriteTeam();
-                team.setTeamName(teamName);
-                team.setUser(user);
-                favoriteTeamRepository.save(team);
+                FavoriteTeam favoriteTeam = new FavoriteTeam();
+                favoriteTeam.setTeamName(teamName);
+                favoriteTeam.setUser(user);
+                favoriteTeamRepository.save(favoriteTeam);
             }
         });
     }
@@ -52,6 +52,12 @@ public class FavoriteTeamServiceImpl implements FavoriteTeamService {
         if (teamNames == null || teamNames.isEmpty()) {
             throw new IllegalArgumentException("No team names provided for removal.");
         }
-        favoriteTeamRepository.deleteByTeamNameInAndUserId(teamNames, userId);
+
+        List<FavoriteTeam> teamsToRemove = favoriteTeamRepository.findByTeamNameInAndUserId(teamNames, userId);
+        if (teamsToRemove.isEmpty()) {
+            throw new IllegalArgumentException("No matching teams found for removal.");
+        }
+
+        favoriteTeamRepository.deleteAll(teamsToRemove);
     }
 }

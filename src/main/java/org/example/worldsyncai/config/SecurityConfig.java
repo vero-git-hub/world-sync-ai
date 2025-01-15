@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.util.List;
 
 @Configuration
 @Slf4j
@@ -25,6 +28,13 @@ public class SecurityConfig {
                             .requestMatchers("/login", "/register", "/register/**", "/h2-console/**").permitAll()
                             .anyRequest().authenticated();
                 })
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfig.setAllowedOrigins(List.of("http://localhost:5173"));
+                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-CSRF-TOKEN"));
+                    return corsConfig;
+                }))
                 .formLogin(form -> {
                     form
                             .loginPage("/login")
@@ -38,7 +48,10 @@ public class SecurityConfig {
                             .permitAll();
                 })
                 .csrf(csrf -> {
-                    csrf.ignoringRequestMatchers("/h2-console/**");
+                    csrf.ignoringRequestMatchers(
+                            new AntPathRequestMatcher("/h2-console/**"),
+                            new AntPathRequestMatcher("/api/**")
+                    );
                 })
                 .headers(headers -> {
                     headers.frameOptions(frameOptions -> frameOptions.sameOrigin());

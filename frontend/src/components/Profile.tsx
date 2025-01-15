@@ -13,9 +13,29 @@ const Profile: React.FC = () => {
     const [teams, setTeams] = useState<SelectOption[]>([]);
     const [favoriteTeams, setFavoriteTeams] = useState<SelectOption[]>([]);
     const [initialFavoriteTeams, setInitialFavoriteTeams] = useState<string[]>([]);
-    const userId = 1;
+    const [userId, setUserId] = useState<number | null>(null);
 
     useEffect(() => {
+        const fetchUserId = async () => {
+            try {
+                const response = await fetch('/api/users/current');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch current user');
+                }
+                const data = await response.json();
+                setUserId(data.id);
+            } catch (error) {
+                console.error('Error fetching current user:', error);
+                alert('Failed to fetch user information.');
+            }
+        };
+
+        fetchUserId();
+    }, []);
+
+    useEffect(() => {
+        if (userId === null) return;
+
         let isMounted = true;
 
         const fetchTeams = async () => {
@@ -66,6 +86,11 @@ const Profile: React.FC = () => {
     }, [userId]);
 
     const saveFavoriteTeams = () => {
+        if (userId === null) {
+            alert("User ID is not available");
+            return;
+        }
+
         const selectedTeamNames = favoriteTeams.map((team) => team.value);
         const teamsToAdd = selectedTeamNames.filter((team) => !initialFavoriteTeams.includes(team));
         const teamsToRemove = initialFavoriteTeams.filter((team) => !selectedTeamNames.includes(team));
@@ -100,14 +125,6 @@ const Profile: React.FC = () => {
         <div className="profile-container">
             <h1 className="profile-header">Profile</h1>
             <Link to="/" className="back-link">Back to schedule</Link>
-
-            <div className="selected-teams">
-                {favoriteTeams.map((team, index) => (
-                    <div key={index} className="team-chip">
-                        {team.label}
-                    </div>
-                ))}
-            </div>
 
             <Select
                 options={teams}

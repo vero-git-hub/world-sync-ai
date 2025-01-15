@@ -22,7 +22,7 @@ public class UserMapper {
                 .stream()
                 .map(favoriteTeamMapper::toDto)
                 .collect(Collectors.toList());
-        return new UserDto(user.getUsername(), user.getEmail(), user.getEmail(), favoriteTeamDtos);
+        return new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), favoriteTeamDtos);
     }
 
     public User toEntity(UserDto userDto) {
