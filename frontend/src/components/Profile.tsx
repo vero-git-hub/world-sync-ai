@@ -121,6 +121,15 @@ const Profile: React.FC = () => {
         alert('Changes saved!');
     };
 
+    const connectGoogleCalendar = async () => {
+        try {
+            window.location.href = '/api/google/calendar/auth';
+        } catch (error) {
+            console.error('Error connecting Google Calendar:', error);
+            alert('Failed to connect Google Calendar.');
+        }
+    };
+
     return (
         <div className="profile-container">
             <h1 className="profile-header">Profile</h1>
@@ -137,6 +146,10 @@ const Profile: React.FC = () => {
 
             <button className="save-button" onClick={saveFavoriteTeams}>
                 Save
+            </button>
+
+            <button className="connect-google-button" onClick={connectGoogleCalendar}>
+                Connect Google Calendar
             </button>
         </div>
     );

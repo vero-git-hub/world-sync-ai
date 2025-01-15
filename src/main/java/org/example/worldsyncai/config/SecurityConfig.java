@@ -26,6 +26,7 @@ public class SecurityConfig {
                     auth
                             .requestMatchers("/css/**", "/images/**", "/js/**", "/public/**").permitAll()
                             .requestMatchers("/login", "/register", "/register/**", "/h2-console/**").permitAll()
+                            .requestMatchers("/api/**").permitAll()
                             .anyRequest().authenticated();
                 })
                 .cors(cors -> cors.configurationSource(request -> {
@@ -33,6 +34,7 @@ public class SecurityConfig {
                     corsConfig.setAllowedOrigins(List.of("http://localhost:5173"));
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-CSRF-TOKEN"));
+                    corsConfig.setAllowCredentials(true);
                     return corsConfig;
                 }))
                 .formLogin(form -> {

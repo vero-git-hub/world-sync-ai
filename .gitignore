@@ -35,3 +35,4 @@ build/
 node_modules/
 data
 /src/main/resources/application-local.properties
+/src/main/resources/credentials/google-credentials.json
