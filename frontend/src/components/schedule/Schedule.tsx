@@ -152,7 +152,7 @@ const Schedule: React.FC = () => {
 
     return (
         <div className="schedule-container">
-            <h1>MLB Schedule</h1>
+            <h1>MLB Schedule 2025</h1>
             <p>
                 <span>{showFavorites ? "Shows favorite teams" : "Showing all teams"}</span>
                 <button onClick={() => setShowFavorites(!showFavorites)}>
