@@ -22,7 +22,14 @@ public class UserMapper {
                 .stream()
                 .map(favoriteTeamMapper::toDto)
                 .collect(Collectors.toList());
-        return new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), favoriteTeamDtos);
+        UserDto userDto = new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), favoriteTeamDtos, false);
+
+        String token = user.getGoogleCalendarAccessToken();
+        if (token != null && !token.isBlank()) {
+            userDto.setHasGoogleCalendarToken(true);
+        }
+
+        return userDto;
     }
 
     public User toEntity(UserDto userDto) {

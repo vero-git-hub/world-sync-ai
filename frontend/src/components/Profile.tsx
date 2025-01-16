@@ -3,17 +3,15 @@ import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import { Team } from "../types/schedule.ts";
 import "../styles/components/Profile.css";
-
-interface SelectOption {
-    value: string;
-    label: string;
-}
+import {SelectOption, UserData} from "../types/profile.ts";
 
 const Profile: React.FC = () => {
     const [teams, setTeams] = useState<SelectOption[]>([]);
     const [favoriteTeams, setFavoriteTeams] = useState<SelectOption[]>([]);
     const [initialFavoriteTeams, setInitialFavoriteTeams] = useState<string[]>([]);
     const [userId, setUserId] = useState<number | null>(null);
+
+    const [hasGoogleCalendarToken, setHasGoogleCalendarToken] = useState(false);
 
     useEffect(() => {
         const fetchUserId = async () => {
@@ -22,8 +20,12 @@ const Profile: React.FC = () => {
                 if (!response.ok) {
                     throw new Error('Failed to fetch current user');
                 }
-                const data = await response.json();
+                const data: UserData = await response.json();
                 setUserId(data.id);
+
+                if (data.hasGoogleCalendarToken) {
+                    setHasGoogleCalendarToken(true);
+                }
             } catch (error) {
                 console.error('Error fetching current user:', error);
                 alert('Failed to fetch user information.');
@@ -148,9 +150,14 @@ const Profile: React.FC = () => {
                 Save
             </button>
 
-            <button className="connect-google-button" onClick={connectGoogleCalendar}>
-                Connect Google Calendar
-            </button>
+            {!hasGoogleCalendarToken && (
+                <button className="connect-google-button" onClick={connectGoogleCalendar}>
+                    Connect Google Calendar
+                </button>
+            )}
+            {hasGoogleCalendarToken && (
+                <p style={{ marginTop: '1rem' }}>You are connected to Google Calendar!</p>
+            )}
         </div>
     );
 };

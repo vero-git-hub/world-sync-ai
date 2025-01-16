@@ -29,4 +29,6 @@ public class UserDto {
     private String password;
 
     private List<FavoriteTeamDto> favoriteTeams;
+
+    private boolean hasGoogleCalendarToken;
 }
