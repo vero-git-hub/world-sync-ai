@@ -79,4 +79,11 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
         });
     }
+
+    @Override
+    public String getUserCalendarToken(Long userId) {
+        return userRepository.findById(userId)
+                .map(User::getGoogleCalendarAccessToken)
+                .orElse(null);
+    }
 }

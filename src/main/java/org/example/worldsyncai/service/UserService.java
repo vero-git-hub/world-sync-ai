@@ -17,4 +17,6 @@ public interface UserService {
     void deleteUser(Long id);
 
     void updateUserCalendarToken(Long userId, String accessToken);
+
+    String getUserCalendarToken(Long userId);
 }

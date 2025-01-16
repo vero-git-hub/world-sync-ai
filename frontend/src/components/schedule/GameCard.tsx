@@ -16,6 +16,41 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
     const formattedDate = format(new Date(gameTime), 'MMMM d');
     const formattedTime = format(new Date(gameTime), 'HH:mm');
 
+    const handleAddToCalendar = async () => {
+        try {
+            const start = gameTime;
+            const endDate = new Date(gameTime);
+            endDate.setHours(endDate.getHours() + 1);
+            const end = endDate.toISOString();
+
+            const bodyData = {
+                summary: `Match: ${awayTeam} at ${homeTeam}`,
+                description: `Venue: ${venue}`,
+                startDateTime: start,
+                endDateTime: end,
+            };
+
+            const response = await fetch("/api/google/calendar/event/game", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(bodyData),
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                alert("Failed to create event: " + text);
+                return;
+            }
+
+            alert("Event added to Google Calendar!");
+        } catch (error) {
+            console.error("Error adding event to calendar:", error);
+            alert("Error adding event to calendar.");
+        }
+    };
+
     return (
         <div className="game-card">
             <div className="team-info" onClick={() => onTeamClick(133)}>
@@ -31,6 +66,10 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
                 <img src={homeLogo} alt={`${homeTeam} logo`} className="team-logo"/>
                 <span className="team-name">{homeTeam}</span>
             </div>
+
+            <button style={{marginTop: '8px'}} onClick={handleAddToCalendar}>
+                Add to Calendar
+            </button>
         </div>
     );
 };

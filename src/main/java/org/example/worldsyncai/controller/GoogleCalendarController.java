@@ -4,6 +4,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.worldsyncai.dto.calendar.EventRequestDto;
+import org.example.worldsyncai.dto.calendar.GameEventDto;
 import org.example.worldsyncai.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -92,6 +93,44 @@ public class GoogleCalendarController {
         } catch (Exception e) {
             log.error("Error creating event", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create event.");
+        }
+    }
+
+    @PostMapping("/event/game")
+    public ResponseEntity<String> createGameEvent(@RequestBody GameEventDto dto) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("No user is authenticated.");
+            }
+            String username = auth.getName();
+
+            var userDtoOpt = userService.getUserByUsername(username);
+            if (userDtoOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            }
+
+            String accessToken = userService.getUserCalendarToken(userDtoOpt.get().getId());
+
+            if (accessToken == null || accessToken.isBlank()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("User does not have a Google Calendar token.");
+            }
+
+            Event event = new Event()
+                    .setSummary(dto.summary())
+                    .setDescription(dto.description())
+                    .setStart(new EventDateTime().setDateTime(new com.google.api.client.util.DateTime(dto.startDateTime())))
+                    .setEnd(new EventDateTime().setDateTime(new com.google.api.client.util.DateTime(dto.endDateTime())));
+
+            googleCalendarService.createEvent(accessToken, event);
+
+            return ResponseEntity.ok("Game event created successfully in Google Calendar!");
+        } catch (Exception e) {
+            log.error("Error creating game event", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to create game event.");
         }
     }
 }
