@@ -20,6 +20,7 @@ public class User {
     private String password;
 
     private String googleCalendarAccessToken;
+    private String googleCalendarRefreshToken;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteTeam> favoriteTeams = new ArrayList<>();

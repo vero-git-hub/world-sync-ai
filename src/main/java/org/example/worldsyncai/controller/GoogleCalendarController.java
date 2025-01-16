@@ -1,10 +1,14 @@
 package org.example.worldsyncai.controller;
 
+import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.calendar.model.EventDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.worldsyncai.dto.UserDto;
 import org.example.worldsyncai.dto.calendar.EventRequestDto;
 import org.example.worldsyncai.dto.calendar.GameEventDto;
+import org.example.worldsyncai.model.User;
 import org.example.worldsyncai.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -16,6 +20,7 @@ import org.example.worldsyncai.service.GoogleCalendarService;
 import com.google.api.services.calendar.model.Event;
 
 import java.net.URI;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/google/calendar")
@@ -48,9 +53,11 @@ public class GoogleCalendarController {
     @GetMapping("/callback")
     public ResponseEntity<String> handleGoogleCallback(@RequestParam("code") String code) {
         try {
-            String accessToken = googleCalendarService.exchangeCodeForTokens(
+            TokenResponse tokenPair = googleCalendarService.exchangeCodeForTokens(
                     code, clientId, clientSecret, redirectUri
             );
+            String accessToken = tokenPair.getAccessToken();
+            String refreshToken = tokenPair.getRefreshToken();
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null) {
@@ -58,14 +65,13 @@ public class GoogleCalendarController {
             }
             String currentUsername = authentication.getName();
 
-
-            var userDtoOpt = userService.getUserByUsername(currentUsername);
+            Optional<UserDto> userDtoOpt = userService.getUserByUsername(currentUsername);
             if (userDtoOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found in DB.");
             }
             Long userId = userDtoOpt.get().getId();
 
-            userService.updateUserCalendarToken(userId, accessToken);
+            userService.updateUserCalendarTokens(userId, accessToken, refreshToken);
 
             return ResponseEntity.ok("Google Calendar connected successfully!");
         } catch (Exception e) {
@@ -79,17 +85,86 @@ public class GoogleCalendarController {
     @PostMapping("/event")
     public ResponseEntity<String> createEvent(
             @RequestBody EventRequestDto dto,
-            @RequestHeader("Authorization") String accessToken
+            @RequestHeader("Authorization") String accessTokenHeader
     ) {
         try {
+            final String prefix = "Bearer ";
+            String accessToken = accessTokenHeader.startsWith(prefix)
+                    ? accessTokenHeader.substring(prefix.length())
+                    : accessTokenHeader;
+
             Event event = new Event()
                     .setSummary(dto.summary())
                     .setDescription(dto.description())
-                    .setStart(new EventDateTime().setDateTime(new com.google.api.client.util.DateTime(dto.start().dateTime())))
-                    .setEnd(new EventDateTime().setDateTime(new com.google.api.client.util.DateTime(dto.end().dateTime())));
+                    .setStart(new EventDateTime().setDateTime(
+                            new com.google.api.client.util.DateTime(dto.start().dateTime())))
+                    .setEnd(new EventDateTime().setDateTime(
+                            new com.google.api.client.util.DateTime(dto.end().dateTime())));
 
             googleCalendarService.createEvent(accessToken, event);
             return ResponseEntity.ok("Event created successfully!");
+
+        } catch (GoogleJsonResponseException gjre) {
+            if (gjre.getStatusCode() == 401) {
+                log.warn("Access token is invalid or expired, let's try refresh...");
+
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication == null || !authentication.isAuthenticated()) {
+                    log.error("No user is authenticated, can't refresh token.");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No user is authenticated");
+                }
+
+                String username = authentication.getName();
+
+                Optional<UserDto> userDtoOpt = userService.getUserByUsername(username);
+                if (userDtoOpt.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+                }
+                Long userId = userDtoOpt.get().getId();
+
+
+                Optional<User> userEntityOpt = userService.findUserEntityById(userId);
+                if (userEntityOpt.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User entity not found.");
+                }
+                User userEntity = userEntityOpt.get();
+                String refreshToken = userEntity.getGoogleCalendarRefreshToken();
+                if (refreshToken == null || refreshToken.isEmpty()) {
+                    log.error("No refresh token in DB; user must re-connect Google.");
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh token not found.");
+                }
+
+                try {
+                    var newTokens = googleCalendarService.refreshAccessToken(
+                            refreshToken, clientId, clientSecret
+                    );
+                    String newAccessToken = newTokens.getAccessToken();
+
+                    userService.updateUserCalendarTokens(userId, newAccessToken, refreshToken);
+
+                    Event eventRetry = new Event()
+                            .setSummary(dto.summary())
+                            .setDescription(dto.description())
+                            .setStart(new EventDateTime().setDateTime(
+                                    new com.google.api.client.util.DateTime(dto.start().dateTime())))
+                            .setEnd(new EventDateTime().setDateTime(
+                                    new com.google.api.client.util.DateTime(dto.end().dateTime())));
+
+                    googleCalendarService.createEvent(newAccessToken, eventRetry);
+
+                    return ResponseEntity.ok("Event created successfully (after refresh)!");
+                } catch (Exception ex) {
+                    log.error("Refresh token flow failed", ex);
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body("Failed to refresh token, user re-connect needed.");
+                }
+
+            } else {
+                log.error("Google API returned an error", gjre);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to create event (API error).");
+            }
+
         } catch (Exception e) {
             log.error("Error creating event", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create event.");

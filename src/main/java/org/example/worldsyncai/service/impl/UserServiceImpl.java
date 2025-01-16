@@ -73,9 +73,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserCalendarToken(Long userId, String accessToken) {
+    public void updateUserCalendarTokens(Long userId, String accessToken, String refreshToken) {
         userRepository.findById(userId).ifPresent(user -> {
             user.setGoogleCalendarAccessToken(accessToken);
+            if (refreshToken != null && !refreshToken.isBlank()) {
+                user.setGoogleCalendarRefreshToken(refreshToken);
+            }
             userRepository.save(user);
         });
     }
@@ -85,5 +88,10 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
                 .map(User::getGoogleCalendarAccessToken)
                 .orElse(null);
+    }
+
+    @Override
+    public Optional<User> findUserEntityById(Long id) {
+        return userRepository.findById(id);
     }
 }

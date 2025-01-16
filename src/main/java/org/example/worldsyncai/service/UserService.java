@@ -1,6 +1,7 @@
 package org.example.worldsyncai.service;
 
 import org.example.worldsyncai.dto.UserDto;
+import org.example.worldsyncai.model.User;
 
 import java.util.Optional;
 
@@ -16,7 +17,9 @@ public interface UserService {
 
     void deleteUser(Long id);
 
-    void updateUserCalendarToken(Long userId, String accessToken);
+    void updateUserCalendarTokens(Long userId, String accessToken, String refreshToken);
 
     String getUserCalendarToken(Long userId);
+
+    Optional<User> findUserEntityById(Long id);
 }
