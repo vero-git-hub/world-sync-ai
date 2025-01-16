@@ -208,4 +208,38 @@ public class GoogleCalendarController {
                     .body("Failed to create game event.");
         }
     }
+
+    @GetMapping("/check")
+    public ResponseEntity<String> checkToken() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No user is authenticated");
+            }
+            String username = auth.getName();
+
+            var userDtoOpt = userService.getUserByUsername(username);
+            if (!userDtoOpt.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+            Long userId = userDtoOpt.get().getId();
+
+            String accessToken = userService.getUserCalendarToken(userId);
+            if (accessToken == null || accessToken.isBlank()) {
+                return ResponseEntity.ok("no_token");
+            }
+
+            var service = googleCalendarService.getCalendarService(accessToken);
+            service.events().list("primary").setMaxResults(1).execute();
+
+            return ResponseEntity.ok("valid");
+        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException gjre) {
+            if (gjre.getStatusCode() == 401) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("expired");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Calendar error");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check token error");
+        }
+    }
 }

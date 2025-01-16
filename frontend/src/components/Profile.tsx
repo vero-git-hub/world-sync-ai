@@ -25,6 +25,7 @@ const Profile: React.FC = () => {
 
                 if (data.hasGoogleCalendarToken) {
                     setHasGoogleCalendarToken(true);
+                    checkCalendarToken();
                 }
             } catch (error) {
                 console.error('Error fetching current user:', error);
@@ -34,6 +35,36 @@ const Profile: React.FC = () => {
 
         fetchUserId();
     }, []);
+
+    const checkCalendarToken = async () => {
+        try {
+            const checkResp = await fetch('/api/google/calendar/check');
+            if (checkResp.status === 200) {
+                const text = await checkResp.text();
+                if (text === "valid") {
+                    console.log("Token is valid");
+                } else if (text === "no_token") {
+                    console.log("No token in DB?!");
+                    setHasGoogleCalendarToken(false);
+                } else {
+                    console.log("Check token response:", text);
+                }
+            } else if (checkResp.status === 401) {
+                const text = await checkResp.text();
+                if (text === "expired") {
+                    alert("Your Google token has expired. Please reconnect.");
+                    setHasGoogleCalendarToken(false);
+                } else {
+                    console.log("Check token 401 reason:", text);
+                    setHasGoogleCalendarToken(false);
+                }
+            } else {
+                console.log("Unexpected check token response:", checkResp);
+            }
+        } catch (err) {
+            console.error("Error checking token:", err);
+        }
+    };
 
     useEffect(() => {
         if (userId === null) return;
