@@ -4,9 +4,12 @@ import com.google.api.services.calendar.model.EventDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.worldsyncai.dto.calendar.EventRequestDto;
+import org.example.worldsyncai.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.example.worldsyncai.service.GoogleCalendarService;
 import com.google.api.services.calendar.model.Event;
@@ -20,6 +23,8 @@ import java.net.URI;
 public class GoogleCalendarController {
 
     private final GoogleCalendarService googleCalendarService;
+
+    private final UserService userService;
 
     @Value("${google.oauth2.client-id}")
     private String clientId;
@@ -42,11 +47,31 @@ public class GoogleCalendarController {
     @GetMapping("/callback")
     public ResponseEntity<String> handleGoogleCallback(@RequestParam("code") String code) {
         try {
-            String accessToken = googleCalendarService.exchangeCodeForTokens(code, clientId, clientSecret, redirectUri);
+            String accessToken = googleCalendarService.exchangeCodeForTokens(
+                    code, clientId, clientSecret, redirectUri
+            );
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No user is authenticated.");
+            }
+            String currentUsername = authentication.getName();
+
+
+            var userDtoOpt = userService.getUserByUsername(currentUsername);
+            if (userDtoOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found in DB.");
+            }
+            Long userId = userDtoOpt.get().getId();
+
+            userService.updateUserCalendarToken(userId, accessToken);
+
             return ResponseEntity.ok("Google Calendar connected successfully!");
         } catch (Exception e) {
             log.error("Error during Google OAuth callback", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to connect Google Calendar.");
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to connect Google Calendar.");
         }
     }
 

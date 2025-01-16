@@ -15,4 +15,6 @@ public interface UserService {
     Optional<UserDto> updateUser(Long id, UserDto userDto);
 
     void deleteUser(Long id);
+
+    void updateUserCalendarToken(Long userId, String accessToken);
 }

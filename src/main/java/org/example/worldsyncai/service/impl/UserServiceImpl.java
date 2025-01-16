@@ -71,4 +71,12 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("User not found with id: " + id);
         }
     }
+
+    @Override
+    public void updateUserCalendarToken(Long userId, String accessToken) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setGoogleCalendarAccessToken(accessToken);
+            userRepository.save(user);
+        });
+    }
 }

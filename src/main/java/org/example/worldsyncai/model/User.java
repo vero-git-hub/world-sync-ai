@@ -19,6 +19,8 @@ public class User {
     private String email;
     private String password;
 
+    private String googleCalendarAccessToken;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteTeam> favoriteTeams = new ArrayList<>();
 }
