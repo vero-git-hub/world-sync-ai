@@ -1,5 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
+import { FaCalendarPlus } from 'react-icons/fa6';
 import "../../styles/components/schedule/GameCard.css";
 
 interface GameCardProps {
@@ -67,8 +68,12 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
                 <span className="team-name">{homeTeam}</span>
             </div>
 
-            <button style={{marginTop: '8px'}} onClick={handleAddToCalendar}>
-                Add to Calendar
+            <button
+                style={{marginTop: '8px', display: 'flex', alignItems: 'center', gap: '5px'}}
+                onClick={handleAddToCalendar}
+                title="Add game to Google Calendar"
+            >
+                <FaCalendarPlus size={16}/>
             </button>
         </div>
     );

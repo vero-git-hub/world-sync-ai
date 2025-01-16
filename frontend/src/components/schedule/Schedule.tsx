@@ -154,16 +154,24 @@ const Schedule: React.FC = () => {
         <div className="schedule-container">
             <h1>MLB Schedule 2025</h1>
             <p>
-                <span>{showFavorites ? "Shows favorite teams" : "Showing all teams"}</span>
-                <button onClick={() => setShowFavorites(!showFavorites)}>
-                    {showFavorites ? "Show all teams" : "Show favorite teams"}
-                </button>
+                {favoriteTeams.length === 0 ? (
+                    "Showing all teams (no favorites set)"
+                ) : (
+                    showFavorites ? "Showing favorite teams" : "Showing all teams"
+                )}
+
+                {favoriteTeams.length !== 0 && (
+                    <button onClick={() => setShowFavorites(!showFavorites)}>
+                        {showFavorites ? "Show all teams" : "Show favorite teams"}
+                    </button>
+                )}
+
                 <Link to="/profile">
                     <button>Change favorite teams</button>
                 </Link>
             </p>
 
-            <SelectedTeams favoriteTeams={favoriteTeams} />
+            <SelectedTeams favoriteTeams={favoriteTeams}/>
 
             <FilterControls
                 selectedDate={selectedDate}
@@ -172,7 +180,7 @@ const Schedule: React.FC = () => {
                 onTeamChange={handleTeamChange}
                 onResetFilter={handleResetFilter}
             />
-            <ScheduleGrid filteredSchedule={currentItems} onTeamClick={handleTeamClick} />
+            <ScheduleGrid filteredSchedule={currentItems} onTeamClick={handleTeamClick}/>
             <PaginationControls
                 currentPage={currentPage}
                 totalItems={filteredSchedule.length}
