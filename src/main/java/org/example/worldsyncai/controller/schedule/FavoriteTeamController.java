@@ -1,4 +1,4 @@
-package org.example.worldsyncai.controller;
+package org.example.worldsyncai.controller.schedule;
 
 import lombok.RequiredArgsConstructor;
 import org.example.worldsyncai.dto.FavoriteTeamDto;

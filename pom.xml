@@ -87,6 +87,12 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.15.2</version>
         </dependency>
+        <!-- Google Cloud AI Platform (Vertex AI) -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-aiplatform</artifactId>
+            <version>3.57.0</version>
+        </dependency>
     </dependencies>
 
     <build>

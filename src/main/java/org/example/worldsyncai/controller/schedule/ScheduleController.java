@@ -1,4 +1,4 @@
-package org.example.worldsyncai.controller;
+package org.example.worldsyncai.controller.schedule;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
