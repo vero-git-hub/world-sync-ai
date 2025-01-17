@@ -1,16 +1,21 @@
 import React from 'react';
-import "../styles/components/Home.css";
+import "../styles/components/home/Home.css";
 import { Link } from "react-router-dom";
 import ChatBot from './ChatBot';
+import '../styles/components/home/Home.css';
+import '../styles/components/home/Dashboard.css';
+import '../styles/components/home/Assistant.css';
+import '../styles/components/home/Insights.css';
 
 const Home: React.FC = () => {
     return (
         <div className="home-page">
+            {/* First column */}
             <div className="column">
                 <div className="widget assistant-widget wide-widget">
                     <h2>Advanced AI Assistant</h2>
                     <div className="widget-content">
-                        <img src="/globe.jpg" alt="Globe" className="globe-image"/>
+                        <img src="/images/globe.jpg" alt="Globe" className="globe-image"/>
                     </div>
                 </div>
 
@@ -32,13 +37,14 @@ const Home: React.FC = () => {
                 <div className="widget home-widget">
                     <h2>Home</h2>
                     <div className="home-buttons">
-                        <Link to="/"><img src="/images/home-icon.png" alt="Home"/></Link>
-                        <Link to="/favorites"><img src="/images/favorite-icon.png" alt="Favorites"/></Link>
-                        <Link to="/stats"><img src="/images/stats-icon.png" alt="Stats"/></Link>
+                        <Link to="/"><img src="/images/default-logo.png" alt="Home" className="home-img"/></Link>
+                        <Link to="/favorites"><img src="/images/baseball_mitt.png" alt="Favorites" className="home-img"/></Link>
+                        <Link to="/stats"><img src="/images/baseball_bats.png" alt="Stats" className="home-img"/></Link>
                     </div>
                 </div>
             </div>
 
+            {/* Second column */}
             <div className="column">
                 <div className="widget ai-assistant-widget">
                     <h2 className="ai-title">Advanced AI Assistant</h2>
@@ -57,7 +63,16 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
+            {/* Third column */}
             <div className="column">
+                {/* Username panel */}
+                <div className="widget user-widget">
+                    <div className="user-panel">
+                        <span className="user-label">Name</span>
+                        <span className="user-name">John Smith</span>
+                    </div>
+                </div>
+
                 <div className="button-container">
                     <Link to="/teams">
                         <button className="action-button">View Teams</button>
@@ -66,21 +81,47 @@ const Home: React.FC = () => {
                         <button className="action-button">Profile</button>
                     </Link>
                 </div>
+
+                {/* Schedule */}
                 <div className="widget schedule-widget">
                     <h2>Schedule</h2>
-                    <Link to="/schedule">To schedule</Link>
-                    <p>Next game: Detroit Tigers vs Los Angeles Dodgers</p>
-                    <p>Time: 01:10 | Venue: Dodger Stadium</p>
+                    <div className="schedule-content">
+                        <img src="/images/player.jpg" alt="Player" className="player-image"/>
+                        <p>Next game: Detroit Tigers vs Los Angeles Dodgers</p>
+                        <p>Time: 01:10 | Venue: Dodger Stadium</p>
+                    </div>
                 </div>
+
+                {/* Featured */}
                 <div className="widget favorites-widget">
                     <h2>Favorites</h2>
-                    <p>Favorite Team: Mets</p>
-                    <p>Games this week: 3</p>
+                    <div className="favorites-content">
+                        <img src="/images/favorite-player.jpg" alt="Favorite Player" className="favorite-image"/>
+                        <p>Favorite Team: Dodgers</p>
+                        <p>Games this week: 3</p>
+                    </div>
                 </div>
+
+                {/* Insights */}
                 <div className="widget insights-widget">
-                    <h2>Insights</h2>
-                    <img src="/images/insights-graph.jpg" alt="Insights Graph" className="insights-image"/>
+                    <h2>INSIGHTS</h2>
+                    <div className="circle-stats">
+                        <div className="circle">
+                            <p>33</p>
+                            <span>Games</span>
+                        </div>
+                        <div className="circle">
+                            <p>33</p>
+                            <span>Win %</span>
+                        </div>
+                        <div className="circle">
+                            <p>23</p>
+                            <span>MLB Rank</span>
+                        </div>
+                    </div>
                 </div>
+
+                {/* Analytics */}
                 <div className="widget insights-widget">
                     <h2>Insights</h2>
                     <img src="/images/insights-graph.jpg" alt="Insights Graph" className="insights-image"/>
