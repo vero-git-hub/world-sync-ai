@@ -1,12 +1,20 @@
 .home-page {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
-    padding: 20px;
+    padding: 40px;
     box-sizing: border-box;
-    background-color: #242424;
     color: #fff;
     font-family: Arial, sans-serif;
+    width: 100%;
+    max-width: 1400px;
+    margin: auto;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .widget {
@@ -20,23 +28,83 @@
     text-align: center;
 }
 
-.big-widget {
-    grid-column: span 2;
-}
-
-.globe-image, .field-image {
+.globe-image {
     width: 100%;
     border-radius: 10px;
 }
 
-.schedule-widget, .profile-widget, .insights-widget {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+.wide-widget {
+    grid-column: span 2;
 }
 
-h2 {
-    margin-bottom: 15px;
+.stats-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.stat-widget {
+    background: linear-gradient(145deg, #282828, #1a1a1a);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    width: 100px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.stat-widget p {
+    font-size: 24px;
+    font-weight: bold;
     color: #00d4ff;
-    text-shadow: 0 0 10px #00d4ff;
+}
+
+.stat-widget span {
+    font-size: 12px;
+    color: #ccc;
+}
+
+.home-widget {
+    text-align: center;
+}
+
+.home-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.home-buttons img {
+    width: 50px;
+    height: 50px;
+    transition: 0.3s;
+}
+
+.home-buttons img:hover {
+    transform: scale(1.1);
+}
+
+.chat-widget {
+    height: 350px;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.action-button {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    background-color: #00d4ff;
+    color: black;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.action-button:hover {
+    background-color: #0094cc;
 }
