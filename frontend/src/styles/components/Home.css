@@ -1,3 +1,4 @@
+/* Main container */
 .home-page {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -11,12 +12,14 @@
     margin: auto;
 }
 
+/* Columns */
 .column {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
+/* General style of widgets */
 .widget {
     background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
     padding: 20px;
@@ -28,15 +31,18 @@
     text-align: center;
 }
 
+/* Image */
 .globe-image {
     width: 100%;
     border-radius: 10px;
 }
 
+/* Wide widget */
 .wide-widget {
     grid-column: span 2;
 }
 
+/* Static block */
 .stats-container {
     display: flex;
     justify-content: space-between;
@@ -63,6 +69,7 @@
     color: #ccc;
 }
 
+/* Home widget */
 .home-widget {
     text-align: center;
 }
@@ -83,10 +90,54 @@
     transform: scale(1.1);
 }
 
+/* AI Assistant */
+.ai-assistant-widget {
+    padding: 20px;
+    text-align: center;
+}
+
+.ai-title {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.ai-options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.ai-btn {
+    background: #00d4ff;
+    color: black;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.ai-btn:hover {
+    background: #0094cc;
+}
+
+/* Chat */
 .chat-widget {
     height: 350px;
 }
 
+/* Insights */
+.insights-widget {
+    text-align: center;
+}
+
+.insights-image {
+    width: 100%;
+    border-radius: 10px;
+}
+
+/* Third column */
 .button-container {
     display: flex;
     justify-content: space-between;

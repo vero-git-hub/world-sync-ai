@@ -40,22 +40,20 @@ const Home: React.FC = () => {
             </div>
 
             <div className="column">
-                <div className="widget schedule-widget">
-                    <h2>Schedule</h2>
-                    <Link to="/schedule">To schedule</Link>
-                    <p>Next game: Detroit Tigers vs Los Angeles Dodgers</p>
-                    <p>Time: 01:10 | Venue: Dodger Stadium</p>
+                <div className="widget ai-assistant-widget">
+                    <h2 className="ai-title">Advanced AI Assistant</h2>
+                    <div className="ai-options">
+                        <button className="ai-btn">Exploration</button>
+                        <button className="ai-btn">AI Features</button>
+                    </div>
                 </div>
-
-                <div className="widget favorites-widget">
-                    <h2>Favorites</h2>
-                    <p>Favorite Team: Mets</p>
-                    <p>Games this week: 3</p>
-                </div>
-
                 <div className="widget chat-widget">
                     <h2>MLB AI Chat</h2>
-                    <ChatBot />
+                    <ChatBot/>
+                </div>
+                <div className="widget analytics-widget">
+                    <h2>Game Analysis</h2>
+                    <p>Data-driven insights</p>
                 </div>
             </div>
 
@@ -68,25 +66,24 @@ const Home: React.FC = () => {
                         <button className="action-button">Profile</button>
                     </Link>
                 </div>
-
-                <div className="widget stats-widget">
-                    <h2>MLB Stats</h2>
-                    <p>Top Player Stats</p>
+                <div className="widget schedule-widget">
+                    <h2>Schedule</h2>
+                    <Link to="/schedule">To schedule</Link>
+                    <p>Next game: Detroit Tigers vs Los Angeles Dodgers</p>
+                    <p>Time: 01:10 | Venue: Dodger Stadium</p>
                 </div>
-
-                <div className="widget analytics-widget">
-                    <h2>Game Analysis</h2>
-                    <p>Data-driven insights</p>
+                <div className="widget favorites-widget">
+                    <h2>Favorites</h2>
+                    <p>Favorite Team: Mets</p>
+                    <p>Games this week: 3</p>
                 </div>
-
-                <div className="widget leaderboard-widget">
-                    <h2>Leaderboard</h2>
-                    <p>Current Standings</p>
+                <div className="widget insights-widget">
+                    <h2>Insights</h2>
+                    <img src="/images/insights-graph.jpg" alt="Insights Graph" className="insights-image"/>
                 </div>
-
-                <div className="widget news-widget">
-                    <h2>Latest News</h2>
-                    <p>MLB Headlines</p>
+                <div className="widget insights-widget">
+                    <h2>Insights</h2>
+                    <img src="/images/insights-graph.jpg" alt="Insights Graph" className="insights-image"/>
                 </div>
             </div>
         </div>
