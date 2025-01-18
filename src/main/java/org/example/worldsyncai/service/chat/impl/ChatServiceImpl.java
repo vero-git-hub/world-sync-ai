@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 /**
  * MLB request processing service.
  * Processing user questions and generating a request to AI.
+ * The final prompt now includes MLB data.
  */
 @Service
 @RequiredArgsConstructor
@@ -24,15 +25,22 @@ public class ChatServiceImpl implements ChatService {
     public ChatResponseDto processUserQuery(String message) {
         log.info("Processing query: {}", message);
 
-//        String mlbContext = mlbApiService.getRelevantData(message);
+        String mlbContext = "";
 
-//        String prompt = "User asks: " + message + "\n\n" +
-//                "MLB Context:\n" + mlbContext;
+        if (message.contains("playing") || message.contains("match")) {
+            String teamId = extractTeamId(message);
+            mlbContext = mlbApiService.getTeamSchedule(teamId);
+        }
 
-        String prompt = "User asks: " + message;
-
+        String prompt = "User asks: " + message + "\n\n" + "MLB Context:\n" + mlbContext;
         String aiResponse = aiService.getAIResponse(prompt);
 
         return new ChatResponseDto(aiResponse);
+    }
+
+    private String extractTeamId(String query) {
+        if (query.contains("Dodgers")) return "119";
+        if (query.contains("Yankees")) return "147";
+        return "111";
     }
 }
