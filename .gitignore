@@ -32,7 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
-node_modules/
+### Data ###
 data
-/src/main/resources/application-local.properties
 /src/main/resources/credentials/google-credentials.json
+
+### Local ###
+/src/main/resources/application-local.properties
