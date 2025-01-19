@@ -26,20 +26,28 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ChatResponseDto processUserQuery(String message) {
         String intent = nlpService.detectIntent(message);
-        log.info("Detected intent: {}", intent);
+        log.info("🔍 Detected intent: {}", intent);
 
         String mlbContext = "";
 
-        if (intent.equals("TEAM_SCHEDULE")) {
-            String teamId = extractTeamId(message);
-            if (!teamId.equals("Unknown Team")) {
-                mlbContext = mlbApiService.getTeamSchedule(teamId);
-            } else {
-                mlbContext = "Sorry, I couldn't find the team you mentioned.";
-            }
+        switch (intent) {
+            case "TEAM_SCHEDULE":
+                String teamId = extractTeamId(message);
+
+                if (!teamId.equals("Unknown Team")) {
+                    mlbContext = mlbApiService.getTeamSchedule(teamId);
+                } else {
+                    log.warn("⚠️ Could not find a matching team for the user's query.");
+                    mlbContext = "Sorry, I couldn't find the team you mentioned.";
+                }
+                break;
+
+            default:
+                mlbContext = "I can help you with MLB schedules and player stats. Try asking about a specific team or player!";
         }
 
         String prompt = "User asks: " + message + "\n\n" + "MLB Context:\n" + mlbContext;
+
         String aiResponse = aiService.getAIResponse(prompt);
 
         return new ChatResponseDto(aiResponse);
@@ -54,6 +62,7 @@ public class ChatServiceImpl implements ChatService {
                 return mlbApiService.getTeamIdByName(teamName);
             }
         }
+        log.warn("⚠️ No matching team found in query.");
         return "Unknown Team";
     }
 }
