@@ -17,4 +17,6 @@ public interface TriviaQuestionService {
      * @return string indicating that the answer is correct, and if not, explains why.
      */
     String checkAnswer(String questionId, String userAnswer);
+
+    String getQuestionText(String questionId);
 }

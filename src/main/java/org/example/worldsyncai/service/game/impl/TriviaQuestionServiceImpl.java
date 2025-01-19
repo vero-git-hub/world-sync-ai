@@ -24,6 +24,7 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final Map<String, String> questionAnswers = new HashMap<>();
+    private final Map<String, String> questionTexts = new HashMap<>();
     private final AiService aiService;
 
     @Value("${mlb.stats.home-runs}")
@@ -51,12 +52,11 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
     @Override
     public String checkAnswer(String questionId, String userAnswer) {
         String correctAnswer = questionAnswers.getOrDefault(questionId, "");
+        String questionText = questionTexts.getOrDefault(questionId, "Unknown question");
 
         if (correctAnswer.equalsIgnoreCase(userAnswer)) {
             return "✅ That's right! Great job!";
         } else {
-            String questionText = retrieveQuestionText(questionId);
-
             String explanation = aiService.getAIResponse(
                     "Question: \"" + questionText + "\"\n" +
                             "User replied: \"" + userAnswer + "\", but the correct answer is: \"" + correctAnswer + "\".\n" +
@@ -67,10 +67,14 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
         }
     }
 
-    private String retrieveQuestionText(String questionId) {
-        return questionAnswers.containsKey(questionId) ? "This question was about baseball." : "No data about the question.";
+    @Override
+    public String getQuestionText(String questionId) {
+        return questionTexts.getOrDefault(questionId, "❓ Question not found.");
     }
 
+    /**
+     * Generating a question about home runs.
+     */
     private TriviaQuestionDto generateHomeRunQuestion() {
         Map response = restTemplate.getForObject(mlbStatsHomeRunsUrl, Map.class);
 
@@ -94,11 +98,17 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
         Collections.shuffle(options);
 
         String questionId = UUID.randomUUID().toString();
-        questionAnswers.put(questionId, String.valueOf(homeRuns));
+        String questionText = "How many home runs did " + playerName + " hit in 2024?";
 
-        return new TriviaQuestionDto(questionId, "How many home runs did hit " + playerName + " in 2024?", options, String.valueOf(homeRuns));
+        questionAnswers.put(questionId, String.valueOf(homeRuns));
+        questionTexts.put(questionId, questionText);
+
+        return new TriviaQuestionDto(questionId, questionText, options, String.valueOf(homeRuns));
     }
 
+    /**
+     * Generating a question about the year the team was founded.
+     */
     private TriviaQuestionDto generateTeamYearQuestion() {
         Map response = restTemplate.getForObject(mlbTeamsUrl, Map.class);
 
@@ -121,11 +131,17 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
         Collections.shuffle(options);
 
         String questionId = UUID.randomUUID().toString();
-        questionAnswers.put(questionId, year);
+        String questionText = "In what year was the " + teamName + " club founded?";
 
-        return new TriviaQuestionDto(questionId, "In what year was the " + teamName + " club founded?", options, year);
+        questionAnswers.put(questionId, year);
+        questionTexts.put(questionId, questionText);
+
+        return new TriviaQuestionDto(questionId, questionText, options, year);
     }
 
+    /**
+     * Generating a question about the player statistics.
+     */
     private TriviaQuestionDto generatePlayerStatQuestion() {
         Map response = restTemplate.getForObject(mlbPeopleStatsUrl, Map.class);
 
@@ -147,8 +163,11 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
         Collections.shuffle(options);
 
         String questionId = UUID.randomUUID().toString();
-        questionAnswers.put(questionId, String.valueOf(rbi));
+        String questionText = "How many RBI did " + playerName + " hit in the 2024 season?";
 
-        return new TriviaQuestionDto(questionId, "How many RBI did " + playerName + " hit in the 2024 season?", options, String.valueOf(rbi));
+        questionAnswers.put(questionId, String.valueOf(rbi));
+        questionTexts.put(questionId, questionText);
+
+        return new TriviaQuestionDto(questionId, questionText, options, String.valueOf(rbi));
     }
 }

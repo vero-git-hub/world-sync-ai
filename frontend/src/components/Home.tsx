@@ -2,8 +2,9 @@ import React from 'react';
 import "../styles/components/home/Home.css";
 import { Link } from "react-router-dom";
 import ChatBot from './ChatBot';
+import TriviaGame from "./game/TriviaGame.tsx";
 import '../styles/components/home/Home.css';
-import '../styles/components/home/Dashboard.css';
+import '../styles/components/home/dashboard/Dashboard.css';
 import '../styles/components/home/Assistant.css';
 import '../styles/components/home/Insights.css';
 
@@ -13,7 +14,6 @@ const Home: React.FC = () => {
             {/* First column */}
             <div className="column">
                 <div className="widget assistant-widget wide-widget">
-                    <h2>Advanced AI Assistant</h2>
                     <div className="widget-content">
                         <img src="/images/globe.jpg" alt="Globe" className="globe-image"/>
                     </div>
@@ -33,14 +33,8 @@ const Home: React.FC = () => {
                         <span>Win Rate</span>
                     </div>
                 </div>
-
-                <div className="widget home-widget">
-                    <h2>Home</h2>
-                    <div className="home-buttons">
-                        <Link to="/"><img src="/images/default-logo.png" alt="Home" className="home-img"/></Link>
-                        <Link to="/favorites"><img src="/images/baseball_mitt.png" alt="Favorites" className="home-img"/></Link>
-                        <Link to="/stats"><img src="/images/baseball_bats.png" alt="Stats" className="home-img"/></Link>
-                    </div>
+                <div className="widget trivia-widget">
+                    <TriviaGame/>
                 </div>
             </div>
 
