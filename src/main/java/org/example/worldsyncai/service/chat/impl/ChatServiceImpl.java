@@ -27,9 +27,13 @@ public class ChatServiceImpl implements ChatService {
 
         String mlbContext = "";
 
-        if (message.contains("playing") || message.contains("match")) {
+        if (message.toLowerCase().contains("playing") || message.toLowerCase().contains("match")) {
             String teamId = extractTeamId(message);
-            mlbContext = mlbApiService.getTeamSchedule(teamId);
+            if (!teamId.equals("Unknown Team")) {
+                mlbContext = mlbApiService.getTeamSchedule(teamId);
+            } else {
+                mlbContext = "Sorry, I couldn't find the team you mentioned.";
+            }
         }
 
         String prompt = "User asks: " + message + "\n\n" + "MLB Context:\n" + mlbContext;
@@ -39,8 +43,11 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private String extractTeamId(String query) {
-        if (query.contains("Dodgers")) return "119";
-        if (query.contains("Yankees")) return "147";
-        return "111";
+        for (String teamName : mlbApiService.getTeamIdMap().keySet()) {
+            if (query.toLowerCase().contains(teamName)) {
+                return mlbApiService.getTeamIdByName(teamName);
+            }
+        }
+        return "Unknown Team";
     }
 }
