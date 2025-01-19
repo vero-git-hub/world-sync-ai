@@ -21,7 +21,7 @@ public class TriviaController {
 
     @PostMapping("/answer")
     public ResponseEntity<String> checkAnswer(@RequestParam String questionId, @RequestParam String userAnswer) {
-        boolean isCorrect = triviaQuestionService.checkAnswer(questionId, userAnswer);
-        return ResponseEntity.ok(isCorrect ? "✅ Correct!" : "❌ Wrong answer. Try again!");
+        String resultMessage = triviaQuestionService.checkAnswer(questionId, userAnswer);
+        return ResponseEntity.ok(resultMessage);
     }
 }

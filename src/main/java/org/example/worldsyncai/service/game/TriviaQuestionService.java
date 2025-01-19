@@ -14,7 +14,7 @@ public interface TriviaQuestionService {
      * Checks the user's answer to the question.
      * @param questionId Question ID.
      * @param userAnswer User's answer.
-     * @return true if the answer is correct, false otherwise.
+     * @return string indicating that the answer is correct, and if not, explains why.
      */
-    boolean checkAnswer(String questionId, String userAnswer);
+    String checkAnswer(String questionId, String userAnswer);
 }

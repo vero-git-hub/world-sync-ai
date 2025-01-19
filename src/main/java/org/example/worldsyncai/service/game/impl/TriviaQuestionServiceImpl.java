@@ -1,6 +1,7 @@
 package org.example.worldsyncai.service.game.impl;
 
 import org.example.worldsyncai.dto.game.TriviaQuestionDto;
+import org.example.worldsyncai.service.chat.AiService;
 import org.example.worldsyncai.service.game.TriviaQuestionService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final Map<String, String> questionAnswers = new HashMap<>();
+    private final AiService aiService;
 
     @Value("${mlb.stats.home-runs}")
     private String mlbStatsHomeRunsUrl;
@@ -39,20 +41,34 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
         String questionType = questionTypes.get(new Random().nextInt(questionTypes.size()));
 
         switch (questionType) {
-            case "homeRuns":
-                return generateHomeRunQuestion();
-            case "teamYear":
-                return generateTeamYearQuestion();
-            case "playerStats":
-                return generatePlayerStatQuestion();
-            default:
-                return generateHomeRunQuestion();
+            case "homeRuns": return generateHomeRunQuestion();
+            case "teamYear": return generateTeamYearQuestion();
+            case "playerStats": return generatePlayerStatQuestion();
+            default: return generateHomeRunQuestion();
         }
     }
 
     @Override
-    public boolean checkAnswer(String questionId, String userAnswer) {
-        return questionAnswers.getOrDefault(questionId, "").equalsIgnoreCase(userAnswer);
+    public String checkAnswer(String questionId, String userAnswer) {
+        String correctAnswer = questionAnswers.getOrDefault(questionId, "");
+
+        if (correctAnswer.equalsIgnoreCase(userAnswer)) {
+            return "✅ That's right! Great job!";
+        } else {
+            String questionText = retrieveQuestionText(questionId);
+
+            String explanation = aiService.getAIResponse(
+                    "Question: \"" + questionText + "\"\n" +
+                            "User replied: \"" + userAnswer + "\", but the correct answer is: \"" + correctAnswer + "\".\n" +
+                            "Please explain why the correct answer is \"" + correctAnswer + "\"."
+            );
+
+            return "❌ Incorrect. The correct answer is: " + correctAnswer + ".\n\n" + explanation;
+        }
+    }
+
+    private String retrieveQuestionText(String questionId) {
+        return questionAnswers.containsKey(questionId) ? "This question was about baseball." : "No data about the question.";
     }
 
     private TriviaQuestionDto generateHomeRunQuestion() {
