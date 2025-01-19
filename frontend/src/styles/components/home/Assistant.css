@@ -32,5 +32,12 @@
 
 /* Chat */
 .chat-widget {
-    height: 350px;
+    display: flex;
+    flex-direction: column;
+    height: 450px;
+    overflow: hidden;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #282828, #1a1a1a);
+    padding: 10px;
 }
