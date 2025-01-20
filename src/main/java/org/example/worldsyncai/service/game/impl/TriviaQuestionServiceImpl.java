@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Selects a random question type (home runs, team foundation year, player stats).
+ * Selects a random question type (team foundation year).
  * Generates a question, answer choices, and the correct answer.
  * Checks if the user's answer is correct.
  */
@@ -27,26 +27,28 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
     private final Map<String, String> questionTexts = new HashMap<>();
     private final AiService aiService;
 
-    @Value("${mlb.stats.home-runs}")
-    private String mlbStatsHomeRunsUrl;
-
     @Value("${mlb.teams.url}")
     private String mlbTeamsUrl;
 
-    @Value("${mlb.people.stats}")
-    private String mlbPeopleStatsUrl;
-
     @Override
     public TriviaQuestionDto getRandomQuestion() {
-        List<String> questionTypes = Arrays.asList("homeRuns", "teamYear", "playerStats");
+        List<String> questionTypes = Arrays.asList("teamYear");
         String questionType = questionTypes.get(new Random().nextInt(questionTypes.size()));
 
+        TriviaQuestionDto question;
         switch (questionType) {
-            case "homeRuns": return generateHomeRunQuestion();
-            case "teamYear": return generateTeamYearQuestion();
-            case "playerStats": return generatePlayerStatQuestion();
-            default: return generateHomeRunQuestion();
+            case "teamYear":
+                question = generateTeamYearQuestion();
+                break;
+            default:
+                question = generateTeamYearQuestion();
         }
+
+        if (question.getOptions().isEmpty()) {
+            log.warn("⚠️ Generated an empty question! Something went wrong.");
+        }
+
+        return question;
     }
 
     @Override
@@ -70,40 +72,6 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
     @Override
     public String getQuestionText(String questionId) {
         return questionTexts.getOrDefault(questionId, "❓ Question not found.");
-    }
-
-    /**
-     * Generating a question about home runs.
-     */
-    private TriviaQuestionDto generateHomeRunQuestion() {
-        Map response = restTemplate.getForObject(mlbStatsHomeRunsUrl, Map.class);
-
-        if (response == null || !response.containsKey("stats")) {
-            return new TriviaQuestionDto(UUID.randomUUID().toString(), "Error loading data.", Collections.emptyList(), "");
-        }
-
-        List<Map> leaders = (List<Map>) ((List<Map>) response.get("stats")).get(0).get("splits");
-        if (leaders.isEmpty()) return new TriviaQuestionDto(UUID.randomUUID().toString(), "No data", Collections.emptyList(), "");
-
-        Map<String, Object> topPlayer = leaders.get(0);
-        String playerName = (String) ((Map) topPlayer.get("player")).get("fullName");
-        int homeRuns = (int) ((Map) topPlayer.get("stat")).get("homeRuns");
-
-        List<String> options = Arrays.asList(
-                String.valueOf(homeRuns),
-                String.valueOf(homeRuns - 2),
-                String.valueOf(homeRuns + 1),
-                String.valueOf(homeRuns - 5)
-        );
-        Collections.shuffle(options);
-
-        String questionId = UUID.randomUUID().toString();
-        String questionText = "How many home runs did " + playerName + " hit in 2024?";
-
-        questionAnswers.put(questionId, String.valueOf(homeRuns));
-        questionTexts.put(questionId, questionText);
-
-        return new TriviaQuestionDto(questionId, questionText, options, String.valueOf(homeRuns));
     }
 
     /**
@@ -137,37 +105,5 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
         questionTexts.put(questionId, questionText);
 
         return new TriviaQuestionDto(questionId, questionText, options, year);
-    }
-
-    /**
-     * Generating a question about the player statistics.
-     */
-    private TriviaQuestionDto generatePlayerStatQuestion() {
-        Map response = restTemplate.getForObject(mlbPeopleStatsUrl, Map.class);
-
-        if (response == null || !response.containsKey("people")) {
-            return new TriviaQuestionDto(UUID.randomUUID().toString(), "Error loading data.", Collections.emptyList(), "");
-        }
-
-        Map playerData = (Map) ((List) response.get("people")).get(0);
-        String playerName = (String) playerData.get("fullName");
-        Map stats = (Map) ((List) ((Map) ((List) playerData.get("stats")).get(0)).get("splits")).get(0);
-        int rbi = (int) ((Map) stats.get("stat")).get("rbi");
-
-        List<String> options = Arrays.asList(
-                String.valueOf(rbi),
-                String.valueOf(rbi - 5),
-                String.valueOf(rbi + 10),
-                String.valueOf(rbi - 3)
-        );
-        Collections.shuffle(options);
-
-        String questionId = UUID.randomUUID().toString();
-        String questionText = "How many RBI did " + playerName + " hit in the 2024 season?";
-
-        questionAnswers.put(questionId, String.valueOf(rbi));
-        questionTexts.put(questionId, questionText);
-
-        return new TriviaQuestionDto(questionId, questionText, options, String.valueOf(rbi));
     }
 }
