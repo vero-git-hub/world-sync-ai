@@ -1,7 +1,7 @@
 /* Main container */
 .home-page {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    flex-direction: column;
     gap: 20px;
     padding: 40px;
     box-sizing: border-box;
@@ -12,14 +12,21 @@
     margin: auto;
 }
 
-/* Columns */
-.column {
-    display: flex;
-    flex-direction: column;
+/* Top row: Trivia + Chat */
+.top-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
 
-/* Widgets */
+/* Bottom row: Favorites + Schedule + Teams */
+.bottom-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* Common styles for widgets */
 .widget {
     background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
     padding: 20px;
@@ -31,6 +38,51 @@
     text-align: center;
 }
 
-.wide-widget {
-    grid-column: span 2;
+/* Chat */
+.chat-widget {
+    height: 450px;
+    border: 2px solid #ddd;
+    overflow: hidden;
+}
+
+/* Trivia button */
+.play-trivia-btn {
+    background-color: #00d4ff;
+    color: black;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.play-trivia-btn:hover {
+    background-color: #0094cc;
+}
+
+/* Images */
+.favorite-image, .schedule-image, .teams-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+/* User Panel */
+.user-panel {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.user-name {
+    color: #00d4ff;
+}
+
+/* Adaptability */
+@media (max-width: 1024px) {
+    .top-row, .bottom-row {
+        grid-template-columns: 1fr;
+    }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "../../styles/components/home/dashboard/TriviaGame.css";
+import "../../styles/components/game/TriviaGame.css";
 
 const API_URL = "/api/trivia";
 
