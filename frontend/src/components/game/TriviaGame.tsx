@@ -85,8 +85,6 @@ const TriviaGame: React.FC = () => {
 
     return (
         <div className="trivia-widget">
-            <h2>MLB Trivia ⚾</h2>
-
             {loading ? (
                 <p className="loading">Loading question...</p>
             ) : (

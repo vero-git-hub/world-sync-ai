@@ -166,7 +166,7 @@ const Profile: React.FC = () => {
     return (
         <div className="profile-container">
             <h1 className="profile-header">Profile</h1>
-            <Link to="/schedule" className="back-link">Back to schedule</Link>
+            <Link to="/" className="back-link">Back to home</Link>
 
             <Select
                 options={teams}
@@ -187,7 +187,7 @@ const Profile: React.FC = () => {
                 </button>
             )}
             {hasGoogleCalendarToken && (
-                <p style={{ marginTop: '1rem' }}>You are connected to Google Calendar!</p>
+                <p style={{marginTop: '1rem'}}>You are connected to Google Calendar!</p>
             )}
         </div>
     );
