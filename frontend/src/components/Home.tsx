@@ -1,11 +1,42 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "../styles/components/home/Home.css";
 import { Link } from "react-router-dom";
 import ChatBot from './ChatBot';
-import TriviaGame from "./game/TriviaGame.tsx";
+import TriviaGame from "./game/TriviaGame";
+import axios from 'axios';
+
+interface Team {
+    id: number;
+    teamName: string;
+    userId: number;
+}
+
+interface UserData {
+    id: number;
+    username: string;
+    email: string;
+    password: string;
+    favoriteTeams: Team[];
+    hasGoogleCalendarToken: boolean;
+}
 
 const Home: React.FC = () => {
     const [showTrivia, setShowTrivia] = useState(false);
+    const [userData, setUserData] = useState<UserData | null>(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await axios.get<UserData>('/api/users/current');
+                if (response.status === 200) {
+                    setUserData(response.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch user data", error);
+            }
+        };
+        fetchUserData();
+    }, []);
 
     return (
         <div className="home-page">
@@ -36,18 +67,43 @@ const Home: React.FC = () => {
                 </div>
             </div>
 
-            {/* Bottom row: Favorites, Schedule, Teams */}
+            {/* Bottom row: Profile, Schedule, Teams */}
             <div className="bottom-row">
-                <div className="widget favorites-widget">
-                    <div className="user-panel">
-                        <span className="user-name">John Smith</span>
-                        <Link to="/profile">Profile</Link>
+                <div className="widget profile-widget">
+                    <Link to="/profile">
+                        <h2>Profile</h2>
+                    </Link>
+                    <div>
+                        {userData?.username ? (
+                            <span className="user-name">{userData.username}</span>
+                        ) : (
+                            <span className="user-name">Name not provided</span>
+                        )}
                     </div>
-                    <h2>Favorites</h2>
+                    <div>
+                        {userData?.email ? (
+                            <span className="user-email">{userData.email}</span>
+                        ) : (
+                            <span className="user-email">Email not provided</span>
+                        )}
+                    </div>
+
                     <div className="favorites-content">
-                        <img src="/images/favorite-player.jpg" alt="Favorite Player" className="favorite-image" />
-                        <p>Favorite Team: Dodgers</p>
-                        <p>Games this week: 3</p>
+                        <div>
+                            {userData?.favoriteTeams && userData.favoriteTeams.length > 0 ? (
+                                <>
+                                    <p>Favorite Teams:</p>
+                                    <ul>
+                                        {userData.favoriteTeams.map((team) => (
+                                            <li key={team.id}>{team.teamName}</li>
+                                            ))}
+                                    </ul>
+                                </>
+                            ) : (
+                                <p>Favorite Teams: None</p>
+                            )}
+                        </div>
+                        {/*<p>Games this week: {userData ? userData.gamesThisWeek : "Loading..."}</p>*/}
                     </div>
                 </div>
 
