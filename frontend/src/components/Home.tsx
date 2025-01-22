@@ -5,7 +5,7 @@ import ChatBot from './ChatBot';
 import TriviaGame from "./game/TriviaGame";
 import axios from 'axios';
 
-interface Team {
+interface FavoriteTeam {
     id: number;
     teamName: string;
     userId: number;
@@ -16,7 +16,7 @@ interface UserData {
     username: string;
     email: string;
     password: string;
-    favoriteTeams: Team[];
+    favoriteTeams: FavoriteTeam[];
     hasGoogleCalendarToken: boolean;
 }
 
@@ -44,12 +44,21 @@ interface GameSchedule {
     venue: string;
 }
 
+interface Team {
+    id: number;
+    name: string;
+    logoUrl?: string;
+}
+
 const Home: React.FC = () => {
     const [showTrivia, setShowTrivia] = useState(false);
     const [userData, setUserData] = useState<UserData | null>(null);
     const [schedule, setSchedule] = useState<GameSchedule | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [randomTeam, setRandomTeam] = useState<Team | null>(null);
+    const [loadingTeam, setLoadingTeam] = useState<boolean>(true);
 
+    // Profile
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -64,6 +73,7 @@ const Home: React.FC = () => {
         fetchUserData();
     }, []);
 
+    // Schedule
     useEffect(() => {
         const fetchSchedule = async () => {
             try {
@@ -99,6 +109,37 @@ const Home: React.FC = () => {
         };
 
         fetchSchedule();
+    }, []);
+
+    // Teams
+    useEffect(() => {
+        const fetchRandomTeam = async () => {
+            try {
+                const response = await axios.get<{ teams: Team[] }>('/api/teams/mlb/teams');
+                if (response.status === 200 && response.data.teams.length > 0) {
+                    const teamsList = response.data.teams;
+                    const randomIndex = Math.floor(Math.random() * teamsList.length);
+                    const selectedTeam = teamsList[randomIndex];
+
+                    const logoResponse = await axios.get(`/api/teams/mlb/team/${selectedTeam.id}/logo`, {
+                        responseType: 'blob'
+                    });
+
+                    const logoBlob = logoResponse.data as Blob;
+                    const logoUrl = URL.createObjectURL(logoBlob);
+
+                    setRandomTeam({ ...selectedTeam, logoUrl });
+                } else {
+                    console.warn("No teams found.");
+                }
+            } catch (error) {
+                console.error("Failed to fetch teams", error);
+            } finally {
+                setLoadingTeam(false);
+            }
+        };
+
+        fetchRandomTeam();
     }, []);
 
     return (
@@ -175,7 +216,7 @@ const Home: React.FC = () => {
                         <h2>Schedule</h2>
                     </Link>
                     <div className="schedule-content">
-                        <img src="/images/schedule.jpg" alt="Schedule" className="schedule-image" />
+                        {/*<img src="/images/schedule.jpg" alt="Schedule" className="schedule-image" />*/}
                         {loading ? (
                             <p>Loading schedule...</p>
                         ) : schedule ? (
@@ -195,9 +236,17 @@ const Home: React.FC = () => {
                         <h2>Teams</h2>
                     </Link>
                     <div className="teams-content">
-                        <img src="/images/teams.jpg" alt="Teams Player" className="teams-image" />
-                        <p>Random Team: Dodgers</p>
-                        <p>Games this week: 3</p>
+                        {loadingTeam ? (
+                            <p>Loading teams...</p>
+                        ) : randomTeam ? (
+                            <>
+                                <img src={randomTeam.logoUrl} alt={randomTeam.name} className="teams-image" />
+                                <p>Random Team: {randomTeam.name}</p>
+                                {/*<p>Games this week: 3</p>*/}
+                            </>
+                        ) : (
+                            <p>No teams available</p>
+                        )}
                     </div>
                 </div>
             </div>
