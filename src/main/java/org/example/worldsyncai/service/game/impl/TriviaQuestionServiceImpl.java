@@ -51,6 +51,15 @@ public class TriviaQuestionServiceImpl implements TriviaQuestionService {
         return question;
     }
 
+    /**
+     * Validates the user's answer against the correct answer for a trivia question
+     * and optionally provides an explanation if the answer is incorrect.
+     *
+     * @param questionId the unique identifier of the question being answered
+     * @param userAnswer the answer provided by the user
+     * @return a string indicating whether the answer is correct or incorrect,
+     *         along with an explanation if the answer is incorrect
+     */
     @Override
     public String checkAnswer(String questionId, String userAnswer) {
         String correctAnswer = questionAnswers.getOrDefault(questionId, "");
