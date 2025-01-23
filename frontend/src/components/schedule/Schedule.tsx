@@ -39,7 +39,13 @@ const Schedule: React.FC = () => {
 
     const fetchFavoriteTeams = async () => {
         try {
-            const response = await fetch('/api/favorite-teams/user/1');
+            const userResponse = await fetch('/api/users/current');
+            if (!userResponse.ok) throw new Error("Failed to fetch user");
+
+            const userData = await userResponse.json();
+            const userId = userData.id;
+
+            const response = await fetch(`/api/favorite-teams/user/${userId}`);
 
             if (response.status === 204) {
                 setFavoriteTeams([]);
