@@ -46,6 +46,8 @@ const ScheduleGrid: React.FC<{ filteredSchedule: DateItem[], onTeamClick: (teamI
                         awayTeam={game.teams.away.team.name}
                         homeLogo={logos[game.teams.home.team.id] || '/default-logo.png'}
                         awayLogo={logos[game.teams.away.team.id] || '/default-logo.png'}
+                        homeTeamId={game.teams.home.team.id}
+                        awayTeamId={game.teams.away.team.id}
                         gameTime={game.gameDate}
                         venue={game.venue.name}
                         onTeamClick={onTeamClick}

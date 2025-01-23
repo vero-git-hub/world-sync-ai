@@ -8,12 +8,14 @@ interface GameCardProps {
     awayTeam: string;
     homeLogo: string;
     awayLogo: string;
+    homeTeamId: number;
+    awayTeamId: number;
     gameTime: string;
     venue: string;
     onTeamClick: (teamId: number) => void;
 }
 
-const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayLogo, gameTime, venue, onTeamClick }) => {
+const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayLogo, homeTeamId, awayTeamId, gameTime, venue, onTeamClick }) => {
     const formattedDate = format(new Date(gameTime), 'MMMM d');
     const formattedTime = format(new Date(gameTime), 'HH:mm');
 
@@ -54,7 +56,7 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
 
     return (
         <div className="game-card">
-            <div className="team-info" onClick={() => onTeamClick(133)}>
+            <div className="team-info" onClick={() => onTeamClick(awayTeamId)}>
                 <img src={awayLogo} alt={`${awayTeam} logo`} className="team-logo"/>
                 <span className="team-name">{awayTeam}</span>
             </div>
@@ -63,7 +65,7 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
                 <span className="game-time">{formattedTime}</span>
                 <span className="venue">{venue}</span>
             </div>
-            <div className="team-info" onClick={() => onTeamClick(136)}>
+            <div className="team-info" onClick={() => onTeamClick(homeTeamId)}>
                 <img src={homeLogo} alt={`${homeTeam} logo`} className="team-logo"/>
                 <span className="team-name">{homeTeam}</span>
             </div>
