@@ -51,7 +51,7 @@ public class GoogleCalendarController {
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<String> handleGoogleCallback(@RequestParam("code") String code) {
+    public ResponseEntity<Void> handleGoogleCallback(@RequestParam("code") String code) {
         try {
             TokenResponse tokenPair = googleCalendarService.exchangeCodeForTokens(
                     code, clientId, clientSecret, redirectUri
@@ -61,24 +61,24 @@ public class GoogleCalendarController {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No user is authenticated.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             String currentUsername = authentication.getName();
 
             Optional<UserDto> userDtoOpt = userService.getUserByUsername(currentUsername);
             if (userDtoOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found in DB.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             Long userId = userDtoOpt.get().getId();
 
             userService.updateUserCalendarTokens(userId, accessToken, refreshToken);
 
-            return ResponseEntity.ok("Google Calendar connected successfully!");
+            URI redirectUri = URI.create("http://localhost:5173/profile");
+            return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
         } catch (Exception e) {
             log.error("Error during Google OAuth callback", e);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to connect Google Calendar.");
+            URI redirectUri = URI.create("http://localhost:5173/profile?error=google_auth_failed");
+            return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
         }
     }
 
