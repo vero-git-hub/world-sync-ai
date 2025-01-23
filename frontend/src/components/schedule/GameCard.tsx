@@ -43,14 +43,24 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
 
             if (!response.ok) {
                 const text = await response.text();
-                alert("Failed to create event: " + text);
+                console.error("Error response:", text);
+
+                if (response.status === 401) {
+                    alert("❌ You are not authorized. Please log in to your Google account.");
+                } else if (response.status === 403) {
+                    alert("⚠️ Access denied. Make sure the application has the correct permissions.");
+                } else if (response.status === 500) {
+                    alert("🚨 Server error. Please try again later.");
+                } else {
+                    alert(`❗ Failed to create event: ${text}`);
+                }
                 return;
             }
 
-            alert("Event added to Google Calendar!");
+            alert("✅ Event added to Google Calendar!");
         } catch (error) {
-            console.error("Error adding event to calendar:", error);
-            alert("Error adding event to calendar.");
+            console.error("❗ Error adding event to calendar:", error);
+            alert("🌐 Error adding event to calendar. Please check your internet connection and try again.");
         }
     };
 

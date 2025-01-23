@@ -189,6 +189,7 @@ public class GoogleCalendarController {
             String accessToken = userService.getUserCalendarToken(userDtoOpt.get().getId());
 
             if (accessToken == null || accessToken.isBlank()) {
+                log.error("❌ User '{}' does not have a Google Calendar token.", username);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("User does not have a Google Calendar token.");
             }
@@ -202,8 +203,16 @@ public class GoogleCalendarController {
             googleCalendarService.createEvent(accessToken, event);
 
             return ResponseEntity.ok("Game event created successfully in Google Calendar!");
+        } catch (GoogleJsonResponseException gjre) {
+            log.error("Google API error: {}", gjre.getDetails());
+
+            if (gjre.getStatusCode() == 401) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Google access token expired.");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Google Calendar API error.");
         } catch (Exception e) {
-            log.error("Error creating game event", e);
+            log.error("❗ Error creating game event", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to create game event.");
         }
