@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import "../../styles/components/game/TriviaGame.css";
 
 const API_URL = "/api/trivia";
@@ -115,7 +116,11 @@ const TriviaGame: React.FC = () => {
                 Submit
             </button>
 
-            {feedback && <p className="trivia-feedback">{feedback}</p>}
+            {feedback && (
+                <div className="trivia-feedback">
+                    <ReactMarkdown>{feedback}</ReactMarkdown>
+                </div>
+            )}
 
             <button className="next-question-btn" onClick={fetchQuestion} disabled={loading}>
                 Next Question
