@@ -1,65 +1,72 @@
 package org.example.worldsyncai.config;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.worldsyncai.auth.JwtTokenFilter;
+import org.example.worldsyncai.auth.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
 @Configuration
 @Slf4j
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserDetailsService userDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> {
-                    auth
-                            .requestMatchers("/css/**", "/images/**", "/js/**", "/public/**").permitAll()
-                            .requestMatchers("/login", "/register", "/register/**", "/h2-console/**").permitAll()
-                            .requestMatchers("/api/**").permitAll()
-                            .anyRequest().authenticated();
-                })
+                .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        new AntPathRequestMatcher("/h2-console/**"),
+                        new AntPathRequestMatcher("/api/**")
+                ))
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/css/**", "/images/**", "/js/**", "/public/**").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                        .anyRequest().authenticated()
+                )
+
                 .cors(cors -> cors.configurationSource(request -> {
-                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                    var corsConfig = new CorsConfiguration();
                     corsConfig.setAllowedOrigins(List.of("http://localhost:5173"));
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-CSRF-TOKEN"));
                     corsConfig.setAllowCredentials(true);
                     return corsConfig;
                 }))
-                .formLogin(form -> {
-                    form
-                            .loginPage("/login")
-                            .defaultSuccessUrl("http://localhost:5173/", true)
-                            .permitAll();
-                })
-                .logout(logout -> {
-                    logout
-                            .logoutUrl("/logout")
-                            .logoutSuccessUrl("http://localhost:5173/login")
-                            .permitAll();
-                })
-                .csrf(csrf -> {
-                    csrf.ignoringRequestMatchers(
-                            new AntPathRequestMatcher("/h2-console/**"),
-                            new AntPathRequestMatcher("/api/**")
-                    );
-                })
-                .headers(headers -> {
-                    headers.frameOptions(frameOptions -> frameOptions.sameOrigin());
-                });
+
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
+                .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+
+                .headers(headers -> headers
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
+                );
 
         return http.build();
+    }
+
+    @Bean
+    public JwtTokenFilter jwtTokenFilter() {
+        return new JwtTokenFilter(jwtTokenProvider, userDetailsService);
     }
 
     @Bean

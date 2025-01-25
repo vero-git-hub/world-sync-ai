@@ -1,62 +1,88 @@
 package org.example.worldsyncai.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.worldsyncai.service.UserService;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import jakarta.validation.Valid;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
+import org.example.worldsyncai.dto.auth.AuthResponse;
+import org.example.worldsyncai.dto.auth.LoginRequest;
 import org.example.worldsyncai.dto.UserDto;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.example.worldsyncai.auth.JwtTokenProvider;
+import org.example.worldsyncai.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.annotation.*;
 
-
-@Controller
+@RestController
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
 
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
+    /**
+     * API for login (getting JWT)
+     */
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
 
-    @GetMapping("/register")
-    public String register(Model model) {
-        model.addAttribute("registerUser", new UserDto());
-        return "register";
-    }
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtTokenProvider.generateToken(authentication);
 
-    @PostMapping("/register")
-    public String handleRegister(@ModelAttribute("registerUser") @Valid UserDto userDto,
-                                 BindingResult result,
-                                 Model model,
-                                 RedirectAttributes redirectAttributes) {
-        if (result.hasErrors()) {
-            log.error("Validation errors: {}", result.getAllErrors());
-            return "register";
+            log.info("✅ User '{}' logged in successfully.", request.getUsername());
+
+            return ResponseEntity.ok(new AuthResponse(jwt));
+        } catch (org.springframework.security.core.AuthenticationException e) {
+            log.error("❌ Login failed for user '{}': {}", request.getUsername(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+        } catch (Exception e) {
+            log.error("⚠️ Unexpected login error for user '{}': {}", request.getUsername(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Login failed. Please try again.");
         }
+    }
 
+    /**
+     * API for registering a new user
+     */
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody @Valid UserDto userDto) {
         try {
             userService.addUser(userDto);
+            log.info("🆕 User '{}' registered successfully.", userDto.getUsername());
+            return ResponseEntity.ok("User registered successfully");
         } catch (IllegalArgumentException e) {
-            log.error("Error while registering user: {}", e.getMessage());
-            if (e.getMessage().contains("Email")) {
-                model.addAttribute("error", "An account with this email already exists.");
-            } else if (e.getMessage().contains("Username")) {
-                model.addAttribute("error", "This username is already taken.");
-            } else {
-                model.addAttribute("error", "Registration failed: " + e.getMessage());
-            }
-            return "register";
+            log.error("❌ Registration error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            log.error("⚠️ Unexpected registration error: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed. Please try again.");
+        }
+    }
+
+    /**
+     * API to get the currently authenticated user
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
         }
 
-        redirectAttributes.addFlashAttribute("successMessage", "Registration successful! Please log in.");
-        return "redirect:/login";
+        User user = (User) authentication.getPrincipal();
+        UserDto userDto = new UserDto();
+        userDto.setUsername(user.getUsername());
+
+        return ResponseEntity.ok(userDto);
     }
 }
