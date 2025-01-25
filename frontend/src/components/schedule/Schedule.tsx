@@ -23,13 +23,32 @@ const Schedule: React.FC = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch('/api/schedule/mlb');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+            const cachedData = sessionStorage.getItem("mlbSchedule");
+            const cachedTimestamp = sessionStorage.getItem("mlbScheduleTimestamp");
+
+            const now = Date.now();
+            const cacheValid = cachedData && cachedTimestamp && (now - parseInt(cachedTimestamp)) < 10 * 60 * 1000;
+
+            if (cacheValid) {
+                console.log("✅ Using cached MLB schedule data");
+                const data = JSON.parse(cachedData);
+                setSchedule(data.dates || []);
+                setFilteredSchedule(data.dates || []);
+            } else {
+                console.log("🔄 Fetching new MLB schedule data...");
+                const response = await fetch('/api/schedule/mlb');
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                setSchedule(data.dates || []);
+                setFilteredSchedule(data.dates || []);
+
+                sessionStorage.setItem("mlbSchedule", JSON.stringify(data));
+                sessionStorage.setItem("mlbScheduleTimestamp", now.toString());
             }
-            const data = await response.json();
-            setSchedule(data.dates || []);
-            setFilteredSchedule(data.dates || []);
         } catch (err) {
             setError((err as Error).message);
         } finally {
