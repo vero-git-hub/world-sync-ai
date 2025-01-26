@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.calendar.model.EventDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.worldsyncai.auth.JwtTokenProvider;
 import org.example.worldsyncai.dto.UserDto;
 import org.example.worldsyncai.dto.calendar.EventRequestDto;
 import org.example.worldsyncai.dto.calendar.GameEventDto;
@@ -32,6 +33,8 @@ public class GoogleCalendarController {
 
     private final UserService userService;
 
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Value("${google.oauth2.client-id}")
     private String clientId;
 
@@ -42,16 +45,28 @@ public class GoogleCalendarController {
     private String redirectUri;
 
     @GetMapping("/auth")
-    public ResponseEntity<Void> redirectToGoogleAuth() {
+    public ResponseEntity<Void> redirectToGoogleAuth(@RequestParam("auth") String token) {
+        if (token == null || token.isBlank() || !jwtTokenProvider.validateToken(token)) {
+            log.error("❌ Invalid or missing JWT token in Google OAuth request.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String currentUsername = jwtTokenProvider.getUsernameFromToken(token);
         String authUrl = String.format(
-                "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=%s",
-                clientId, redirectUri, "https://www.googleapis.com/auth/calendar.events"
+                "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s",
+                clientId, redirectUri, "https://www.googleapis.com/auth/calendar.events", currentUsername
         );
+
         return ResponseEntity.status(302).location(URI.create(authUrl)).build();
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<Void> handleGoogleCallback(@RequestParam("code") String code) {
+    public ResponseEntity<Void> handleGoogleCallback(@RequestParam("code") String code, @RequestParam("state") String username) {
+        if (username == null || username.isBlank() || "anonymousUser".equals(username)) {
+            log.error("❌ Invalid or missing username in OAuth callback.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         try {
             TokenResponse tokenPair = googleCalendarService.exchangeCodeForTokens(
                     code, clientId, clientSecret, redirectUri
@@ -59,24 +74,19 @@ public class GoogleCalendarController {
             String accessToken = tokenPair.getAccessToken();
             String refreshToken = tokenPair.getRefreshToken();
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-            }
-            String currentUsername = authentication.getName();
-
-            Optional<UserDto> userDtoOpt = userService.getUserByUsername(currentUsername);
+            Optional<UserDto> userDtoOpt = userService.getUserByUsername(username);
             if (userDtoOpt.isEmpty()) {
+                log.error("❌ No user found in DB for username: {}", username);
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
-            Long userId = userDtoOpt.get().getId();
 
+            Long userId = userDtoOpt.get().getId();
             userService.updateUserCalendarTokens(userId, accessToken, refreshToken);
 
             URI redirectUri = URI.create("http://localhost:5173/profile");
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
         } catch (Exception e) {
-            log.error("Error during Google OAuth callback", e);
+            log.error("❌ Error during Google OAuth callback", e);
             URI redirectUri = URI.create("http://localhost:5173/profile?error=google_auth_failed");
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
         }
@@ -228,7 +238,7 @@ public class GoogleCalendarController {
             String username = auth.getName();
 
             var userDtoOpt = userService.getUserByUsername(username);
-            if (!userDtoOpt.isPresent()) {
+            if (userDtoOpt.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             }
             Long userId = userDtoOpt.get().getId();
@@ -238,16 +248,19 @@ public class GoogleCalendarController {
                 return ResponseEntity.ok("no_token");
             }
 
-            var service = googleCalendarService.getCalendarService(accessToken);
-            service.events().list("primary").setMaxResults(1).execute();
-
-            return ResponseEntity.ok("valid");
-        } catch (com.google.api.client.googleapis.json.GoogleJsonResponseException gjre) {
-            if (gjre.getStatusCode() == 401) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("expired");
+            try {
+                var service = googleCalendarService.getCalendarService(accessToken);
+                service.events().list("primary").setMaxResults(1).execute();
+                return ResponseEntity.ok("valid");
+            } catch (GoogleJsonResponseException gjre) {
+                if (gjre.getStatusCode() == 401) {
+                    log.warn("📌 Google Calendar token expired for user: {}", username);
+                    return ResponseEntity.ok("expired");
+                }
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Calendar error");
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Calendar error");
         } catch (Exception e) {
+            log.error("❗ Error checking Google Calendar token", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Check token error");
         }
     }

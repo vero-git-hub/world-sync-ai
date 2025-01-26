@@ -6,6 +6,7 @@ import org.example.worldsyncai.auth.JwtTokenFilter;
 import org.example.worldsyncai.auth.JwtTokenProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,8 +38,15 @@ public class SecurityConfig {
                 ))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/images/**", "/js/**", "/public/**").permitAll()
-                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(
+                                "/css/**", "/images/**", "/js/**", "/public/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/auth/login", "/api/auth/register",
+                                "/api/google/calendar/auth", "/api/google/calendar/callback",
+                                "/api/google/calendar/check"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
 

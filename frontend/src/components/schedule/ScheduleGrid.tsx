@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import GameCard from './GameCard';
 import "../../styles/components/schedule/ScheduleGrid.css";
-import axios from 'axios';
 import {DateItem, Game} from "../../types/schedule.ts";
+import API from "../../api.ts";
 
 const ScheduleGrid: React.FC<{ filteredSchedule: DateItem[], onTeamClick: (teamId: number) => void }> = ({ filteredSchedule, onTeamClick }) => {
     const [logos, setLogos] = useState<{ [key: number]: string }>({});
@@ -19,7 +19,7 @@ const ScheduleGrid: React.FC<{ filteredSchedule: DateItem[], onTeamClick: (teamI
 
             try {
                 const logoPromises = Array.from(teamIds).map(async (teamId: number) => {
-                    const response = await axios.get<Blob>(`/api/teams/mlb/team/${teamId}/logo`, { responseType: 'blob' });
+                    const response = await API.get<Blob>(`/teams/mlb/team/${teamId}/logo`, { responseType: 'blob' });
                     const logoUrl = URL.createObjectURL(response.data);
                     return { [teamId]: logoUrl };
                 });

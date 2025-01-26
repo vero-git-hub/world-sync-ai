@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import "../styles/components/Header.css";
+import {useAuth} from "./auth/AuthContext.tsx";
 
 const Header: React.FC = () => {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -7,6 +8,8 @@ const Header: React.FC = () => {
     const toggleMenu = () => {
         setMenuOpen(!menuOpen);
     };
+
+    const { logout } = useAuth();
 
     return (
         <header className="header">
@@ -22,7 +25,7 @@ const Header: React.FC = () => {
                     <li><a href="/teams">Teams</a></li>
                 </ul>
             </nav>
-            <div className="user-icon">
+            <div className="user-icon" onClick={logout}>
                 <span>🔵</span>
             </div>
             <div className="burger-menu" onClick={toggleMenu}>

@@ -3,8 +3,8 @@ import "../styles/components/home/Home.css";
 import { Link } from "react-router-dom";
 import ChatBot from './ChatBot';
 import TriviaGame from "./game/TriviaGame";
-import axios from 'axios';
 import { useSchedule } from "./schedule/ScheduleContext";
+import API from "../api.ts";
 
 interface FavoriteTeam {
     id: number;
@@ -39,7 +39,7 @@ const Home: React.FC = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get<UserData>('/api/users/current');
+                const response = await API.get<UserData>('/users/current');
                 if (response.status === 200) {
                     setUserData(response.data);
                 }
@@ -54,13 +54,13 @@ const Home: React.FC = () => {
     useEffect(() => {
         const fetchRandomTeam = async () => {
             try {
-                const response = await axios.get<{ teams: Team[] }>('/api/teams/mlb/teams');
+                const response = await API.get<{ teams: Team[] }>('/teams/mlb/teams');
                 if (response.status === 200 && response.data.teams.length > 0) {
                     const teamsList = response.data.teams;
                     const randomIndex = Math.floor(Math.random() * teamsList.length);
                     const selectedTeam = teamsList[randomIndex];
 
-                    const logoResponse = await axios.get(`/api/teams/mlb/team/${selectedTeam.id}/logo`, {
+                    const logoResponse = await API.get(`/teams/mlb/team/${selectedTeam.id}/logo`, {
                         responseType: 'blob'
                     });
 

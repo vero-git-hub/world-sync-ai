@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
+import axios from 'axios';
 import { Team } from "../types/schedule.ts";
 import "../styles/components/Profile.css";
 import {SelectOption, UserData} from "../types/profile.ts";
+import API from "../api.ts";
 
 const Profile: React.FC = () => {
     const [teams, setTeams] = useState<SelectOption[]>([]);
@@ -12,18 +14,17 @@ const Profile: React.FC = () => {
     const [userId, setUserId] = useState<number | null>(null);
 
     const [hasGoogleCalendarToken, setHasGoogleCalendarToken] = useState(false);
+    const [calendarStatus, setCalendarStatus] = useState<string>("🔄 Checking Google Calendar...");
+
+    const userToken = localStorage.getItem("token");
 
     useEffect(() => {
         const fetchUserId = async () => {
             try {
-                const response = await fetch('/api/users/current');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch current user');
-                }
-                const data: UserData = await response.json();
-                setUserId(data.id);
+                const response = await API.get<UserData>('/users/current');
+                setUserId(response.data.id);
 
-                if (data.hasGoogleCalendarToken) {
+                if (response.data.hasGoogleCalendarToken) {
                     setHasGoogleCalendarToken(true);
                     checkCalendarToken();
                 }
@@ -37,32 +38,26 @@ const Profile: React.FC = () => {
     }, []);
 
     const checkCalendarToken = async () => {
+        if (!userToken) {
+            setCalendarStatus("🔴 You are not logged in");
+            return;
+        }
+
         try {
-            const checkResp = await fetch('/api/google/calendar/check');
-            if (checkResp.status === 200) {
-                const text = await checkResp.text();
-                if (text === "valid") {
-                    console.log("Token is valid");
-                } else if (text === "no_token") {
-                    console.log("No token in DB?!");
-                    setHasGoogleCalendarToken(false);
-                } else {
-                    console.log("Check token response:", text);
-                }
-            } else if (checkResp.status === 401) {
-                const text = await checkResp.text();
-                if (text === "expired") {
-                    alert("Your Google token has expired. Please reconnect.");
-                    setHasGoogleCalendarToken(false);
-                } else {
-                    console.log("Check token 401 reason:", text);
-                    setHasGoogleCalendarToken(false);
-                }
-            } else {
-                console.log("Unexpected check token response:", checkResp);
+            const response = await axios.get('/api/google/calendar/check', {
+                headers: { Authorization: `Bearer ${userToken}` },
+            });
+
+            if (response.data === "valid") {
+                setCalendarStatus("✅ Google Calendar is connected");
+            } else if (response.data === "expired") {
+                setCalendarStatus("⚠️ Token expired, reconnection required");
+            } else if (response.data === "no_token") {
+                setCalendarStatus("🔴 Google Calendar is not connected");
             }
-        } catch (err) {
-            console.error("Error checking token:", err);
+        } catch (error) {
+            console.error("❌ Error checking Google Calendar:", error);
+            setCalendarStatus("Error checking");
         }
     };
 
@@ -74,36 +69,25 @@ const Profile: React.FC = () => {
         const fetchTeams = async () => {
             try {
                 const [teamsResponse, favoriteTeamsResponse] = await Promise.all([
-                    fetch('/api/teams/mlb/teams'),
-                    fetch(`/api/favorite-teams/user/${userId}`),
+                    API.get<{ teams: Team[] }>('/teams/mlb/teams'),
+                    API.get<Team[]>(`/favorite-teams/user/${userId}`),
                 ]);
 
-                if (!teamsResponse.ok) {
-                    throw new Error(`Failed to fetch teams: ${teamsResponse.statusText}`);
-                }
-
-                let favoriteTeamsData: Team[] = [];
-                if (favoriteTeamsResponse.status !== 204) {
-                    favoriteTeamsData = await favoriteTeamsResponse.json();
-                }
-
-                const teamsData = await teamsResponse.json();
-
                 if (isMounted) {
-                    const mappedTeams = teamsData?.teams?.map((team: Team) => ({
+                    const mappedTeams = teamsResponse.data.teams.map((team: Team) => ({
                         value: team.teamName,
                         label: team.teamName,
                     })) || [];
 
                     setTeams(mappedTeams);
 
-                    const mappedFavorites = favoriteTeamsData.map((team) => ({
+                    const mappedFavorites = favoriteTeamsResponse.data.map((team) => ({
                         value: team.teamName,
                         label: team.teamName,
                     }));
 
                     setFavoriteTeams(mappedFavorites);
-                    setInitialFavoriteTeams(favoriteTeamsData.map((team) => team.teamName));
+                    setInitialFavoriteTeams(favoriteTeamsResponse.data.map((team) => team.teamName));
                 }
             } catch (error) {
                 console.error('Error loading data:', error);
@@ -118,9 +102,9 @@ const Profile: React.FC = () => {
         };
     }, [userId]);
 
-    const saveFavoriteTeams = () => {
+    const saveFavoriteTeams = async () => {
         if (userId === null) {
-            alert("User ID is not available");
+            alert("❌ User ID is not available");
             return;
         }
 
@@ -128,35 +112,40 @@ const Profile: React.FC = () => {
         const teamsToAdd = selectedTeamNames.filter((team) => !initialFavoriteTeams.includes(team));
         const teamsToRemove = initialFavoriteTeams.filter((team) => !selectedTeamNames.includes(team));
 
-        const updateTeams = async (action: string, teamNames: string[]) => {
-            try {
-                const response = await fetch(`/api/favorite-teams/user/${userId}/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action, teamNames }),
+        try {
+            if (teamsToAdd.length > 0) {
+                await API.post(`/favorite-teams/user/${userId}/update`, {
+                    action: "add",
+                    teamNames: teamsToAdd,
                 });
-                if (!response.ok) {
-                    throw new Error(`Failed to ${action} favorite teams.`);
-                }
-            } catch (error) {
-                console.error(`Error ${action}ing favorite teams:`, error);
+                console.log(`✅ Added teams: ${teamsToAdd.join(", ")}`);
             }
-        };
 
-        if (teamsToAdd.length > 0) {
-            updateTeams('add', teamsToAdd);
+            if (teamsToRemove.length > 0) {
+                await API.post(`/favorite-teams/user/${userId}/update`, {
+                    action: "remove",
+                    teamNames: teamsToRemove,
+                });
+                console.log(`🗑 Removed teams: ${teamsToRemove.join(", ")}`);
+            }
+
+            alert("✅ Changes saved successfully!");
+            setInitialFavoriteTeams(selectedTeamNames);
+        } catch (error) {
+            console.error("❌ Error updating favorite teams:", error);
+            alert("Failed to save changes. Please try again.");
         }
-
-        if (teamsToRemove.length > 0) {
-            updateTeams('remove', teamsToRemove);
-        }
-
-        alert('Changes saved!');
     };
 
     const connectGoogleCalendar = async () => {
         try {
-            window.location.href = '/api/google/calendar/auth';
+            const userToken = localStorage.getItem("token");
+            if (!userToken) {
+                alert("❌ You are not authenticated!");
+                return;
+            }
+
+            window.open(`http://localhost:8080/api/google/calendar/auth?auth=${userToken}`, '_blank');
         } catch (error) {
             console.error('Error connecting Google Calendar:', error);
             alert('Failed to connect Google Calendar.');
@@ -186,8 +175,16 @@ const Profile: React.FC = () => {
                     Connect Google Calendar
                 </button>
             )}
+
             {hasGoogleCalendarToken && (
-                <p style={{marginTop: '1rem'}}>You are connected to Google Calendar!</p>
+                <>
+                    <p style={{ marginTop: '1rem' }}>{calendarStatus}</p>
+                    {(calendarStatus.includes("expired") || calendarStatus.includes("not connected")) && (
+                        <button onClick={connectGoogleCalendar}>
+                            🔄 Reconnect Google Calendar
+                        </button>
+                    )}
+                </>
             )}
         </div>
     );

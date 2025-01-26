@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ScheduleDate } from '../../types/schedule.ts';
+import {FavoriteTeam, ScheduleDate} from '../../types/schedule.ts';
 import FilterControls from '../FilterControls.tsx';
 import ScheduleGrid from './ScheduleGrid.tsx';
 import PaginationControls from '../PaginationControls.tsx';
 import SelectedTeams from "./SelectedTeams.tsx";
+import {useAuth} from "../auth/AuthContext.tsx";
+import API from "../../api.ts";
+
+interface UserResponse {
+    id: string;
+}
 
 const Schedule: React.FC = () => {
     const [schedule, setSchedule] = useState<ScheduleDate[]>([]);
@@ -18,8 +24,15 @@ const Schedule: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 3;
     const navigate = useNavigate();
+    const { token } = useAuth();
 
     const fetchSchedule = async () => {
+        if (!token) {
+            console.warn("⚠️ No token, skipping schedule fetch.");
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         setError(null);
         try {
@@ -36,17 +49,12 @@ const Schedule: React.FC = () => {
                 setFilteredSchedule(data.dates || []);
             } else {
                 console.log("🔄 Fetching new MLB schedule data...");
-                const response = await fetch('/api/schedule/mlb');
+                const response = await API.get<{ dates: ScheduleDate[] }>('/schedule/mlb');
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
-                }
+                setSchedule(response.data.dates || []);
+                setFilteredSchedule(response.data.dates || []);
 
-                const data = await response.json();
-                setSchedule(data.dates || []);
-                setFilteredSchedule(data.dates || []);
-
-                sessionStorage.setItem("mlbSchedule", JSON.stringify(data));
+                sessionStorage.setItem("mlbSchedule", JSON.stringify(response.data));
                 sessionStorage.setItem("mlbScheduleTimestamp", now.toString());
             }
         } catch (err) {
@@ -57,28 +65,23 @@ const Schedule: React.FC = () => {
     };
 
     const fetchFavoriteTeams = async () => {
+        if (!token) {
+            console.warn("⚠️ No token, skipping favorite teams fetch.");
+            return;
+        }
+
         try {
-            const userResponse = await fetch('/api/users/current');
-            if (!userResponse.ok) throw new Error("Failed to fetch user");
+            const userResponse = await API.get<UserResponse>('/users/current');
+            const userId = userResponse.data.id;
 
-            const userData = await userResponse.json();
-            const userId = userData.id;
-
-            const response = await fetch(`/api/favorite-teams/user/${userId}`);
+            const response = await API.get<FavoriteTeam[]>(`/favorite-teams/user/${userId}`);
 
             if (response.status === 204) {
                 setFavoriteTeams([]);
                 return;
             }
 
-            if (!response.ok) {
-                throw new Error(`Failed to fetch favorite teams: ${response.statusText}`);
-            }
-
-            const text = await response.text();
-            const data = text ? JSON.parse(text) : [];
-
-            setFavoriteTeams(data.map((team: { teamName: string }) => team.teamName));
+            setFavoriteTeams(response.data.map((team: { teamName: string }) => team.teamName));
         } catch (err) {
             console.error("Error fetching favorite teams:", err);
             setError((err as Error).message);
@@ -91,13 +94,13 @@ const Schedule: React.FC = () => {
 
     useEffect(() => {
         fetchSchedule();
-    }, []);
+    }, [token]);
 
     useEffect(() => {
         if (showFavorites) {
             fetchFavoriteTeams();
         }
-    }, [showFavorites]);
+    }, [showFavorites, token]);
 
     useEffect(() => {
         if (showFavorites && favoriteTeams.length > 0) {

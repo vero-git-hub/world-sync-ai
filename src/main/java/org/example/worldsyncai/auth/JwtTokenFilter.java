@@ -25,28 +25,28 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
         String token = jwtTokenProvider.extractToken(request);
 
         if (token == null) {
             log.warn("⚠️ No JWT token found in request.");
-        } else {
-            log.info("📌 Received token: {}", token);
         }
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String username = jwtTokenProvider.getUsernameFromToken(token);
-            log.info("🔍 Extracted username: {}", username);
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            log.info("✅ JWT authentication successful for user: {}", username);
         } else {
             log.warn("❌ Invalid or expired JWT token.");
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/api/google/calendar/auth") || path.startsWith("/api/google/calendar/callback");
     }
 }
