@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
-import axios from "axios";
+import {useAuth} from "../auth/AuthContext.tsx";
+import API from "../../api.ts";
 
 interface MlbScheduleResponse {
     dates: {
@@ -35,10 +36,17 @@ const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined
 export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [schedule, setSchedule] = useState<GameSchedule | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const { token } = useAuth();
 
     const fetchSchedule = async () => {
+        if (!token) {
+            console.warn("⚠️ Skipping schedule fetch: user not authenticated");
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axios.get<MlbScheduleResponse>("/api/schedule/mlb");
+            const response = await API.get<MlbScheduleResponse>("/schedule/mlb");
             if (response.status === 200 && response.data.dates.length > 0) {
                 const now = new Date();
                 const futureGames = response.data.dates.flatMap(date =>
@@ -65,7 +73,7 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     useEffect(() => {
         fetchSchedule();
-    }, []);
+    }, [token]);
 
     return (
         <ScheduleContext.Provider value={{ schedule, loading, fetchSchedule }}>

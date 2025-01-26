@@ -1,36 +1,34 @@
 import React, { useState } from "react";
-import {useNavigate} from "react-router-dom";
 import "../../styles/components/auth/Login.css";
+import API from "../../api.ts";
+
+interface AuthResponse {
+    token: string;
+}
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
 
         try {
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
+            const response = await API.post<AuthResponse>("/auth/login", {
+                username,
+                password
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText || "Invalid username or password");
-            }
-
-            const data = await response.json();
+            const data = response.data;
             localStorage.setItem("token", data.token);
 
-            console.log("✅ Login successful. Token saved.");
-            navigate("/dashboard");
-        } catch (err) {
-            setError((err as Error).message);
+            console.log("✅ Login successful:", data);
+            window.location.href = "/";
+        } catch (error) {
+            console.error("❌ Login error:", error);
+            setError("Invalid username or password");
         }
     };
 

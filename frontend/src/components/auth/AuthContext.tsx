@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
     token: string | null;
@@ -10,6 +11,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!token && window.location.pathname !== "/login") {
+            console.warn("🔒 User is not authenticated, redirecting to login...");
+            window.location.href = "/login";
+        }
+    }, [token]);
 
     const login = (newToken: string) => {
         setToken(newToken);
@@ -19,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const logout = () => {
         setToken(null);
         localStorage.removeItem("token");
+        navigate("/login");
     };
 
     return (
