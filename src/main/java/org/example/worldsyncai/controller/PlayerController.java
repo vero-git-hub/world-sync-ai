@@ -2,13 +2,12 @@ package org.example.worldsyncai.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.worldsyncai.auth.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +22,7 @@ public class PlayerController {
     private String baseUrl;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * Fetches the details of a specific player by their ID.
@@ -31,7 +31,18 @@ public class PlayerController {
      * @return the player's details
      */
     @GetMapping("/{playerId}")
-    public ResponseEntity<?> getPlayerDetails(@PathVariable int playerId) {
+    public ResponseEntity<?> getPlayerDetails(@PathVariable int playerId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.error("❌ No valid JWT token provided.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header.");
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            log.error("❌ Invalid or expired JWT token.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired JWT token.");
+        }
+
         String url = baseUrl + "/people/" + playerId;
 
         try {
