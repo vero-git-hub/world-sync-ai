@@ -21,6 +21,12 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
 
     const handleAddToCalendar = async () => {
         try {
+            const userToken = localStorage.getItem("token");
+            if (!userToken) {
+                alert("❌ You are not logged in. Please log in first.");
+                return;
+            }
+
             const start = gameTime;
             const endDate = new Date(gameTime);
             endDate.setHours(endDate.getHours() + 1);
@@ -33,10 +39,11 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
                 endDateTime: end,
             };
 
-            const response = await fetch("/api/google/calendar/event/game", {
+            const response = await fetch("http://localhost:8080/api/google/calendar/event/game", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${userToken}`,
                 },
                 body: JSON.stringify(bodyData),
             });
