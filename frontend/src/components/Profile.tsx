@@ -64,33 +64,39 @@ const Profile: React.FC = () => {
     useEffect(() => {
         if (userId === null) return;
 
-        let isMounted = true;
-
         const fetchTeams = async () => {
+            if (!userId) return;
+
             try {
                 const [teamsResponse, favoriteTeamsResponse] = await Promise.all([
                     API.get<{ teams: Team[] }>('/teams/mlb/teams'),
-                    API.get<Team[]>(`/favorite-teams/user/${userId}`),
+                    API.get(`/favorite-teams/user/${userId}`),
                 ]);
 
-                if (isMounted) {
-                    const mappedTeams = teamsResponse.data.teams.map((team: Team) => ({
-                        value: team.teamName,
-                        label: team.teamName,
-                    })) || [];
+                if (!teamsResponse.data || !Array.isArray(teamsResponse.data.teams)) {
+                    throw new Error("Invalid teams data: teamsResponse.data.teams is not an array or undefined");
+                }
 
-                    setTeams(mappedTeams);
+                const mappedTeams = teamsResponse.data.teams.map((team) => ({
+                    value: team.teamName,
+                    label: team.teamName,
+                }));
 
-                    const mappedFavorites = favoriteTeamsResponse.data.map((team) => ({
+                let mappedFavorites: SelectOption[] = [];
+                if (favoriteTeamsResponse.data && Array.isArray(favoriteTeamsResponse.data)) {
+                    mappedFavorites = favoriteTeamsResponse.data.map((team) => ({
                         value: team.teamName,
                         label: team.teamName,
                     }));
-
-                    setFavoriteTeams(mappedFavorites);
-                    setInitialFavoriteTeams(favoriteTeamsResponse.data.map((team) => team.teamName));
+                } else {
+                    console.warn("⚠️ Favorite teams API did not return an array. Defaulting to empty.");
                 }
+
+                setTeams(mappedTeams);
+                setFavoriteTeams(mappedFavorites);
+                setInitialFavoriteTeams(mappedFavorites.map((team) => team.value));
             } catch (error) {
-                console.error('Error loading data:', error);
+                console.error('❌ Error loading data:', error);
                 alert('Failed to load data. Please try again later.');
             }
         };
@@ -98,7 +104,6 @@ const Profile: React.FC = () => {
         fetchTeams();
 
         return () => {
-            isMounted = false;
         };
     }, [userId]);
 
