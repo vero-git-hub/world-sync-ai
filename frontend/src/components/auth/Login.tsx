@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "../../styles/components/auth/Login.css";
 import API from "../../api.ts";
 import { Link } from "react-router-dom";
+import AuthLayout from "../../layouts/AuthLayout.tsx";
 
 interface AuthResponse {
     token: string;
@@ -33,19 +33,21 @@ const Login: React.FC = () => {
     };
 
     return (
-        <div className="login-container">
-            <h2>Login</h2>
-            {error && <p className="error">{error}</p>}
-            <form onSubmit={handleLogin}>
-                <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                <button type="submit" className="login-button">Login</button>
-            </form>
+        <AuthLayout>
+            <div className="auth-box">
+                <h2>Login</h2>
+                {error && <p className="error">{error}</p>}
+                <form onSubmit={handleLogin}>
+                    <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                    <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                    <button type="submit" className="auth-button">Login</button>
+                </form>
 
-            <p className="register-link">
-                Don't have an account? <Link to="/register">Register</Link>
-            </p>
-        </div>
+                <p className="auth-link">
+                    Don't have an account? <Link to="/register">Register</Link>
+                </p>
+            </div>
+        </AuthLayout>
     );
 };
 

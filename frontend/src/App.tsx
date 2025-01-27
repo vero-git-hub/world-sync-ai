@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/auth/Login';
 import HomePage from './pages/HomePage';
 import SchedulePage from './pages/SchedulePage';
 import ProfilePage from './pages/ProfilePage';
@@ -9,7 +8,8 @@ import PlayerPage from './pages/team/PlayerPage.tsx';
 import ProtectedRoute from "./components/auth/ProtectedRoute.tsx";
 import {AuthProvider} from "./components/auth/AuthContext.tsx";
 import {ScheduleProvider} from "./components/schedule/ScheduleContext.tsx";
-import Register from "./pages/auth/Register.tsx";
+import LoginPage from "./pages/auth/LoginPage.tsx";
+import RegisterPage from "./pages/auth/RegisterPage.tsx";
 
 function App() {
     return (
@@ -17,8 +17,8 @@ function App() {
             <AuthProvider>
                 <ScheduleProvider>
                     <Routes>
-                        <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
 
                         <Route element={<ProtectedRoute />}>
                             <Route path="/" element={<HomePage />} />
