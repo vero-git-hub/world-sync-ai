@@ -3,9 +3,9 @@ package org.example.worldsyncai.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.worldsyncai.dto.UserDto;
 import org.example.worldsyncai.dto.auth.AuthResponse;
 import org.example.worldsyncai.dto.auth.LoginRequest;
-import org.example.worldsyncai.dto.UserDto;
 import org.example.worldsyncai.auth.JwtTokenProvider;
 import org.example.worldsyncai.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -58,8 +57,18 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Valid UserDto userDto) {
         try {
+            if (userService.existsByUsername(userDto.getUsername())) {
+                log.error("❌ Registration error: Username '{}' is already taken!", userDto.getUsername());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username is already taken.");
+            }
+
+            if (userService.existsByEmail(userDto.getEmail())) {
+                log.error("❌ Registration error: Email '{}' is already in use!", userDto.getEmail());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email is already in use.");
+            }
+
             userService.addUser(userDto);
-            log.info("🆕 User '{}' registered successfully.", userDto.getUsername());
+
             return ResponseEntity.ok("User registered successfully");
         } catch (IllegalArgumentException e) {
             log.error("❌ Registration error: {}", e.getMessage());
@@ -79,10 +88,6 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
         }
 
-        User user = (User) authentication.getPrincipal();
-        UserDto userDto = new UserDto();
-        userDto.setUsername(user.getUsername());
-
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(userService.getUserByUsername(authentication.getName()));
     }
 }

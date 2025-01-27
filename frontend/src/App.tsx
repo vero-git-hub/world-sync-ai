@@ -9,6 +9,7 @@ import PlayerPage from './pages/team/PlayerPage.tsx';
 import ProtectedRoute from "./components/auth/ProtectedRoute.tsx";
 import {AuthProvider} from "./components/auth/AuthContext.tsx";
 import {ScheduleProvider} from "./components/schedule/ScheduleContext.tsx";
+import Register from "./pages/auth/Register.tsx";
 
 function App() {
     return (
@@ -17,6 +18,7 @@ function App() {
                 <ScheduleProvider>
                     <Routes>
                         <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
 
                         <Route element={<ProtectedRoute />}>
                             <Route path="/" element={<HomePage />} />

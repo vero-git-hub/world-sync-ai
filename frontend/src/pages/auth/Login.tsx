@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../../styles/components/auth/Login.css";
 import API from "../../api.ts";
+import {Link} from "react-router-dom";
 
 interface AuthResponse {
     token: string;
@@ -41,6 +42,10 @@ const Login: React.FC = () => {
                 <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 <button type="submit">Login</button>
             </form>
+
+            <p className="register-link">
+                Don't have an account? <Link to="/register">Register</Link>
+            </p>
         </div>
     );
 };

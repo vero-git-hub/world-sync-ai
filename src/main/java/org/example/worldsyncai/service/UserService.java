@@ -22,4 +22,8 @@ public interface UserService {
     String getUserCalendarToken(Long userId);
 
     Optional<User> findUserEntityById(Long id);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
 }

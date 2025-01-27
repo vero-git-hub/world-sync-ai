@@ -36,16 +36,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserDto> addUser(UserDto userDto) {
         if (userRepository.findByUsername(userDto.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username already exists.");
+            log.error("❌ Registration failed: Username '{}' is already taken!", userDto.getUsername());
+            throw new IllegalArgumentException("Username is already taken.");
         }
 
         if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email already exists.");
+            log.error("❌ Registration failed: Email '{}' is already in use!", userDto.getEmail());
+            throw new IllegalArgumentException("Email is already in use.");
         }
 
+        String hashedPassword = passwordEncoder.encode(userDto.getPassword());
+
         User user = userMapper.toEntity(userDto);
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        user.setPassword(hashedPassword);
+
         User savedUser = userRepository.save(user);
+
         return Optional.of(userMapper.toDto(savedUser));
     }
 
@@ -93,5 +99,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> findUserEntityById(Long id) {
         return userRepository.findById(id);
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
