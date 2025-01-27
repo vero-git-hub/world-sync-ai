@@ -52,20 +52,26 @@ public class TeamController {
     }
 
     /**
-     * Retrieves detailed information about an MLB team based on its unique team ID.
-     * The data includes general team information and the roster for the 2025 season.
+     * Retrieves the details of a specified MLB team, including team information and roster for a given season.
      *
-     * <p>If the data for the specified team is already cached, it will return directly
-     * from the cache to speed up the response.</p>
-     *
-     * <p>API calls are made to fetch the team data and roster if not cached. The
-     * responses are parsed and stored in the cache for future use.</p>
-     *
-     * @param teamId The unique identifier for the MLB team whose details need to be retrieved.
-     * @return A {@link ResponseEntity} containing HTTP statuses: 200, 408 (REQUEST_TIMEOUT), 4xx or 5xx, 500
+     * @param teamId the unique identifier of the MLB team whose details are to be fetched
+     * @param authHeader the authorization header containing the Bearer JWT token for authentication
+     * @return a ResponseEntity containing the team details if the request is successful, or an appropriate error response
+     *         with the corresponding HTTP status code if an error occurs
      */
     @GetMapping("/mlb/team/{teamId}")
-    public ResponseEntity<?> getTeamDetails(@PathVariable int teamId) {
+    public ResponseEntity<?> getTeamDetails(@PathVariable int teamId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.error("❌ No valid JWT token provided.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header.");
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            log.error("❌ Invalid or expired JWT token.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired JWT token.");
+        }
+
         if (teamDataCache.containsKey(teamId)) {
             log.debug("✅ Returning cached data for team {}", teamId);
             return ResponseEntity.ok(teamDataCache.get(teamId));

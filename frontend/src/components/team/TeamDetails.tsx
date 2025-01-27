@@ -23,8 +23,25 @@ const TeamDetails: React.FC = () => {
 
     useEffect(() => {
         const fetchTeamData = async () => {
+            setLoading(true);
+            setError(null);
+
+            const token = localStorage.getItem("token");
+            if (!token) {
+                setError("❌ No authentication token found. Please log in.");
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await fetch(`/api/teams/mlb/team/${teamId}`);
+                const response = await fetch(`/api/teams/mlb/team/${teamId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
                 if (!response.ok) {
                     throw new Error(`Failed to fetch team data: ${response.statusText}`);
                 }
