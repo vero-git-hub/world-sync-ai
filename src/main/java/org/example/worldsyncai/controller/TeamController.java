@@ -3,7 +3,9 @@ package org.example.worldsyncai.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.worldsyncai.auth.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +37,7 @@ public class TeamController {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final JwtTokenProvider jwtTokenProvider;
 
     private final Map<Integer, byte[]> teamLogoCache = new ConcurrentHashMap<>();
     private final Map<Integer, Map<String, Object>> teamDataCache = new ConcurrentHashMap<>();
@@ -95,18 +98,25 @@ public class TeamController {
     }
 
     /**
-     * Retrieves a list of all MLB teams by calling an external API.
-     * The response is returned as a JSON string with the appropriate Content-Type header.
+     * Fetches a list of MLB teams from a remote service.
      *
-     * @return A {@link ResponseEntity} containing the list of teams in JSON format
-     * if the request is successful, or an appropriate HTTP status code if an error occurs.
-     * Possible HTTP status responses:
-     * - 200 OK: Successfully retrieved the list of teams.
-     * - 4xx: Client-related errors, such as bad requests or unauthorized access.
-     * - 500 INTERNAL_SERVER_ERROR: Unexpected errors on the server side.
+     * @param authHeader The Authorization header containing a Bearer JWT token to authenticate the request.
+     * @return A ResponseEntity containing the list of MLB teams in JSON format if the request is successful,
+     *         or an error message with the corresponding HTTP status code if the request fails.
      */
     @GetMapping("/mlb/teams")
-    public ResponseEntity<?> getAllTeams() {
+    public ResponseEntity<?> getAllTeams(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.error("❌ No valid JWT token provided.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header.");
+        }
+
+        String token = authHeader.substring(7);
+        if (!jwtTokenProvider.validateToken(token)) {
+            log.error("❌ Invalid or expired JWT token.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired JWT token.");
+        }
+
         try {
             String response = restTemplate.getForObject(teamsUrl, String.class);
             return ResponseEntity.ok().header("Content-Type", "application/json").body(response);

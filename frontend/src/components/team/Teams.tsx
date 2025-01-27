@@ -23,16 +23,36 @@ const Teams: React.FC = () => {
         setError(null);
 
         try {
-            const response = await fetch('/api/teams/mlb/teams');
+            const userToken = localStorage.getItem("token");
+            if (!userToken) {
+                throw new Error("❌ No authentication token found. Please log in.");
+            }
+
+            const response = await fetch('/api/teams/mlb/teams', {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${userToken}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
             if (!response.ok) {
                 throw new Error(`Failed to fetch teams: ${response.statusText}`);
             }
+
             const data = await response.json();
             setTeams(data.teams || []);
 
             const logoPromises = data.teams.map(async (team: Team) => {
-                const response = await axios.get<Blob>(`/api/teams/mlb/team/${team.id}/logo`, { responseType: 'blob' });
-                const logoUrl = URL.createObjectURL(response.data);
+                const logoResponse = await axios.get<Blob>(
+                    `/api/teams/mlb/team/${team.id}/logo`,
+                    {
+                        responseType: 'blob',
+                        headers: { "Authorization": `Bearer ${userToken}` },
+                    }
+                );
+
+                const logoUrl = URL.createObjectURL(logoResponse.data);
                 return { [team.id]: logoUrl };
             });
 
