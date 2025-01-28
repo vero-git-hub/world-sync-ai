@@ -5,27 +5,7 @@ import ChatBot from './ChatBot';
 import TriviaGame from "./game/TriviaGame";
 import { useSchedule } from "./schedule/ScheduleContext";
 import API from "../api.ts";
-
-interface FavoriteTeam {
-    id: number;
-    teamName: string;
-    userId: number;
-}
-
-interface UserData {
-    id: number;
-    username: string;
-    email: string;
-    password: string;
-    favoriteTeams: FavoriteTeam[];
-    hasGoogleCalendarToken: boolean;
-}
-
-interface Team {
-    id: number;
-    name: string;
-    logoUrl?: string;
-}
+import {Team, UserData} from "../types/home.ts";
 
 const Home: React.FC = () => {
     const [showTrivia, setShowTrivia] = useState(false);
@@ -83,6 +63,11 @@ const Home: React.FC = () => {
 
     return (
         <div className="home-page">
+            <header className="home-header">
+                <img src="/public/images/logo_50.png" alt="MLB Logo" className="mlb-logo"/>
+                <h1>⚾ Welcome to World Sync AI ⚾</h1>
+                <p>Your ultimate MLB companion</p>
+            </header>
             {/* Top row: Trivia и AI Chat */}
             <div className="top-row">
                 <div className="widget trivia-intro-widget">
