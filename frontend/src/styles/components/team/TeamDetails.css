@@ -1,26 +1,103 @@
 .team-page {
-    padding: 20px;
+    background: url('/public/images/background/rainy-stadium.webp') no-repeat center center/cover;
+    min-height: 100vh;
+    padding: 40px 20px;
+    text-align: center;
+    width: 100%;
 }
 
-.team-info {
-    background-color: #f4f4f4;
-    padding: 20px;
+/* Back */
+.back-button {
+    display: inline-block;
+    background: #ff4136;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
     margin-bottom: 20px;
-    border-radius: 8px;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.team-roster {
-    background-color: #fff;
+.back-button:hover {
+    background: #ff851b;
+    transform: scale(1.05);
+}
+
+/* Team */
+.team-card {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+    display: inline-block;
+    text-align: center;
+    margin-bottom: 30px;
+    color: white;
+    border: 3px solid white;
+}
+
+.team-logo {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.team-name {
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.5);
+}
+
+.team-details {
+    font-size: 18px;
+    margin: 5px 0;
+}
+
+/* Roster */
+.roster-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.roster-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    justify-content: center;
     padding: 20px;
-    border-radius: 8px;
 }
 
-.team-roster ul {
-    list-style: none;
-    padding: 0;
+/* Player card */
+.player-card {
+    background: linear-gradient(145deg, #1e1e1e, #333);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+    color: white;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.team-roster li {
-    padding: 5px 0;
-    border-bottom: 1px solid #ddd;
+.player-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.4);
+}
+
+.player-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffdc00;
+}
+
+.player-position {
+    font-size: 14px;
+    color: #00d4ff;
 }
