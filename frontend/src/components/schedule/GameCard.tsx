@@ -2,22 +2,21 @@ import React from 'react';
 import { format } from 'date-fns';
 import { FaCalendarPlus } from 'react-icons/fa6';
 import "../../styles/components/schedule/GameCard.css";
+import { GameCardProps } from "../../types/card.ts";
 
-interface GameCardProps {
-    homeTeam: string;
-    awayTeam: string;
-    homeLogo: string;
-    awayLogo: string;
-    homeTeamId: number;
-    awayTeamId: number;
-    gameTime: string;
-    venue: string;
-    onTeamClick: (teamId: number) => void;
-}
-
-const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayLogo, homeTeamId, awayTeamId, gameTime, venue, onTeamClick }) => {
-    const formattedDate = format(new Date(gameTime), 'MMMM d');
-    const formattedTime = format(new Date(gameTime), 'HH:mm');
+const GameCard: React.FC<GameCardProps> = ({
+                                               homeTeam,
+                                               awayTeam,
+                                               homeLogo,
+                                               awayLogo,
+                                               homeTeamId,
+                                               awayTeamId,
+                                               gameTime,
+                                               venue,
+                                               onTeamClick
+                                           }) => {
+    const formattedDate = format(new Date(gameTime), 'MMMM d, yyyy');
+    const formattedTime = format(new Date(gameTime), 'hh:mm a');
 
     const handleAddToCalendar = async () => {
         try {
@@ -29,12 +28,12 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
 
             const start = gameTime;
             const endDate = new Date(gameTime);
-            endDate.setHours(endDate.getHours() + 1);
+            endDate.setHours(endDate.getHours() + 3);
             const end = endDate.toISOString();
 
             const bodyData = {
-                summary: `Match: ${awayTeam} at ${homeTeam}`,
-                description: `Venue: ${venue}`,
+                summary: `⚾ Match: ${awayTeam} at ${homeTeam}`,
+                description: `📍 Venue: ${venue}`,
                 startDateTime: start,
                 endDateTime: end,
             };
@@ -73,26 +72,28 @@ const GameCard: React.FC<GameCardProps> = ({ homeTeam, awayTeam, homeLogo, awayL
 
     return (
         <div className="game-card">
-            <div className="team-info" onClick={() => onTeamClick(awayTeamId)}>
-                <img src={awayLogo} alt={`${awayTeam} logo`} className="team-logo"/>
-                <span className="team-name">{awayTeam}</span>
-            </div>
-            <div className="game-details">
-                <span className="game-date">{formattedDate}</span>
-                <span className="game-time">{formattedTime}</span>
-                <span className="venue">{venue}</span>
-            </div>
-            <div className="team-info" onClick={() => onTeamClick(homeTeamId)}>
-                <img src={homeLogo} alt={`${homeTeam} logo`} className="team-logo"/>
-                <span className="team-name">{homeTeam}</span>
+            <div className="card-header">⚾ MLB GAME</div>
+
+            <div className="team-section">
+                <div className="team-info" onClick={() => onTeamClick(awayTeamId)}>
+                    <img src={awayLogo} alt={`${awayTeam} logo`} className="team-logo"/>
+                    <span className="team-name">{awayTeam}</span>
+                </div>
+                <span className="vs-text">VS</span>
+                <div className="team-info" onClick={() => onTeamClick(homeTeamId)}>
+                    <img src={homeLogo} alt={`${homeTeam} logo`} className="team-logo"/>
+                    <span className="team-name">{homeTeam}</span>
+                </div>
             </div>
 
-            <button
-                style={{marginTop: '8px', display: 'flex', alignItems: 'center', gap: '5px'}}
-                onClick={handleAddToCalendar}
-                title="Add game to Google Calendar"
-            >
-                <FaCalendarPlus size={16}/>
+            <div className="match-details">
+                <span className="match-date">📅 {formattedDate}</span>
+                <span className="match-time">🕒 {formattedTime}</span>
+                <span className="match-venue">📍 {venue}</span>
+            </div>
+
+            <button className="calendar-btn" onClick={handleAddToCalendar} title="Add game to Google Calendar">
+                <FaCalendarPlus size={18}/> Add to Calendar
             </button>
         </div>
     );
