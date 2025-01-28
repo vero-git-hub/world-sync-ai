@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import "../../styles/components/team/TeamDetails.css";
 import { TeamInfo, RosterPlayer } from "../../types/team.ts";
 import axios from "axios";
 
 const TeamDetails: React.FC = () => {
     const { teamId } = useParams<{ teamId: string }>();
+    const navigate = useNavigate();
     const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
     const [roster, setRoster] = useState<RosterPlayer[]>([]);
     const [teamLogo, setTeamLogo] = useState<string | null>(null);
@@ -94,10 +95,14 @@ const TeamDetails: React.FC = () => {
             <h2 className="roster-title">📋 Team Roster</h2>
             <div className="roster-grid">
                 {roster.map((player, index) => (
-                    <Link to={`/player/${player.person.id}`} key={index} className="player-card">
+                    <button
+                        key={index}
+                        className="player-card"
+                        onClick={() => navigate(`/player/${player.person.id}`, { state: { fromTeamPath: `/team/${teamId}` } })}
+                    >
                         <p className="player-name">{player.person.fullName}</p>
                         <span className="player-position">{player.position.name}</span>
-                    </Link>
+                    </button>
                 ))}
             </div>
         </div>

@@ -1,9 +1,72 @@
-.player-link {
-    text-decoration: none;
-    color: blue;
-    cursor: pointer;
+/* Main container */
+.player-page {
+    padding: 20px;
+    text-align: center;
 }
 
-.player-link:hover {
+/* Back button */
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #00d4ff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.back-button:hover {
     text-decoration: underline;
+}
+
+/* Player card */
+.player-card {
+    background: linear-gradient(145deg, #222, #333);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+    max-width: 500px;
+    margin: 0 auto;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Player photo */
+.player-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 4px solid white;
+    margin-bottom: 10px;
+    object-fit: cover;
+}
+
+/* Player name */
+.player-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffdc00;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
+    margin-bottom: 10px;
+}
+
+/* Details */
+.player-details {
+    font-size: 16px;
+    color: #ddd;
+    margin: 5px 0;
+}
+
+/* Loading */
+.loading {
+    font-size: 20px;
+    color: white;
+}
+
+/* Error */
+.error-message {
+    color: red;
+    font-size: 18px;
+    text-align: center;
 }

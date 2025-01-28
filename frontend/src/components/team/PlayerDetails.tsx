@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-
-interface PlayerInfo {
-    id: number;
-    fullName: string;
-    birthDate: string;
-    currentAge: number;
-    primaryPosition: { name: string };
-    height: string;
-    weight: number;
-    mlbDebutDate: string;
-    batSide: { description: string };
-    pitchHand: { description: string };
-}
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
+import "../../styles/components/team/PlayerDetails.css";
+import { PlayerInfo, LocationState } from "../../types/player.ts";
 
 const PlayerDetails: React.FC = () => {
     const { playerId } = useParams<{ playerId: string }>();
     const [playerInfo, setPlayerInfo] = useState<PlayerInfo | null>(null);
+    const [playerPhoto, setPlayerPhoto] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const location = useLocation();
+    const state = location.state as LocationState | null;
+    const previousTeamPath = state?.fromTeamPath || "/teams";
 
     useEffect(() => {
         const fetchPlayerData = async () => {
@@ -36,7 +29,7 @@ const PlayerDetails: React.FC = () => {
                 const response = await fetch(`/api/players/${playerId}`, {
                     method: "GET",
                     headers: {
-                        "Authorization": `Bearer ${token}`,
+                        Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",
                     },
                 });
@@ -49,11 +42,14 @@ const PlayerDetails: React.FC = () => {
                 if (data.people && data.people.length > 0) {
                     setPlayerInfo(data.people[0]);
                 } else {
-                    throw new Error('No player data found.');
+                    throw new Error("No player data found.");
                 }
+
+                const imageUrl = `const_imageUrl`;
+                setPlayerPhoto(imageUrl);
             } catch (err) {
-                console.error('Error fetching player data:', err);
-                setError('Failed to load player data. Please try again.');
+                console.error("Error fetching player data:", err);
+                setError("Failed to load player data. Please try again.");
             } finally {
                 setLoading(false);
             }
@@ -62,25 +58,25 @@ const PlayerDetails: React.FC = () => {
         fetchPlayerData();
     }, [playerId]);
 
-    if (loading) return <p>Loading player details...</p>;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
+    if (loading) return <p className="loading">Loading player details...</p>;
+    if (error) return <p className="error-message">{error}</p>;
 
     return (
-        <div>
-            <h1>Player Details</h1>
-            <Link to="/schedule">Back to Schedule</Link>
+        <div className="player-page">
+            <Link to={previousTeamPath} className="back-button">⬅ Back to Team</Link>
 
             {playerInfo ? (
-                <div>
-                    <h2>{playerInfo.fullName}</h2>
-                    <p><strong>Birth Date:</strong> {playerInfo.birthDate}</p>
-                    <p><strong>Age:</strong> {playerInfo.currentAge}</p>
-                    <p><strong>Primary Position:</strong> {playerInfo.primaryPosition.name}</p>
-                    <p><strong>Height:</strong> {playerInfo.height}</p>
-                    <p><strong>Weight:</strong> {playerInfo.weight} lbs</p>
-                    <p><strong>MLB Debut:</strong> {playerInfo.mlbDebutDate}</p>
-                    <p><strong>Bat Side:</strong> {playerInfo.batSide.description}</p>
-                    <p><strong>Pitch Hand:</strong> {playerInfo.pitchHand.description}</p>
+                <div className="player-card">
+                    {playerPhoto && <img src={playerPhoto} alt={playerInfo.fullName} className="player-photo" />}
+                    <h1 className="player-name">{playerInfo.fullName}</h1>
+                    <p className="player-details"><strong>🎂 Birth Date:</strong> {playerInfo.birthDate}</p>
+                    <p className="player-details"><strong>🎯 Age:</strong> {playerInfo.currentAge}</p>
+                    <p className="player-details"><strong>⚾ Position:</strong> {playerInfo.primaryPosition.name}</p>
+                    <p className="player-details"><strong>📏 Height:</strong> {playerInfo.height}</p>
+                    <p className="player-details"><strong>⚖️ Weight:</strong> {playerInfo.weight} lbs</p>
+                    <p className="player-details"><strong>🛫 MLB Debut:</strong> {playerInfo.mlbDebutDate}</p>
+                    <p className="player-details"><strong>🦾 Bat Side:</strong> {playerInfo.batSide.description}</p>
+                    <p className="player-details"><strong>💪 Pitch Hand:</strong> {playerInfo.pitchHand.description}</p>
                 </div>
             ) : (
                 <p>No player information available.</p>
