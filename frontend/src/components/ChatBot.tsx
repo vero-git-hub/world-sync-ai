@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 import "../styles/components/ChatBot.css";
 
 const API_URL = "/api/ai/chat/mlb";
@@ -8,6 +9,7 @@ const ChatBot: React.FC = () => {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const userToken = localStorage.getItem("token");
 
     const handleSendMessage = async () => {
         if (!input.trim()) return;
@@ -22,6 +24,7 @@ const ChatBot: React.FC = () => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${userToken}`
                 },
                 body: JSON.stringify({ message: input }),
             });
@@ -50,7 +53,7 @@ const ChatBot: React.FC = () => {
             <div className="chat-messages">
                 {messages.map((msg, index) => (
                     <div key={index} className={`chat-message ${msg.sender}`}>
-                        {msg.text}
+                        <ReactMarkdown>{msg.text}</ReactMarkdown>
                     </div>
                 ))}
                 {loading && <div className="chat-message bot">⏳ Thinking...</div>}
