@@ -4,7 +4,7 @@ import Select from 'react-select';
 import axios from 'axios';
 import { Team } from "../types/schedule.ts";
 import "../styles/components/Profile.css";
-import {SelectOption, UserData} from "../types/profile.ts";
+import { SelectOption, UserData } from "../types/profile.ts";
 import API from "../api.ts";
 
 const Profile: React.FC = () => {
@@ -12,6 +12,8 @@ const Profile: React.FC = () => {
     const [favoriteTeams, setFavoriteTeams] = useState<SelectOption[]>([]);
     const [initialFavoriteTeams, setInitialFavoriteTeams] = useState<string[]>([]);
     const [userId, setUserId] = useState<number | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
+    const [email, setEmail] = useState<string | null>(null);
 
     const [hasGoogleCalendarToken, setHasGoogleCalendarToken] = useState(false);
     const [calendarStatus, setCalendarStatus] = useState<string>("🔄 Checking Google Calendar...");
@@ -19,10 +21,12 @@ const Profile: React.FC = () => {
     const userToken = localStorage.getItem("token");
 
     useEffect(() => {
-        const fetchUserId = async () => {
+        const fetchUserData = async () => {
             try {
                 const response = await API.get<UserData>('/users/current');
                 setUserId(response.data.id);
+                setUsername(response.data.username);
+                setEmail(response.data.email);
 
                 if (response.data.hasGoogleCalendarToken) {
                     setHasGoogleCalendarToken(true);
@@ -34,7 +38,7 @@ const Profile: React.FC = () => {
             }
         };
 
-        fetchUserId();
+        fetchUserData();
     }, []);
 
     const checkCalendarToken = async () => {
@@ -65,17 +69,11 @@ const Profile: React.FC = () => {
         if (userId === null) return;
 
         const fetchTeams = async () => {
-            if (!userId) return;
-
             try {
                 const [teamsResponse, favoriteTeamsResponse] = await Promise.all([
                     API.get<{ teams: Team[] }>('/teams/mlb/teams'),
                     API.get(`/favorite-teams/user/${userId}`),
                 ]);
-
-                if (!teamsResponse.data || !Array.isArray(teamsResponse.data.teams)) {
-                    throw new Error("Invalid teams data: teamsResponse.data.teams is not an array or undefined");
-                }
 
                 const mappedTeams = teamsResponse.data.teams.map((team) => ({
                     value: team.teamName,
@@ -88,8 +86,6 @@ const Profile: React.FC = () => {
                         value: team.teamName,
                         label: team.teamName,
                     }));
-                } else {
-                    console.warn("⚠️ Favorite teams API did not return an array. Defaulting to empty.");
                 }
 
                 setTeams(mappedTeams);
@@ -102,9 +98,6 @@ const Profile: React.FC = () => {
         };
 
         fetchTeams();
-
-        return () => {
-        };
     }, [userId]);
 
     const saveFavoriteTeams = async () => {
@@ -123,7 +116,6 @@ const Profile: React.FC = () => {
                     action: "add",
                     teamNames: teamsToAdd,
                 });
-                console.log(`✅ Added teams: ${teamsToAdd.join(", ")}`);
             }
 
             if (teamsToRemove.length > 0) {
@@ -131,7 +123,6 @@ const Profile: React.FC = () => {
                     action: "remove",
                     teamNames: teamsToRemove,
                 });
-                console.log(`🗑 Removed teams: ${teamsToRemove.join(", ")}`);
             }
 
             alert("✅ Changes saved successfully!");
@@ -144,7 +135,6 @@ const Profile: React.FC = () => {
 
     const connectGoogleCalendar = async () => {
         try {
-            const userToken = localStorage.getItem("token");
             if (!userToken) {
                 alert("❌ You are not authenticated!");
                 return;
@@ -158,39 +148,44 @@ const Profile: React.FC = () => {
     };
 
     return (
-        <div className="profile-container">
-            <h1 className="profile-header">Profile</h1>
-            <Link to="/" className="back-link">Back to home</Link>
+        <div className="profile-page">
+            <div className="profile-card">
+                <h1 className="profile-header">⚾ Profile</h1>
+                <Link to="/" className="back-link">⬅ Back to Home</Link>
 
-            <Select
-                options={teams}
-                isMulti
-                value={favoriteTeams}
-                onChange={(selected) => setFavoriteTeams(selected as SelectOption[] || [])}
-                placeholder="Select your favorite teams"
-                className="team-select"
-            />
+                <div className="user-info">
+                    <p ><strong>Username:</strong> {username || "Not Available"}</p>
+                    <p><strong>Email:</strong> {email || "Not Available"}</p>
+                </div>
 
-            <button className="save-button" onClick={saveFavoriteTeams}>
-                Save
-            </button>
+                <Select
+                    options={teams}
+                    isMulti
+                    value={favoriteTeams}
+                    onChange={(selected) => setFavoriteTeams(selected as SelectOption[] || [])}
+                    placeholder="Select your favorite teams"
+                    className="team-select"
+                />
 
-            {!hasGoogleCalendarToken && (
-                <button className="connect-google-button" onClick={connectGoogleCalendar}>
-                    Connect Google Calendar
-                </button>
-            )}
+                <button className="save-button" onClick={saveFavoriteTeams}>💾 Save Changes</button>
 
-            {hasGoogleCalendarToken && (
-                <>
-                    <p style={{ marginTop: '1rem' }}>{calendarStatus}</p>
-                    {(calendarStatus.includes("expired") || calendarStatus.includes("not connected")) && (
-                        <button onClick={connectGoogleCalendar}>
-                            🔄 Reconnect Google Calendar
-                        </button>
-                    )}
-                </>
-            )}
+                {!hasGoogleCalendarToken && (
+                    <button className="connect-google-button" onClick={connectGoogleCalendar}>
+                        🔗 Connect Google Calendar
+                    </button>
+                )}
+
+                {hasGoogleCalendarToken && (
+                    <>
+                        <p className="calendar-status">{calendarStatus}</p>
+                        {(calendarStatus.includes("expired") || calendarStatus.includes("not connected")) && (
+                            <button className="connect-google-button" onClick={connectGoogleCalendar}>
+                                🔄 Reconnect Google Calendar
+                            </button>
+                        )}
+                    </>
+                )}
+            </div>
         </div>
     );
 };
