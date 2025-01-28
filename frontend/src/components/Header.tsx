@@ -21,8 +21,8 @@ const Header: React.FC = () => {
                 <ul>
                     <li><a href="/">Home</a></li>
                     <li><a href="/schedule">Schedule</a></li>
-                    <li><a href="/profile">Profile</a></li>
                     <li><a href="/teams">Teams</a></li>
+                    <li><a href="/profile">Profile</a></li>
                 </ul>
             </nav>
             <div className="user-icon" onClick={logout}>

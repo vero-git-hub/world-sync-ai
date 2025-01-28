@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import "../../styles/components/team/Teams.css";
 
 interface Team {
     id: number;
@@ -17,6 +18,10 @@ const Teams: React.FC = () => {
     const [logos, setLogos] = useState<{ [key: number]: string }>({});
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+    const navigate = useNavigate();
 
     const fetchTeams = async () => {
         setLoading(true);
@@ -69,43 +74,55 @@ const Teams: React.FC = () => {
         fetchTeams();
     }, []);
 
+    const filteredTeams = teams
+        .filter(team => team.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        .sort((a, b) => sortOrder === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
+
     if (loading) {
-        return <p>Loading teams...</p>;
+        return <p className="loading">Loading teams...</p>;
     }
 
     if (error) {
-        return <div style={{ color: 'red' }}>Error: {error}</div>;
+        return <div className="error-message">Error: {error}</div>;
     }
 
     return (
-        <div className="teams-container" style={{ padding: '20px' }}>
-            <h1>All MLB Teams</h1>
-            <div className="teams-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                {teams.map((team) => (
-                    <Link
-                        to={`/team/${team.id}`}
-                        key={team.id}
-                        style={{
-                            textDecoration: 'none',
-                            color: 'inherit',
-                            padding: '10px',
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            textAlign: 'center',
-                            width: '200px',
-                            boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-                        }}
-                    >
-                        {logos[team.id] && (
-                            <img
-                                src={logos[team.id]}
-                                alt={`${team.name} logo`}
-                                style={{ width: '50px', height: '50px', borderRadius: '50%', marginBottom: '10px' }}
-                            />
-                        )}
-                        <h3>{team.name}</h3>
-                        <p>{team.locationName}</p>
-                        <p>Stadium: {team.venue.name}</p>
+        <div className="teams-page">
+            <h1 className="teams-title">⚾ All MLB Teams</h1>
+
+            <div className="filters">
+                <input
+                    type="text"
+                    placeholder="Search teams..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input"
+                />
+                <button onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")} className="sort-button">
+                    Sort {sortOrder === "asc" ? "↓" : "↑"}
+                </button>
+                <button onClick={() => navigate("/")} className="back-button">⬅ Back</button>
+            </div>
+
+            <div className="teams-list">
+                {filteredTeams.map((team) => (
+                    <Link to={`/team/${team.id}`} key={team.id} className="team-card">
+                        <div className="team-card-inner">
+                            <div className="team-logo-container">
+                                {logos[team.id] && (
+                                    <img
+                                        src={logos[team.id]}
+                                        alt={`${team.name} logo`}
+                                        className="team-logo"
+                                    />
+                                )}
+                            </div>
+                            <div className="team-info">
+                                <h3 className="team-name">{team.name}</h3>
+                                <p className="team-location">{team.locationName}</p>
+                                <p className="team-stadium">🏟 {team.venue.name}</p>
+                            </div>
+                        </div>
                     </Link>
                 ))}
             </div>
