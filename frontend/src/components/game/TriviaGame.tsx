@@ -11,14 +11,19 @@ const TriviaGame: React.FC = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<string>("");
     const [feedback, setFeedback] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
+    const userToken = localStorage.getItem("token");
 
     const fetchQuestion = async () => {
         setLoading(true);
         console.log("🔄 Fetching new trivia question...");
 
         try {
-            const response = await fetch(`${API_URL}/question`);
-            console.log("✅ Received response from server:", response);
+            const response = await fetch(`${API_URL}/question`, {
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                    "Content-Type": "application/json"
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`❌ Failed to load question. Status: ${response.status}`);
@@ -60,7 +65,10 @@ const TriviaGame: React.FC = () => {
         try {
             const response = await fetch(`${API_URL}/answer`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    Authorization: `Bearer ${userToken}`,
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify({ questionId, userAnswer: selectedAnswer }),
             });
 
