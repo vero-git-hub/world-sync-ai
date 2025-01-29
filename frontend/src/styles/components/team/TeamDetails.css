@@ -77,13 +77,19 @@
 .player-card {
     background: linear-gradient(145deg, #1e1e1e, #333);
     border-radius: 12px;
-    padding: 15px;
     text-align: center;
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
     text-decoration: none;
     color: white;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 200px;
+    max-width: 140px;
+    padding-bottom: 10px;
 }
 
 .player-card:hover {
@@ -91,13 +97,39 @@
     box-shadow: 0 8px 20px rgba(255, 255, 255, 0.4);
 }
 
+/* Player photo */
+.player-photo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.player-photo-placeholder {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+/* Player details */
 .player-name {
     font-size: 18px;
     font-weight: bold;
     color: #ffdc00;
+    text-align: center;
+    max-width: 100%;
 }
 
 .player-position {
-    font-size: 14px;
+    font-size: 16px;
     color: #00d4ff;
 }

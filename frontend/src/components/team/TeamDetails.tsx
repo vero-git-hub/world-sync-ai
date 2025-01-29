@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import "../../styles/components/team/TeamDetails.css";
-import { TeamInfo, RosterPlayer } from "../../types/team.ts";
-import axios from "axios";
+import { TeamInfo, RosterPlayer, TeamApiResponse } from "../../types/team.ts";
+import API from "../../api.ts";
 
 const TeamDetails: React.FC = () => {
     const { teamId } = useParams<{ teamId: string }>();
@@ -10,6 +10,7 @@ const TeamDetails: React.FC = () => {
     const [teamInfo, setTeamInfo] = useState<TeamInfo | null>(null);
     const [roster, setRoster] = useState<RosterPlayer[]>([]);
     const [teamLogo, setTeamLogo] = useState<string | null>(null);
+    const [playerPhotos, setPlayerPhotos] = useState<{ [key: number]: string }>({});
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -18,53 +19,20 @@ const TeamDetails: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const token = localStorage.getItem("token");
-            if (!token) {
-                setError("❌ No authentication token found. Redirecting to login...");
-                setTimeout(() => window.location.href = "/login", 2000);
-                setLoading(false);
-                return;
-            }
-
             try {
-                const response = await fetch(`/api/teams/mlb/team/${teamId}`, {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (response.status === 401) {
-                    setError("❌ Your session has expired. Redirecting to login...");
-                    localStorage.removeItem("token");
-                    setTimeout(() => window.location.href = "/login", 2000);
-                    return;
-                }
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch team data: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-
-                if (!data.teamInfo || !data.teamInfo.teams || data.teamInfo.teams.length === 0) {
+                const teamResponse = await API.get<TeamApiResponse>(`/teams/mlb/team/${teamId}`);
+                if (!teamResponse.data.teamInfo || !teamResponse.data.teamInfo.teams.length) {
                     throw new Error("No team information available.");
                 }
 
-                setTeamInfo(data.teamInfo.teams[0]);
-                setRoster(data.roster || []);
+                setTeamInfo(teamResponse.data.teamInfo.teams[0]);
+                setRoster(teamResponse.data.roster || []);
 
-                const logoResponse = await axios.get<Blob>(`/api/teams/mlb/team/${teamId}/logo`, {
-                    responseType: 'blob',
-                    headers: { "Authorization": `Bearer ${token}` },
-                });
-
-                const logoUrl = URL.createObjectURL(logoResponse.data);
-                setTeamLogo(logoUrl);
+                const logoResponse = await API.get<{ url: string }>(`/teams/mlb/team/${teamId}/logo`);
+                setTeamLogo(logoResponse.data.url);
             } catch (err) {
                 console.error('❌ Error fetching team data:', err);
-                setError(`Failed to load team data. ${err instanceof Error ? err.message : ''}`);
+                setError(`Failed to load team data.`);
             } finally {
                 setLoading(false);
             }
@@ -73,6 +41,29 @@ const TeamDetails: React.FC = () => {
         fetchTeamData();
     }, [teamId]);
 
+    useEffect(() => {
+        const fetchPlayerPhotos = async () => {
+            const photos: { [key: number]: string } = {};
+
+            await Promise.all(
+                roster.map(async (player) => {
+                    try {
+                        const photoResponse = await API.get<{ url: string }>(`/players/${player.person.id}/photo`);
+                        photos[player.person.id] = photoResponse.data.url;
+                    } catch (error) {
+                        console.error("❌ Error fetching photo:", error);
+                    }
+                })
+            );
+
+            setPlayerPhotos(photos);
+        };
+
+        if (roster.length > 0) {
+            fetchPlayerPhotos();
+        }
+    }, [roster]);
+
     if (loading) return <p className="loading">Loading team details...</p>;
     if (error) return <p className="error-message">{error}</p>;
 
@@ -80,26 +71,29 @@ const TeamDetails: React.FC = () => {
         <div className="team-page">
             <Link to="/teams" className="back-button">⬅ Back to Teams</Link>
 
-            {teamInfo ? (
+            {teamInfo && (
                 <div className="team-card">
-                    {teamLogo && <img src={teamLogo} alt={teamInfo.name} className="team-logo"/>}
+                    {teamLogo && <img src={teamLogo} alt={teamInfo.name} className="team-logo" />}
                     <h1 className="team-name">{teamInfo.name}</h1>
                     <p className="team-details"><strong>🏟 Venue:</strong> {teamInfo.venue.name}, {teamInfo.venue.city}</p>
                     <p className="team-details"><strong>🏆 League:</strong> {teamInfo.league?.name || 'N/A'}</p>
                     <p className="team-details"><strong>⚾ Division:</strong> {teamInfo.division?.name || 'N/A'}</p>
                 </div>
-            ) : (
-                <p>No team information available.</p>
             )}
 
             <h2 className="roster-title">📋 Team Roster</h2>
             <div className="roster-grid">
-                {roster.map((player, index) => (
+                {roster.map((player) => (
                     <button
-                        key={index}
+                        key={player.person.id}
                         className="player-card"
                         onClick={() => navigate(`/player/${player.person.id}`, { state: { fromTeamPath: `/team/${teamId}` } })}
                     >
+                        {playerPhotos[player.person.id] ? (
+                            <img src={playerPhotos[player.person.id]} alt={player.person.fullName} className="player-photo" />
+                        ) : (
+                            <div className="player-photo-placeholder">🚫 No Image</div>
+                        )}
                         <p className="player-name">{player.person.fullName}</p>
                         <span className="player-position">{player.position.name}</span>
                     </button>
