@@ -1,0 +1,52 @@
+.team-link, .schedule-link, .profile-link {
+    display: inline-block;
+    margin-top: auto;
+    padding: 10px 15px;
+    background: #ffdc00;
+    color: black;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.team-link:hover, .schedule-link:hover, .profile-link:hover {
+    background: #ff851b;
+    color: white;
+    font-weight: bold;
+}
+
+/* Trivia button */
+.play-trivia-btn {
+    background-color: #00d4ff;
+    color: black;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.play-trivia-btn:hover {
+    background-color: #0094cc;
+}
+
+.profile-link {
+    display: inline-block;
+    margin-top: auto;
+    padding: 10px 15px;
+    background: #ffdc00;
+    color: black;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.profile-link:hover {
+    background: #ff851b;
+    color: white;
+    font-weight: bold;
+}

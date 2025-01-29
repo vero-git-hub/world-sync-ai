@@ -1,0 +1,25 @@
+@media (max-width: 1024px) {
+    .top-row, .bottom-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-header h1 {
+        font-size: 28px;
+    }
+
+    .home-header p {
+        font-size: 16px;
+    }
+
+    .widget {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .team-link, .schedule-link {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}

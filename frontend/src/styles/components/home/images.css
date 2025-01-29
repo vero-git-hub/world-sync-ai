@@ -1,0 +1,15 @@
+/* Images */
+.favorite-image, .schedule-image, .teams-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.teams-content img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease-in-out;
+}

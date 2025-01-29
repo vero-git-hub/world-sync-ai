@@ -1,0 +1,57 @@
+/*!* Main container *!*/
+.home-page {
+    background: url('/public/images/background/sunny-summer-stadium.webp') no-repeat center center/cover;
+    min-height: 100vh;
+    width: 100vw;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Header */
+.home-header {
+    background: rgba(0, 0, 0, 0.85);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+    margin-bottom: 20px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.home-header h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #ffdc00;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.3);
+}
+
+.home-header p {
+    color: white;
+    font-size: 18px;
+    margin-top: 5px;
+}
+
+.mlb-logo {
+    width: 80px;
+    margin-bottom: 10px;
+}
+
+.top-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.bottom-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}

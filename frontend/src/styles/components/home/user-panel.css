@@ -1,0 +1,12 @@
+/* User Panel */
+.user-panel {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.user-name {
+    color: #00d4ff;
+}

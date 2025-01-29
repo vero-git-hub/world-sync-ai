@@ -68,8 +68,91 @@ const Home: React.FC = () => {
                 <h1>⚾ Welcome to World Sync AI ⚾</h1>
                 <p>Your ultimate MLB companion</p>
             </header>
-            {/* Top row: Trivia и AI Chat */}
+
+            {/* Top row */}
             <div className="top-row">
+                <div className="widget schedule-widget">
+                    <Link to="/schedule">
+                        <h2>Schedule</h2>
+                    </Link>
+                    <div className="schedule-content">
+                        {loading ? (
+                            <p>Loading schedule...</p>
+                        ) : schedule ? (
+                            <>
+                                <p>Next game: {schedule.teams}</p>
+                                <p>Date: {schedule.date}</p>
+                                <p>Time: {schedule.time} | Venue: {schedule.venue}</p>
+                            </>
+                        ) : (
+                            <p>No upcoming games available</p>
+                        )}
+                        <Link to={`/schedule`} className="schedule-link">All games</Link>
+                    </div>
+                </div>
+                <div className="widget teams-widget">
+                    <Link to="/teams">
+                        <h2>Teams</h2>
+                    </Link>
+                    <div className="teams-content">
+                        {loadingTeam ? (
+                            <p>Loading teams...</p>
+                        ) : randomTeam ? (
+                            <>
+                                <img src={randomTeam.logoUrl} alt={randomTeam.name} className="teams-image" />
+                                <p>Random Team: {randomTeam.name}</p>
+                                <Link to={`/team/${randomTeam.id}`} className="team-link">About team</Link>
+                                {/*<p>Games this week: 3</p>*/}
+                            </>
+                        ) : (
+                            <p>No teams available</p>
+                        )}
+                    </div>
+
+                </div>
+                <div className="widget profile-widget">
+                    <Link to="/profile">
+                        <h2>Profile</h2>
+                    </Link>
+                    <div>
+                        {userData?.username ? (
+                            <span className="user-name">
+                            <span className="label">👨 Name:</span> {userData.username}</span>
+                                ) : (
+                            <span className="user-name"><span className="label">👨 Name:</span> Not provided</span>
+                                )}
+                    </div>
+                    <div>
+                        {userData?.email ? (
+                            <span className="user-email"><span className="label">📧 Email:</span> {userData.email}</span>
+                        ) : (
+                            <span className="user-email">
+                            <span className="label">📧 Email:</span> Not provided</span>
+                        )}
+                    </div>
+
+                    <div className="favorites-content">
+                        <div>
+                            {userData?.favoriteTeams && userData.favoriteTeams.length > 0 ? (
+                                <>
+                                    <p>Favorite Teams:</p>
+                                    <ul>
+                                        {userData.favoriteTeams.map((team) => (
+                                            <li key={team.id}>{team.teamName}</li>
+                                        ))}
+                                    </ul>
+                                </>
+                            ) : (
+                                <p>Favorite Teams: None</p>
+                            )}
+                        </div>
+                    </div>
+                    <Link to={`/profile`} className="profile-link">More info</Link>
+                </div>
+            </div>
+
+            {/* Bottom row */}
+            <div className="bottom-row">
                 <div className="widget trivia-intro-widget">
                     <h2>MLB Trivia ⚾</h2>
                     {showTrivia ? (
@@ -88,90 +171,9 @@ const Home: React.FC = () => {
                         </>
                     )}
                 </div>
-
                 <div className="widget chat-widget">
                     <h2>MLB AI Chat</h2>
                     <ChatBot />
-                </div>
-            </div>
-
-            {/* Bottom row: Profile, Schedule, Teams */}
-            <div className="bottom-row">
-                <div className="widget profile-widget">
-                    <Link to="/profile">
-                        <h2>Profile</h2>
-                    </Link>
-                    <div>
-                        {userData?.username ? (
-                            <span className="user-name">{userData.username}</span>
-                        ) : (
-                            <span className="user-name">Name not provided</span>
-                        )}
-                    </div>
-                    <div>
-                        {userData?.email ? (
-                            <span className="user-email">{userData.email}</span>
-                        ) : (
-                            <span className="user-email">Email not provided</span>
-                        )}
-                    </div>
-
-                    <div className="favorites-content">
-                        <div>
-                            {userData?.favoriteTeams && userData.favoriteTeams.length > 0 ? (
-                                <>
-                                    <p>Favorite Teams:</p>
-                                    <ul>
-                                        {userData.favoriteTeams.map((team) => (
-                                            <li key={team.id}>{team.teamName}</li>
-                                            ))}
-                                    </ul>
-                                </>
-                            ) : (
-                                <p>Favorite Teams: None</p>
-                            )}
-                        </div>
-                        {/*<p>Games this week: {userData ? userData.gamesThisWeek : "Loading..."}</p>*/}
-                    </div>
-                </div>
-
-                <div className="widget schedule-widget">
-                    <Link to="/schedule">
-                        <h2>Schedule</h2>
-                    </Link>
-                    <div className="schedule-content">
-                        {/*<img src="/images/schedule.jpg" alt="Schedule" className="schedule-image" />*/}
-                        {loading ? (
-                            <p>Loading schedule...</p>
-                        ) : schedule ? (
-                            <>
-                                <p>Next game: {schedule.teams}</p>
-                                <p>Date: {schedule.date}</p>
-                                <p>Time: {schedule.time} | Venue: {schedule.venue}</p>
-                            </>
-                        ) : (
-                            <p>No upcoming games available</p>
-                        )}
-                    </div>
-                </div>
-
-                <div className="widget teams-widget">
-                    <Link to="/teams">
-                        <h2>Teams</h2>
-                    </Link>
-                    <div className="teams-content">
-                        {loadingTeam ? (
-                            <p>Loading teams...</p>
-                        ) : randomTeam ? (
-                            <>
-                                <img src={randomTeam.logoUrl} alt={randomTeam.name} className="teams-image" />
-                                <p>Random Team: {randomTeam.name}</p>
-                                {/*<p>Games this week: 3</p>*/}
-                            </>
-                        ) : (
-                            <p>No teams available</p>
-                        )}
-                    </div>
                 </div>
             </div>
         </div>
