@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import "../../styles/components/team/PlayerDetails.css";
-import { PlayerInfo, LocationState } from "../../types/player.ts";
+import { PlayerInfo, LocationState, PlayerApiResponse } from "../../types/player.ts";
+import API from "../../api.ts";
 
 const PlayerDetails: React.FC = () => {
     const { playerId } = useParams<{ playerId: string }>();
@@ -18,37 +19,19 @@ const PlayerDetails: React.FC = () => {
             setLoading(true);
             setError(null);
 
-            const token = localStorage.getItem("token");
-            if (!token) {
-                setError("❌ No authentication token found. Please log in.");
-                setLoading(false);
-                return;
-            }
-
             try {
-                const response = await fetch(`/api/players/${playerId}`, {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
+                const playerResponse = await API.get<PlayerApiResponse>(`/players/${playerId}`);
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch player data: ${response.statusText}`);
-                }
-                const data = await response.json();
-
-                if (data.people && data.people.length > 0) {
-                    setPlayerInfo(data.people[0]);
+                if (playerResponse.data.people && playerResponse.data.people.length > 0) {
+                    setPlayerInfo(playerResponse.data.people[0]);
                 } else {
                     throw new Error("No player data found.");
                 }
 
-                const imageUrl = `const_imageUrl`;
-                setPlayerPhoto(imageUrl);
+                const photoResponse = await API.get<{ url: string }>(`/players/${playerId}/photo`);
+                setPlayerPhoto(photoResponse.data.url);
             } catch (err) {
-                console.error("Error fetching player data:", err);
+                console.error("❌ Error fetching player data:", err);
                 setError("Failed to load player data. Please try again.");
             } finally {
                 setLoading(false);

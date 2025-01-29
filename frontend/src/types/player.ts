@@ -14,3 +14,7 @@ export interface PlayerInfo {
 export interface LocationState {
     fromTeamPath?: string;
 }
+
+export interface PlayerApiResponse {
+    people: PlayerInfo[];
+}

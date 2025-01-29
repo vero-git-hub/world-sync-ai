@@ -12,6 +12,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/players")
 @RequiredArgsConstructor
@@ -21,14 +24,14 @@ public class PlayerController {
     @Value("${mlb.api.base.url}")
     private String baseUrl;
 
+    @Value("${mlb.player.photo}")
+    private String playerPhotoUrl;
+
     private final RestTemplate restTemplate = new RestTemplate();
     private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * Fetches the details of a specific player by their ID.
-     *
-     * @param playerId the ID of the player
-     * @return the player's details
      */
     @GetMapping("/{playerId}")
     public ResponseEntity<?> getPlayerDetails(@PathVariable int playerId, @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
@@ -58,5 +61,18 @@ public class PlayerController {
             log.error("Unexpected error while fetching details for player ID {}: {}", playerId, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
         }
+    }
+
+    /**
+     * Returns the MLB player headshot image URL.
+     */
+    @GetMapping("/{playerId}/photo")
+    public ResponseEntity<Map<String, String>> getPlayerPhoto(@PathVariable int playerId) {
+        String imageUrl = playerPhotoUrl + "/" + playerId + "/headshot/67/current";
+
+        Map<String, String> response = new HashMap<>();
+        response.put("url", imageUrl);
+
+        return ResponseEntity.ok(response);
     }
 }
