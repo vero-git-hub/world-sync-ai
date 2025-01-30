@@ -17,4 +17,26 @@ export interface Team {
     id: number;
     name: string;
     logoUrl?: string;
+    franchiseName: string;
+    locationName: string;
+    firstYearOfPlay: string;
+    abbreviation: string;
+    league: {
+        id: number;
+        name: string;
+    };
+    division: {
+        id: number;
+        name: string;
+    };
+    venue: {
+        id: number;
+        name: string;
+    };
+    springLeague: {
+        id: number;
+        name: string;
+        abbreviation: string;
+    };
+    allStarStatus: string;
 }

@@ -1,9 +1,25 @@
 /* Background */
 .teams-page {
-    background: url('/public/images/background/spring-stadium.webp') no-repeat center center/cover;
-    min-height: 100vh;
+    background: url('/public/images/background/autumn-stadium.webp') no-repeat center center/cover;
     padding: 40px 20px;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 100;
+    padding: 10px 20px;
+}
+
+.teams-page {
+    padding-top: 80px;
 }
 
 /* Header */

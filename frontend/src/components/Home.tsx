@@ -64,9 +64,9 @@ const Home: React.FC = () => {
     return (
         <div className="home-page">
             <header className="home-header">
-                <img src="/public/images/logo_50.png" alt="MLB Logo" className="mlb-logo"/>
                 <h1>⚾ Welcome to World Sync AI ⚾</h1>
-                <p>Your ultimate MLB companion</p>
+                <p>Your ultimate MLB companion: find out upcoming games, view team lineups.</p>
+                <p>Add games to Google Calendar, chat with Gemini, and play trivia games.</p>
             </header>
 
             {/* Top row */}
@@ -90,26 +90,43 @@ const Home: React.FC = () => {
                         <Link to={`/schedule`} className="schedule-link">All games</Link>
                     </div>
                 </div>
+
                 <div className="widget teams-widget">
                     <Link to="/teams">
-                        <h2>Teams</h2>
+                        <h2>Random Team</h2>
                     </Link>
                     <div className="teams-content">
                         {loadingTeam ? (
                             <p>Loading teams...</p>
                         ) : randomTeam ? (
                             <>
-                                <img src={randomTeam.logoUrl} alt={randomTeam.name} className="teams-image" />
-                                <p>Random Team: {randomTeam.name}</p>
-                                <Link to={`/team/${randomTeam.id}`} className="team-link">About team</Link>
-                                {/*<p>Games this week: 3</p>*/}
+                                <div className="team-info-container">
+                                    <div className="team-details">
+                                        <p className="team-name">{randomTeam.franchiseName}</p>
+                                        <p><span className="label">📍 City:</span> {randomTeam.locationName}</p>
+                                        <p><span className="label">🏟️ Stadium:</span> {randomTeam.venue.name}</p>
+                                        <p><span className="label">📅 Founded:</span> {randomTeam.firstYearOfPlay}</p>
+                                    </div>
+                                    <div className="team-logo">
+                                        <img src={randomTeam.logoUrl} alt={randomTeam.name} className="teams-image" />
+                                    </div>
+                                </div>
+                                <div className="team-extra">
+                                    <p><span className="label">🏆 League:</span> {randomTeam.league.name}</p>
+                                    <p><span className="label">📂 Division:</span> {randomTeam.division.name}</p>
+                                    <p><span className="label">⚾ Spring League:</span> {randomTeam.springLeague.name}</p>
+                                </div>
+                                <Link to={`/team/${randomTeam.id}`} className="team-link">About Team</Link>
                             </>
                         ) : (
                             <p>No teams available</p>
                         )}
                     </div>
-
                 </div>
+            </div>
+
+            {/* Bottom row */}
+            <div className="bottom-row">
                 <div className="widget profile-widget">
                     <Link to="/profile">
                         <h2>Profile</h2>
@@ -118,9 +135,9 @@ const Home: React.FC = () => {
                         {userData?.username ? (
                             <span className="user-name">
                             <span className="label">👨 Name:</span> {userData.username}</span>
-                                ) : (
+                        ) : (
                             <span className="user-name"><span className="label">👨 Name:</span> Not provided</span>
-                                )}
+                        )}
                     </div>
                     <div>
                         {userData?.email ? (
@@ -149,10 +166,11 @@ const Home: React.FC = () => {
                     </div>
                     <Link to={`/profile`} className="profile-link">More info</Link>
                 </div>
-            </div>
 
-            {/* Bottom row */}
-            <div className="bottom-row">
+                <div className="widget chat-widget">
+                    <h2>MLB AI Chat</h2>
+                    <ChatBot />
+                </div>
                 <div className="widget trivia-intro-widget">
                     <h2>MLB Trivia ⚾</h2>
                     {showTrivia ? (
@@ -170,10 +188,6 @@ const Home: React.FC = () => {
                             </button>
                         </>
                     )}
-                </div>
-                <div className="widget chat-widget">
-                    <h2>MLB AI Chat</h2>
-                    <ChatBot />
                 </div>
             </div>
         </div>

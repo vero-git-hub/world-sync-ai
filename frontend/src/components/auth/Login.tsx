@@ -33,12 +33,12 @@ const Login: React.FC = () => {
 
     return (
         <div className="auth-box">
-            <h2>Login</h2>
+            <h2>Login Form</h2>
             {error && <p className="error">{error}</p>}
             <form onSubmit={handleLogin}>
                 <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
                 <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                <button type="submit" className="auth-button">Login</button>
+                <button type="submit" className="auth-button">Log in</button>
             </form>
 
             <p className="auth-link">

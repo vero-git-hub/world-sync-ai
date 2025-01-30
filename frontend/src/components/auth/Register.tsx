@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../../api.ts";
-import AuthLayout from "../../layouts/AuthLayout.tsx";
 
 const Register: React.FC = () => {
     const [username, setUsername] = useState("");
@@ -39,48 +38,46 @@ const Register: React.FC = () => {
     };
 
     return (
-        <AuthLayout>
-            <div className="auth-box">
-                <h2>Register</h2>
-                {error && <p className="error">{error}</p>}
-                {success && <p className="success">{success}</p>}
-                <form onSubmit={handleRegister}>
-                    <input
-                        type="text"
-                        placeholder="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                    <input
-                        type="password"
-                        placeholder="Confirm Password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                    />
-                    <button type="submit" className="auth-button">Register</button>
-                </form>
+        <div className="auth-box">
+            <h2>Register Form</h2>
+            {error && <p className="error">{error}</p>}
+            {success && <p className="success">{success}</p>}
+            <form onSubmit={handleRegister}>
+                <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                />
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                <input
+                    type="password"
+                    placeholder="Confirm Password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                />
+                <button type="submit" className="auth-button">Create account</button>
+            </form>
 
-                <p className="auth-link">
-                    Already have an account? <Link to="/login">Login</Link>
-                </p>
-            </div>
-        </AuthLayout>
+            <p className="auth-link">
+                Already have an account? <Link to="/login">Log in</Link>
+            </p>
+        </div>
     );
 };
 

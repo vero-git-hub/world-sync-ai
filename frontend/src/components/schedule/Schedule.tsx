@@ -7,6 +7,7 @@ import PaginationControls from '../PaginationControls.tsx';
 import SelectedTeams from "./SelectedTeams.tsx";
 import {useAuth} from "../auth/AuthContext.tsx";
 import API from "../../api.ts";
+import "../../styles/components/schedule/Schedule.css";
 
 interface UserResponse {
     id: string;
