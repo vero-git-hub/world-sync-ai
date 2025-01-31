@@ -56,15 +56,6 @@
     text-align: left;
 }
 
-.label {
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 4px 8px;
-    border-radius: 5px;
-    display: inline-block;
-    color: #ffdc00;
-}
-
 .teams-section {
     display: flex;
     align-items: center;
@@ -89,11 +80,6 @@
     color: gray;
 }
 
-.label {
-    font-weight: bold;
-    color: #ff851b;
-}
-
 .widget-button {
     display: inline-block;
     margin-top: 10px;
@@ -113,30 +99,33 @@
     font-weight: bold;
 }
 
-.info-grid {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 8px;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.info-labels {
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
     text-align: left;
-    font-weight: bold;
-    opacity: 0.9;
 }
 
-.info-values {
-    text-align: left;
-    font-weight: normal;
+.info-table td {
+    padding: 8px 10px;
+    vertical-align: middle;
 }
 
-.team-name {
-    text-align: center;
+.label {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 10px;
+    border-radius: 50%;
+    color: #ffdc00;
+    white-space: nowrap;
+}
+
+
+.team-name-home {
     font-size: 18px;
     font-weight: bold;
-    margin-bottom: 5px;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.5);
+    margin-top: 5px;
+    color: #ffdc00;
 }
 
 .vs-text {

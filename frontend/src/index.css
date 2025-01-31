@@ -1,4 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Poppins&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+.normal-text {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+}
+
+.bold-text {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
 
 :root {
   font-family: Montserrat, Poppins, Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -30,6 +40,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   flex-direction: column;
+  font-family: 'Montserrat', sans-serif;
 }
 
 #root {

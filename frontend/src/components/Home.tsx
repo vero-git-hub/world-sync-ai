@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import "../styles/components/home/Home.css";
+import "../styles/components/home/chat.css";
 import { Link } from "react-router-dom";
 import ChatBot from './ChatBot';
 import TriviaGame from "./game/TriviaGame";
@@ -64,9 +65,10 @@ const Home: React.FC = () => {
     return (
         <div className="home-page">
             <header className="home-header">
-                <h1>⚾ Welcome to World Sync AI ⚾</h1>
-                <p>Your ultimate MLB companion: find out upcoming games, view team lineups.</p>
-                <p>Add games to Google Calendar, chat with Gemini, and play trivia games.</p>
+                <div>
+                    <h1>⚾ Welcome to World Sync AI ⚾ Your ultimate MLB companion!</h1>
+                    <p>Find out upcoming games, view team lineups. Add games to Google Calendar, chat with Gemini, and play trivia games.</p>
+                </div>
             </header>
 
             {/* Top row */}
@@ -80,28 +82,36 @@ const Home: React.FC = () => {
                             <p>Loading schedule...</p>
                         ) : schedule ? (
                             <>
-                                <p className="team-name"><strong>{schedule.teams.away}</strong></p>
-                                <p className="vs-text">vs</p>
-                                <p className="team-name"><strong>{schedule.teams.home}</strong></p>
+                                <p className="team-name-home">{schedule.teams.away}</p>
+                                <p>
+                                    <span className="vs-text">vs</span>
+                                    <span className="team-name-home">{schedule.teams.home}</span>
+                                </p>
 
-                                <div className="info-grid">
-                                    <div className="info-labels">
-                                        <p>📅 Date:</p>
-                                        <p>📖 Series:</p>
-                                        <p>🏟️ Venue:</p>
-                                        <p>🌍 Location:</p>
-                                        <p>⏰ Time:</p>
-                                        <p>🌙 Time of Day:</p>
-                                    </div>
-                                    <div className="info-values">
-                                        <p>{schedule.date}</p>
-                                        <p>{schedule.seriesInfo}</p>
-                                        <p>{schedule.venue}</p>
-                                        <p>{schedule.description}</p>
-                                        <p>{schedule.time}</p>
-                                        <p>{schedule.dayNight === "night" ? "Night Game" : "Day Game"}</p>
-                                    </div>
-                                </div>
+                                <table className="info-table">
+                                    <tbody>
+                                        <tr>
+                                            <td className="label">📅 Date:</td>
+                                            <td>{schedule.date}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="label">⏰ Time:</td>
+                                            <td>{schedule.time}, {schedule.dayNight === "night" ? "Night Game" : "Day Game"}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="label">🏟️ Venue:</td>
+                                            <td>{schedule.venue}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="label">🌍 Location:</td>
+                                            <td>{schedule.description}</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="label">📖 Series:</td>
+                                            <td>{schedule.seriesInfo}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </>
                         ) : (
                             <p>No upcoming games available</p>
@@ -120,21 +130,37 @@ const Home: React.FC = () => {
                         ) : randomTeam ? (
                             <>
                                 <div className="team-info-container">
-                                    <div className="team-details">
-                                        <p className="team-name">{randomTeam.franchiseName}</p>
-                                        <p><span className="label">📍 City:</span> {randomTeam.locationName}</p>
-                                        <p><span className="label">🏟️ Stadium:</span> {randomTeam.venue.name}</p>
-                                        <p><span className="label">📅 Founded:</span> {randomTeam.firstYearOfPlay}</p>
-                                    </div>
-                                    <div className="team-logo">
-                                        <img src={randomTeam.logoUrl} alt={randomTeam.name} className="teams-image" />
-                                    </div>
+                                    <table className="info-table">
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <p>{randomTeam.name}</p>
+                                                    <p>{randomTeam.locationName}</p>
+                                                </td>
+                                                <td>
+                                                    <img src={randomTeam.logoUrl} alt={randomTeam.name} className="teams-image" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td className="label">📅 Founded:</td>
+                                                <td>{randomTeam.firstYearOfPlay}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="label">🏆 League:</td>
+                                                <td>{randomTeam.league.name}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="label">📂 Division:</td>
+                                                <td>{randomTeam.division.name}</td>
+                                            </tr>
+                                            <tr>
+                                                <td className="label">⚾ Spring League:</td>
+                                                <td>{randomTeam.springLeague.name}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div className="team-extra">
-                                    <p><span className="label">🏆 League:</span> {randomTeam.league.name}</p>
-                                    <p><span className="label">📂 Division:</span> {randomTeam.division.name}</p>
-                                    <p><span className="label">⚾ Spring League:</span> {randomTeam.springLeague.name}</p>
-                                </div>
+
                                 <Link to={`/team/${randomTeam.id}`} className="widget-button">About Team</Link>
                             </>
                         ) : (
@@ -142,30 +168,24 @@ const Home: React.FC = () => {
                         )}
                     </div>
                 </div>
-            </div>
 
-            {/* Bottom row */}
-            <div className="bottom-row">
                 <div className="widget profile-widget">
                     <Link to="/profile">
                         <h2>Profile</h2>
                     </Link>
-                    <div>
-                        {userData?.username ? (
-                            <span className="user-name">
-                            <span className="label">👨 Name:</span> {userData.username}</span>
-                        ) : (
-                            <span className="user-name"><span className="label">👨 Name:</span> Not provided</span>
-                        )}
-                    </div>
-                    <div>
-                        {userData?.email ? (
-                            <span className="user-email"><span className="label">📧 Email:</span> {userData.email}</span>
-                        ) : (
-                            <span className="user-email">
-                            <span className="label">📧 Email:</span> Not provided</span>
-                        )}
-                    </div>
+
+                    <table className="profile-table">
+                        <tbody>
+                        <tr>
+                            <td className="label">👨 Name:</td>
+                            <td>{userData?.username ? userData.username : "Not provided"}</td>
+                        </tr>
+                        <tr>
+                            <td className="label">📧 Email:</td>
+                            <td>{userData?.email ? userData.email : "Not provided"}</td>
+                        </tr>
+                        </tbody>
+                    </table>
 
                     <div className="favorites-content">
                         <div>
@@ -185,12 +205,15 @@ const Home: React.FC = () => {
                     </div>
                     <Link to={`/profile`} className="widget-button">More info</Link>
                 </div>
+            </div>
 
-                <div className="widget chat-widget">
+            {/* Bottom row */}
+            <div className="bottom-row">
+                <div className="bottom-widget chat-widget">
                     <h2>MLB AI Chat</h2>
                     <ChatBot />
                 </div>
-                <div className="widget trivia-intro-widget">
+                <div className="bottom-widget trivia-intro-widget">
                     <h2>MLB Trivia ⚾</h2>
                     {showTrivia ? (
                         <div className="widget trivia-widget">
