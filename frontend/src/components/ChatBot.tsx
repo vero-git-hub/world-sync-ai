@@ -7,13 +7,32 @@ const ChatBot: React.FC = () => {
     const [messages, setMessages] = useState<{ text: string; sender: string }[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+    const [hasInteracted, setHasInteracted] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const userToken = localStorage.getItem("token");
+
+    useEffect(() => {
+        if (!hasInteracted) {
+            setMessages([
+                {
+                    text: "👋 Hi there! 🤖 Ask me about MLB or general questions, and I will respond to you! ⚾\n\n![Gemini Chat](/images/friendly-robot.webp)",
+                    sender: "bot"
+                }
+            ]);
+        }
+    }, [hasInteracted]);
 
     const handleSendMessage = async () => {
         if (!input.trim()) return;
 
-        const newMessages = [...messages, { text: input, sender: "user" }];
+        let newMessages;
+        if (!hasInteracted) {
+            setHasInteracted(true);
+            newMessages = [{ text: input, sender: "user" }];
+        } else {
+            newMessages = [...messages, { text: input, sender: "user" }];
+        }
+
         setMessages(newMessages);
         setInput("");
         setLoading(true);
@@ -48,15 +67,17 @@ const ChatBot: React.FC = () => {
     }, [messages]);
 
     return (
-        <div className="chat-container">
-            <div className="chat-messages">
-                {messages.map((msg, index) => (
-                    <div key={index} className={`chat-message ${msg.sender}`}>
-                        <ReactMarkdown>{msg.text}</ReactMarkdown>
-                    </div>
-                ))}
-                {loading && <div className="chat-message bot">⏳ Thinking...</div>}
-                <div ref={messagesEndRef} />
+        <div className="chat-widget">
+            <div className="chat-window">
+                <div className="chat-messages">
+                    {messages.map((msg, index) => (
+                        <div key={index} className={`chat-message ${msg.sender}`}>
+                            <ReactMarkdown>{msg.text}</ReactMarkdown>
+                        </div>
+                    ))}
+                    {loading && <div className="chat-message bot">⏳ Thinking...</div>}
+                    <div ref={messagesEndRef} />
+                </div>
             </div>
             <div className="chat-input">
                 <input
