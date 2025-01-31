@@ -73,21 +73,40 @@ const Home: React.FC = () => {
             <div className="top-row">
                 <div className="widget schedule-widget">
                     <Link to="/schedule">
-                        <h2>Schedule</h2>
+                        <h2>Next game</h2>
                     </Link>
                     <div className="schedule-content">
                         {loading ? (
                             <p>Loading schedule...</p>
                         ) : schedule ? (
                             <>
-                                <p>Next game: {schedule.teams}</p>
-                                <p>Date: {schedule.date}</p>
-                                <p>Time: {schedule.time} | Venue: {schedule.venue}</p>
+                                <p className="team-name"><strong>{schedule.teams.away}</strong></p>
+                                <p className="vs-text">vs</p>
+                                <p className="team-name"><strong>{schedule.teams.home}</strong></p>
+
+                                <div className="info-grid">
+                                    <div className="info-labels">
+                                        <p>📅 Date:</p>
+                                        <p>📖 Series:</p>
+                                        <p>🏟️ Venue:</p>
+                                        <p>🌍 Location:</p>
+                                        <p>⏰ Time:</p>
+                                        <p>🌙 Time of Day:</p>
+                                    </div>
+                                    <div className="info-values">
+                                        <p>{schedule.date}</p>
+                                        <p>{schedule.seriesInfo}</p>
+                                        <p>{schedule.venue}</p>
+                                        <p>{schedule.description}</p>
+                                        <p>{schedule.time}</p>
+                                        <p>{schedule.dayNight === "night" ? "Night Game" : "Day Game"}</p>
+                                    </div>
+                                </div>
                             </>
                         ) : (
                             <p>No upcoming games available</p>
                         )}
-                        <Link to={`/schedule`} className="schedule-link">All games</Link>
+                        <Link to={`/schedule`} className="widget-button">All games</Link>
                     </div>
                 </div>
 
@@ -116,7 +135,7 @@ const Home: React.FC = () => {
                                     <p><span className="label">📂 Division:</span> {randomTeam.division.name}</p>
                                     <p><span className="label">⚾ Spring League:</span> {randomTeam.springLeague.name}</p>
                                 </div>
-                                <Link to={`/team/${randomTeam.id}`} className="team-link">About Team</Link>
+                                <Link to={`/team/${randomTeam.id}`} className="widget-button">About Team</Link>
                             </>
                         ) : (
                             <p>No teams available</p>
@@ -164,7 +183,7 @@ const Home: React.FC = () => {
                             )}
                         </div>
                     </div>
-                    <Link to={`/profile`} className="profile-link">More info</Link>
+                    <Link to={`/profile`} className="widget-button">More info</Link>
                 </div>
 
                 <div className="widget chat-widget">

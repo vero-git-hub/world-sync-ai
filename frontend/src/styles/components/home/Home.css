@@ -2,7 +2,7 @@
 @import url('./widgets.css');
 @import url('./responsive.css');
 @import url('./animations.css');
-@import url('../buttons.css');
+@import url('../../buttons.css');
 @import url('./profile.css');
 @import url('./images.css');
 
@@ -63,4 +63,86 @@
     border-radius: 5px;
     display: inline-block;
     color: #ffdc00;
+}
+
+.teams-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.team {
+    text-align: center;
+}
+
+.vs {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff4136;
+}
+
+.record {
+    font-size: 14px;
+    color: gray;
+}
+
+.label {
+    font-weight: bold;
+    color: #ff851b;
+}
+
+.widget-button {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 15px;
+    background: #ffdc00;
+    color: black;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+
+.widget-button:hover {
+    background: #ff851b;
+    color: white;
+    font-weight: bold;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.info-labels {
+    text-align: left;
+    font-weight: bold;
+    opacity: 0.9;
+}
+
+.info-values {
+    text-align: left;
+    font-weight: normal;
+}
+
+.team-name {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.vs-text {
+    text-align: center;
+    font-size: 16px;
+    font-weight: normal;
+    margin-bottom: 10px;
+    opacity: 0.8;
 }

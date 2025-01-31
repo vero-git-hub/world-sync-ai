@@ -1,35 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import {useAuth} from "../auth/AuthContext.tsx";
 import API from "../../api.ts";
-
-interface MlbScheduleResponse {
-    dates: {
-        date: string;
-        games: {
-            gamePk: number;
-            gameDate: string;
-            officialDate: string;
-            teams: {
-                away: { team: { name: string } };
-                home: { team: { name: string } };
-            };
-            venue: { name: string };
-        }[];
-    }[];
-}
-
-interface GameSchedule {
-    date: string;
-    teams: string;
-    time: string;
-    venue: string;
-}
-
-interface ScheduleContextType {
-    schedule: GameSchedule | null;
-    loading: boolean;
-    fetchSchedule: () => Promise<void>;
-}
+import {GameSchedule, MlbScheduleResponse, ScheduleContextType} from "../../types/home.ts";
 
 const ScheduleContext = createContext<ScheduleContextType | undefined>(undefined);
 
@@ -58,9 +30,15 @@ export const ScheduleProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
                     setSchedule({
                         date: nextGame.officialDate || "Unknown Date",
-                        teams: `${nextGame.teams.away.team.name} vs ${nextGame.teams.home.team.name}`,
+                        teams: {
+                            away: nextGame.teams.away.team.name,
+                            home: nextGame.teams.home.team.name,
+                        },
                         time: new Date(nextGame.gameDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                         venue: nextGame.venue.name,
+                        description: nextGame.description,
+                        seriesInfo: `Game ${nextGame.seriesGameNumber} of ${nextGame.gamesInSeries}`,
+                        dayNight: nextGame.dayNight,
                     });
                 }
             }

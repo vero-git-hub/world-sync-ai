@@ -40,3 +40,42 @@ export interface Team {
     };
     allStarStatus: string;
 }
+
+export interface MlbScheduleResponse {
+    dates: {
+        date: string;
+        games: {
+            gamePk: number;
+            gameDate: string;
+            officialDate: string;
+            teams: {
+                away: { team: { name: string } };
+                home: { team: { name: string } };
+            };
+            venue: { name: string };
+            description: string;
+            seriesGameNumber: number;
+            gamesInSeries: number;
+            dayNight: string;
+        }[];
+    }[];
+}
+
+export interface GameSchedule {
+    date: string;
+    teams: {
+        away: string;
+        home: string;
+    };
+    time: string;
+    venue: string;
+    description: string;
+    seriesInfo: string;
+    dayNight: string;
+}
+
+export interface ScheduleContextType {
+    schedule: GameSchedule | null;
+    loading: boolean;
+    fetchSchedule: () => Promise<void>;
+}
