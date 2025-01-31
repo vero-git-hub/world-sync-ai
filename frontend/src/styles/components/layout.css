@@ -47,14 +47,22 @@
     gap: 20px;
 }
 
+/* Bottom row */
 .bottom-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 20px;
     justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px 0;
 }
 
-.trivia-intro-widget,
-.chat-widget {
-    flex: 1;
-    max-width: 400px;
+.bottom-widgets-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    width: 100%;
+    justify-content: center;
 }

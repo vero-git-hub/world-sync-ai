@@ -209,27 +209,29 @@ const Home: React.FC = () => {
 
             {/* Bottom row */}
             <div className="bottom-row">
-                <div className="bottom-widget chat-widget">
-                    <h2>MLB AI Chat</h2>
-                    <ChatBot />
-                </div>
-                <div className="bottom-widget trivia-intro-widget">
-                    <h2>MLB Trivia ⚾</h2>
-                    {showTrivia ? (
-                        <div className="widget trivia-widget">
-                            <TriviaGame />
-                        </div>
-                    ) : (
-                        <>
-                            <p>Step up to the plate and prove your skills...</p>
-                            <button
-                                className="play-trivia-btn"
-                                onClick={() => setShowTrivia(true)}
-                            >
-                                Let's Play Trivia!
-                            </button>
-                        </>
-                    )}
+                <div className="bottom-widgets-container">
+                    <div className="bottom-widget chat-widget">
+                        <h2>MLB AI Chat</h2>
+                        <ChatBot />
+                    </div>
+                    <div className="bottom-widget trivia-intro-widget">
+                        <h2>MLB Trivia ⚾</h2>
+                        {showTrivia ? (
+                            <div className="widget trivia-widget">
+                                <TriviaGame />
+                            </div>
+                        ) : (
+                            <>
+                                <p>Step up to the plate and prove your skills...</p>
+                                <button
+                                    className="play-trivia-btn"
+                                    onClick={() => setShowTrivia(true)}
+                                >
+                                    Let's Play Trivia!
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

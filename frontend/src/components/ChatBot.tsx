@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
-import "../styles/components/ChatBot.css";
 
 const API_URL = "/api/ai/chat/mlb";
 
