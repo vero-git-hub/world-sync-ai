@@ -11,11 +11,19 @@ const TriviaGame: React.FC = () => {
     const [selectedAnswer, setSelectedAnswer] = useState<string>("");
     const [feedback, setFeedback] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
+    const [gameStarted, setGameStarted] = useState<boolean>(false);
+    const [correctAnswer, setCorrectAnswer] = useState<string | null>(null);
+    const [answered, setAnswered] = useState<boolean>(false);
+
     const userToken = localStorage.getItem("token");
 
     const fetchQuestion = async () => {
         setLoading(true);
-        console.log("🔄 Fetching new trivia question...");
+        setGameStarted(true);
+        setCorrectAnswer(null);
+        setSelectedAnswer("");
+        setFeedback("");
+        setAnswered(false);
 
         try {
             const response = await fetch(`${API_URL}/question`, {
@@ -26,25 +34,22 @@ const TriviaGame: React.FC = () => {
             });
 
             if (!response.ok) {
-                throw new Error(`❌ Failed to load question. Status: ${response.status}`);
+                throw new Error(`Failed to load question. Status: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log("📊 Question data received:", data);
-
             if (!data.options || data.options.length === 0) {
-                throw new Error("⚠️ No options available in question data.");
+                throw new Error("No options available in question data.");
             }
 
             setQuestion(data.question);
             setOptions(data.options);
             setQuestionId(data.id);
-            setFeedback("");
-            setSelectedAnswer("");
+            setCorrectAnswer(data.correctAnswer);
 
             setTimeout(() => setLoading(false), 300);
         } catch (error) {
-            console.error("🚨 Error fetching trivia question:", error);
+            console.error("Error fetching trivia question:", error);
             setFeedback("⚠️ Error loading question. Try again later.");
             setLoading(false);
         }
@@ -52,15 +57,9 @@ const TriviaGame: React.FC = () => {
 
     const submitAnswer = async () => {
         if (!selectedAnswer || !questionId) {
-            console.error("🚨 Error: questionId or selectedAnswer is missing!", {
-                questionId,
-                selectedAnswer
-            });
-            setFeedback("⚠️ Something went wrong. Try again.");
+            setFeedback("⚠️ Please select an answer first!");
             return;
         }
-
-        console.log("📤 Sending answer to server...", { questionId, userAnswer: selectedAnswer });
 
         try {
             const response = await fetch(`${API_URL}/answer`, {
@@ -72,18 +71,15 @@ const TriviaGame: React.FC = () => {
                 body: JSON.stringify({ questionId, userAnswer: selectedAnswer }),
             });
 
-            console.log("✅ Received response from server:", response);
-
             if (!response.ok) {
-                throw new Error(`❌ Server error: ${response.status} ${response.statusText}`);
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
-            console.log("📊 Answer response data:", data);
-
             setFeedback(data.reply);
+            setAnswered(true);
         } catch (error) {
-            console.error("🚨 Error checking answer:", error);
+            console.error("Error checking answer:", error);
             setFeedback("⚠️ Error checking answer. Please try again.");
         }
     };
@@ -94,45 +90,63 @@ const TriviaGame: React.FC = () => {
 
     return (
         <div className="trivia-widget">
-            {loading ? (
+            {!gameStarted ? (
+                <>
+                    <h2 className="trivia-header">MLB Trivia ⚾</h2>
+                    <img src="/images/futuristic-robot.webp" alt="Trivia Game" className="trivia-image" />
+                    <p className="trivia-intro-text">
+                        Ready to test your MLB knowledge? 🌟
+                        <br />
+                        Click "Start Trivia" to begin!
+                    </p>
+                    <button className="start-trivia-btn" onClick={fetchQuestion}>
+                        Start Trivia
+                    </button>
+                </>
+            ) : loading ? (
                 <p className="loading">Loading question...</p>
             ) : (
                 <>
-                    <p>{question}</p>
+                    <p className="trivia-question">{question}</p>
                     <div className="trivia-options">
                         {options.map((option, index) => (
                             <button
                                 key={index}
-                                className={`trivia-option ${selectedAnswer === option ? "selected" : ""}`}
-                                onClick={() => {
-                                    console.log("🟢 Selected answer:", option);
-                                    setSelectedAnswer(option);
-                                }}
+                                className={`trivia-option 
+                                    ${answered
+                                    ? option === correctAnswer
+                                        ? "correct"
+                                        : option === selectedAnswer
+                                            ? "incorrect"
+                                            : ""
+                                    : ""
+                                }`}
+                                onClick={() => setSelectedAnswer(option)}
+                                disabled={answered}
                             >
                                 {option}
                             </button>
                         ))}
                     </div>
+
+                    {feedback && (
+                        <div className="trivia-feedback">
+                            <div className="trivia-feedback-content">
+                                <ReactMarkdown>{feedback}</ReactMarkdown>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="trivia-actions">
+                        <button className="submit-btn" onClick={submitAnswer} disabled={!selectedAnswer || loading || !!feedback}>
+                            Submit
+                        </button>
+                        <button className="next-question-btn" onClick={fetchQuestion} disabled={loading}>
+                            Next Question
+                        </button>
+                    </div>
                 </>
             )}
-
-            <button
-                className="submit-btn"
-                onClick={submitAnswer}
-                disabled={!selectedAnswer || loading}
-            >
-                Submit
-            </button>
-
-            {feedback && (
-                <div className="trivia-feedback">
-                    <ReactMarkdown>{feedback}</ReactMarkdown>
-                </div>
-            )}
-
-            <button className="next-question-btn" onClick={fetchQuestion} disabled={loading}>
-                Next Question
-            </button>
         </div>
     );
 };

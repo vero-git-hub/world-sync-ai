@@ -214,22 +214,26 @@ const Home: React.FC = () => {
                         <h2>MLB AI Chat</h2>
                         <ChatBot />
                     </div>
+
                     <div className="bottom-widget trivia-intro-widget">
                         <h2>MLB Trivia ⚾</h2>
                         {showTrivia ? (
-                            <div className="widget trivia-widget">
+                            <div className="widget-trivia-before">
                                 <TriviaGame />
                             </div>
                         ) : (
-                            <>
-                                <p>Step up to the plate and prove your skills...</p>
+                            <div className="trivia-start-screen">
+                                <img src="/images/futuristic-robot.webp" alt="Trivia Game" className="trivia-intro-image" />
+                                <p className="trivia-intro-text">
+                                    Ready to test your MLB knowledge? 🌟
+                                </p>
                                 <button
-                                    className="play-trivia-btn"
+                                    className="widget-button"
                                     onClick={() => setShowTrivia(true)}
                                 >
                                     Let's Play Trivia!
                                 </button>
-                            </>
+                            </div>
                         )}
                     </div>
                 </div>
