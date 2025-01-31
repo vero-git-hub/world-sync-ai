@@ -72,8 +72,6 @@ const GameCard: React.FC<GameCardProps> = ({
 
     return (
         <div className="game-card">
-            <div className="card-header">⚾ MLB GAME</div>
-
             <div className="team-section">
                 <div className="team-info" onClick={() => onTeamClick(awayTeamId)}>
                     <img src={awayLogo} alt={`${awayTeam} logo`} className="team-logo"/>
@@ -87,12 +85,25 @@ const GameCard: React.FC<GameCardProps> = ({
             </div>
 
             <div className="match-details">
-                <span className="match-date">📅 {formattedDate}</span>
-                <span className="match-time">🕒 {formattedTime}</span>
-                <span className="match-venue">📍 {venue}</span>
+                <table className="match-table">
+                    <tbody>
+                    <tr>
+                        <td className="label">📅 Date:</td>
+                        <td className="value">{formattedDate}</td>
+                    </tr>
+                    <tr>
+                        <td className="label">🕒 Time:</td>
+                        <td className="value">{formattedTime}</td>
+                    </tr>
+                    <tr>
+                        <td className="label">📍 Venue:</td>
+                        <td className="value">{venue}</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <button className="calendar-btn" onClick={handleAddToCalendar} title="Add game to Google Calendar">
+            <button className="widget-button" onClick={handleAddToCalendar} title="Add game to Google Calendar">
                 <FaCalendarPlus size={18}/> Add to Calendar
             </button>
         </div>

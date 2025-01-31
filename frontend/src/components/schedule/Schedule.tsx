@@ -181,8 +181,8 @@ const Schedule: React.FC = () => {
 
     return (
         <div className="schedule-container">
-            <h1>MLB Schedule 2025</h1>
-            <p>
+            <h1 className="glass-background">MLB Schedule 2025</h1>
+            <p className="glass-background">
                 {favoriteTeams.length === 0 ? (
                     "Showing all teams (no favorites set)"
                 ) : (
@@ -208,6 +208,7 @@ const Schedule: React.FC = () => {
                 onDateChange={handleDateChange}
                 onTeamChange={handleTeamChange}
                 onResetFilter={handleResetFilter}
+                className="glass-background"
             />
             <ScheduleGrid filteredSchedule={currentItems} onTeamClick={handleTeamClick}/>
             <PaginationControls
@@ -215,6 +216,7 @@ const Schedule: React.FC = () => {
                 totalItems={filteredSchedule.length}
                 itemsPerPage={itemsPerPage}
                 onPageChange={handlePageChange}
+                className="glass-background"
             />
         </div>
     );

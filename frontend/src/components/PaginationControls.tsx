@@ -6,9 +6,16 @@ interface PaginationControlsProps {
     totalItems: number;
     itemsPerPage: number;
     onPageChange: (page: number) => void;
+    className?: string;
 }
 
-const PaginationControls: React.FC<PaginationControlsProps> = ({ currentPage, totalItems, itemsPerPage, onPageChange }) => {
+const PaginationControls: React.FC<PaginationControlsProps> = ({
+    currentPage,
+    totalItems,
+    itemsPerPage,
+    onPageChange,
+    className
+}) => {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
     const handlePrevPage = () => {
@@ -24,7 +31,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({ currentPage, to
     };
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, marginTop: 3 }}>
+        <Box className={className} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, marginTop: 3 }}>
             <Button variant="contained" onClick={handlePrevPage} disabled={currentPage === 1}>
                 Previous
             </Button>

@@ -7,9 +7,10 @@ interface FilterControlsProps {
     onDateChange: (date: string) => void;
     onTeamChange: (team: string) => void;
     onResetFilter: () => void;
+    className?: string;
 }
 
-const FilterControls: React.FC<FilterControlsProps> = ({ selectedDate, selectedTeam, onDateChange, onTeamChange, onResetFilter }) => {
+const FilterControls: React.FC<FilterControlsProps> = ({ selectedDate, selectedTeam, onDateChange, onTeamChange, onResetFilter, className }) => {
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         onDateChange(event.target.value);
     };
@@ -19,7 +20,15 @@ const FilterControls: React.FC<FilterControlsProps> = ({ selectedDate, selectedT
     };
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 2 }}>
+        <Box
+            className={className} sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                marginBottom: 2,
+                padding: 2,
+            }}
+        >
             <TextField
                 label="Filter by Date"
                 type="date"

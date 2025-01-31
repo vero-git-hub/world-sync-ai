@@ -136,10 +136,9 @@
 }
 
 .team-name {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
-    color: #ffdc00;
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
+    color: #6f6fff;
 }
 
 .team-location {
