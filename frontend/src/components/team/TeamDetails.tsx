@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import "../../styles/components/team/TeamDetails.css";
 import { TeamInfo, RosterPlayer, TeamApiResponse } from "../../types/team.ts";
 import API from "../../api.ts";
@@ -69,35 +69,41 @@ const TeamDetails: React.FC = () => {
 
     return (
         <div className="team-page">
-            <Link to="/teams" className="back-button">⬅ Back to Teams</Link>
+            <div className="glass-background">
+                <h1 className="roster-title">📋 Team Roster</h1>
 
-            {teamInfo && (
-                <div className="team-card">
-                    {teamLogo && <img src={teamLogo} alt={teamInfo.name} className="team-logo" />}
-                    <h1 className="team-name">{teamInfo.name}</h1>
-                    <p className="team-details"><strong>🏟 Venue:</strong> {teamInfo.venue.name}, {teamInfo.venue.city}</p>
-                    <p className="team-details"><strong>🏆 League:</strong> {teamInfo.league?.name || 'N/A'}</p>
-                    <p className="team-details"><strong>⚾ Division:</strong> {teamInfo.division?.name || 'N/A'}</p>
+                <div className="team-selected glass-background">
+                    {teamInfo && (
+                        <div className="team-selected-card">
+                            {teamLogo && <img src={teamLogo} alt={teamInfo.name} className="team-selected-logo" />}
+                            <div className="team-selected-info">
+                                <h1 className="team-selected-name">{teamInfo.name}</h1>
+                                <p className="team-selected-details"><strong>🏟 Venue:</strong> {teamInfo.venue.name} {teamInfo.venue.city}</p>
+                                <p className="team-selected-details"><strong>🏆 League:</strong> {teamInfo.league?.name || 'N/A'}</p>
+                                <p className="team-selected-details"><strong>⚾ Division:</strong> {teamInfo.division?.name || 'N/A'}</p>
+                            </div>
+                        </div>
+                    )}
+                    <button className="team-back-button" onClick={() => navigate("/teams")} title="Back to Teams">⬅ Back</button>
                 </div>
-            )}
 
-            <h2 className="roster-title">📋 Team Roster</h2>
-            <div className="roster-grid">
-                {roster.map((player) => (
-                    <button
-                        key={player.person.id}
-                        className="player-card"
-                        onClick={() => navigate(`/player/${player.person.id}`, { state: { fromTeamPath: `/team/${teamId}` } })}
-                    >
-                        {playerPhotos[player.person.id] ? (
-                            <img src={playerPhotos[player.person.id]} alt={player.person.fullName} className="player-photo" />
-                        ) : (
-                            <div className="player-photo-placeholder">🚫 No Image</div>
-                        )}
-                        <p className="player-name">{player.person.fullName}</p>
-                        <span className="player-position">{player.position.name}</span>
-                    </button>
-                ))}
+                <div className="roster-grid">
+                    {roster.map((player) => (
+                        <button
+                            key={player.person.id}
+                            className="player-card"
+                            onClick={() => navigate(`/player/${player.person.id}`, { state: { fromTeamPath: `/team/${teamId}` } })}
+                        >
+                            {playerPhotos[player.person.id] ? (
+                                <img src={playerPhotos[player.person.id]} alt={player.person.fullName} className="player-photo" />
+                            ) : (
+                                <div className="player-photo-placeholder">🚫 No Image</div>
+                            )}
+                            <p className="player-name">{player.person.fullName}</p>
+                            <span className="player-position">{player.position.name}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
     );

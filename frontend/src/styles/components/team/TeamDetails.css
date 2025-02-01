@@ -1,28 +1,9 @@
 .team-page {
-    background: url('/public/images/background/rainy-stadium.webp') no-repeat center center/cover;
-    min-height: 100vh;
-    padding: 40px 20px;
     text-align: center;
-    width: 100%;
-}
-
-/* Back */
-.back-button {
-    display: inline-block;
-    background: #ff4136;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    text-decoration: none;
-    margin-bottom: 20px;
-    transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.back-button:hover {
-    background: #ff851b;
-    transform: scale(1.05);
+    color: #333;
+    background: url('/public/images/background/rainy-stadium.webp') no-repeat center center/cover;
+    padding-top: 4%;
+    padding-bottom: 1%;
 }
 
 /* Team */
@@ -45,31 +26,46 @@
     margin-bottom: 15px;
 }
 
-.team-name {
-    font-size: 32px;
+.team-selected-name {
+    font-size: 18px;
     font-weight: bold;
+    color: #6f6fff;
     text-transform: uppercase;
+    margin-top: 5px;
     text-shadow: 2px 2px 10px rgba(255, 255, 255, 0.5);
+    margin-right: 3%;
 }
 
-.team-details {
+.team-selected-details {
     font-size: 18px;
     margin: 5px 0;
 }
 
+.team-selected-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    width: 70%;
+}
+
 /* Roster */
 .roster-title {
-    font-size: 28px;
+    font-size: 36px;
     font-weight: bold;
-    color: white;
+    color: #fff;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
     margin-bottom: 20px;
 }
 
 .roster-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
     justify-content: center;
+    max-width: clamp(1200px, 90vw, 1788px);
+    margin: auto;
     padding: 20px;
 }
 
@@ -87,9 +83,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    min-height: 200px;
-    max-width: 140px;
-    padding-bottom: 10px;
+    min-height: 220px;
+    width: 100%;
+    padding: 15px;
+    box-sizing: border-box;
 }
 
 .player-card:hover {
@@ -97,10 +94,34 @@
     box-shadow: 0 8px 20px rgba(255, 255, 255, 0.4);
 }
 
+@media (max-width: 1400px) {
+    .roster-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1100px) {
+    .roster-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    .roster-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 500px) {
+    .roster-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
 /* Player photo */
 .player-photo {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 10px;
@@ -108,8 +129,8 @@
 }
 
 .player-photo-placeholder {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
@@ -132,4 +153,51 @@
 .player-position {
     font-size: 16px;
     color: #00d4ff;
+}
+
+.team-selected {
+    max-width: clamp(1200px, 58vw, 1788px);
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 20px;
+}
+
+.team-selected-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.team-selected-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+}
+
+.team-selected-info {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.team-back-button {
+    padding: 10px 15px;
+    font-size: 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.team-back-button:hover {
+    background: #0056b3;
 }
