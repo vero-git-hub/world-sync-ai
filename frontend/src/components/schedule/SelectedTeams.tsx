@@ -7,13 +7,13 @@ interface SelectedTeamsProps {
 
 const SelectedTeams: React.FC<SelectedTeamsProps> = ({ favoriteTeams }) => {
     return (
-        <div className="selected-teams">
+        <>
             {favoriteTeams.map((team, index) => (
                 <div key={index} className="team-chip">
                     {team}
                 </div>
             ))}
-        </div>
+        </>
     );
 };
 

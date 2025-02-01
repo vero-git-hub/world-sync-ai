@@ -37,7 +37,7 @@ const ScheduleGrid: React.FC<{ filteredSchedule: DateItem[], onTeamClick: (teamI
     }, [filteredSchedule]);
 
     return (
-        <div className="schedule-grid glass-background">
+        <>
             {filteredSchedule.map((dateItem) =>
                 dateItem.games.map((game: Game, index: number) => (
                     <GameCard
@@ -54,7 +54,7 @@ const ScheduleGrid: React.FC<{ filteredSchedule: DateItem[], onTeamClick: (teamI
                     />
                 ))
             )}
-        </div>
+        </>
     );
 };
 

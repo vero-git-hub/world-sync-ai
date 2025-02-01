@@ -181,43 +181,59 @@ const Schedule: React.FC = () => {
 
     return (
         <div className="schedule-container">
-            <h1 className="glass-background">MLB Schedule 2025</h1>
-            <p className="glass-background">
-                {favoriteTeams.length === 0 ? (
-                    "Showing all teams (no favorites set)"
-                ) : (
-                    showFavorites ? "Showing favorite teams" : "Showing all teams"
-                )}
+            <div className="glass-background">
+                <div className="schedule-header">
+                    <h1>MLB Schedule 2025</h1>
+                </div>
 
-                {favoriteTeams.length !== 0 && (
-                    <button onClick={() => setShowFavorites(!showFavorites)}>
-                        {showFavorites ? "Show all teams" : "Show favorite teams"}
-                    </button>
-                )}
+                <div className="schedule-controls glass-background">
+                    <div className="filter-controls">
+                        <FilterControls
+                            selectedDate={selectedDate}
+                            selectedTeam={selectedTeam}
+                            onDateChange={handleDateChange}
+                            onTeamChange={handleTeamChange}
+                            onResetFilter={handleResetFilter}
+                            className=""
+                        />
+                    </div>
 
-                <Link to="/profile">
-                    <button>Change favorite teams</button>
-                </Link>
-            </p>
+                    <div className="selected-teams">
+                        {favoriteTeams.length === 0 ? (
+                            "Showing all teams (no favorites set)"
+                        ) : (
+                            showFavorites ? "Showing favorite teams:" : "Showing all teams"
+                        )}
+                        <SelectedTeams favoriteTeams={favoriteTeams}/>
+                    </div>
 
-            <SelectedTeams favoriteTeams={favoriteTeams}/>
+                    <div className="team-buttons">
+                        {favoriteTeams.length !== 0 && (
+                            <button onClick={() => setShowFavorites(!showFavorites)}>
+                                {showFavorites ? "Showing all teams" : "Showing favorite teams"}
+                            </button>
+                        )}
 
-            <FilterControls
-                selectedDate={selectedDate}
-                selectedTeam={selectedTeam}
-                onDateChange={handleDateChange}
-                onTeamChange={handleTeamChange}
-                onResetFilter={handleResetFilter}
-                className="glass-background"
-            />
-            <ScheduleGrid filteredSchedule={currentItems} onTeamClick={handleTeamClick}/>
-            <PaginationControls
-                currentPage={currentPage}
-                totalItems={filteredSchedule.length}
-                itemsPerPage={itemsPerPage}
-                onPageChange={handlePageChange}
-                className="glass-background"
-            />
+                        <Link to="/profile">
+                            <button>Change favorite teams</button>
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="schedule-grid">
+                    <ScheduleGrid filteredSchedule={currentItems} onTeamClick={handleTeamClick}/>
+                </div>
+
+                <div className="pagination-container">
+                    <PaginationControls
+                        currentPage={currentPage}
+                        totalItems={filteredSchedule.length}
+                        itemsPerPage={itemsPerPage}
+                        onPageChange={handlePageChange}
+                        className="pagination-controls"
+                    />
+                </div>
+            </div>
         </div>
     );
 };

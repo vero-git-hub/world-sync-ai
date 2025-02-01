@@ -31,7 +31,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
     };
 
     return (
-        <Box className={className} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, marginTop: 3 }}>
+        <Box className={className}>
             <Button variant="contained" onClick={handlePrevPage} disabled={currentPage === 1}>
                 Previous
             </Button>

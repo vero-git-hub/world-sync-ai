@@ -3,9 +3,10 @@
 
 .schedule-container {
     text-align: center;
-    padding: 40px 20px;
     color: #333;
     background: url('/public/images/background/spring-stadium.webp') no-repeat center center/cover;
+    padding-top: 4%;
+    padding-bottom: 1%;
 }
 
 .schedule-title {
@@ -71,11 +72,36 @@
 
 .schedule-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 20px;
     justify-content: center;
-    max-width: 1200px;
+    max-width: clamp(1200px, 90vw, 1788px);
     margin: auto;
+    padding: 20px;
+}
+
+@media (max-width: 1600px) {
+    .schedule-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 1300px) {
+    .schedule-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1000px) {
+    .schedule-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .schedule-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
 }
 
 .schedule-card {
@@ -150,24 +176,43 @@
     background: #0056b3;
 }
 
-.pagination {
+/* Pagination */
+.pagination-container {
+    max-width: clamp(100px, 67vw, 350px);
+    width: 100%;
+    margin: 30px auto 20px;
+    padding: 15px 30px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     display: flex;
+    align-items: center;
     justify-content: center;
+    gap: 15px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.schedule-controls {
+    max-width: clamp(1200px, 67vw, 1788px);
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.team-buttons {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
     gap: 10px;
-    margin-top: 30px;
-}
-
-.pagination button {
-    padding: 10px 15px;
-    background: #ffdc00;
-    color: #222;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s ease-in-out;
-}
-
-.pagination button:hover {
-    background: #ff851b;
 }
