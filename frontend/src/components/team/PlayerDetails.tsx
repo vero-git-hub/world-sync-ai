@@ -46,24 +46,26 @@ const PlayerDetails: React.FC = () => {
 
     return (
         <div className="player-page">
-            <Link to={previousTeamPath} className="back-button">⬅ Back to Team</Link>
+            <div className="glass-container">
+                <Link to={previousTeamPath} className="back-button">⬅ Back to Team</Link>
 
-            {playerInfo ? (
-                <div className="player-card">
-                    {playerPhoto && <img src={playerPhoto} alt={playerInfo.fullName} className="player-photo" />}
-                    <h1 className="player-name">{playerInfo.fullName}</h1>
-                    <p className="player-details"><strong>🎂 Birth Date:</strong> {playerInfo.birthDate}</p>
-                    <p className="player-details"><strong>🎯 Age:</strong> {playerInfo.currentAge}</p>
-                    <p className="player-details"><strong>⚾ Position:</strong> {playerInfo.primaryPosition.name}</p>
-                    <p className="player-details"><strong>📏 Height:</strong> {playerInfo.height}</p>
-                    <p className="player-details"><strong>⚖️ Weight:</strong> {playerInfo.weight} lbs</p>
-                    <p className="player-details"><strong>🛫 MLB Debut:</strong> {playerInfo.mlbDebutDate}</p>
-                    <p className="player-details"><strong>🦾 Bat Side:</strong> {playerInfo.batSide.description}</p>
-                    <p className="player-details"><strong>💪 Pitch Hand:</strong> {playerInfo.pitchHand.description}</p>
-                </div>
-            ) : (
-                <p>No player information available.</p>
-            )}
+                {playerInfo ? (
+                    <div className="player-card">
+                        {playerPhoto && <img src={playerPhoto} alt={playerInfo.fullName} className="player-photo" />}
+                        <h1 className="player-name">{playerInfo.fullName}</h1>
+                        <p className="player-details"><strong>🎂 Birth Date:</strong> {playerInfo.birthDate}</p>
+                        <p className="player-details"><strong>🎯 Age:</strong> {playerInfo.currentAge}</p>
+                        <p className="player-details"><strong>⚾ Position:</strong> {playerInfo.primaryPosition.name}</p>
+                        <p className="player-details"><strong>📏 Height:</strong> {playerInfo.height}</p>
+                        <p className="player-details"><strong>⚖️ Weight:</strong> {playerInfo.weight} lbs</p>
+                        <p className="player-details"><strong>🛫 MLB Debut:</strong> {playerInfo.mlbDebutDate}</p>
+                        <p className="player-details"><strong>🦾 Bat Side:</strong> {playerInfo.batSide.description}</p>
+                        <p className="player-details"><strong>💪 Pitch Hand:</strong> {playerInfo.pitchHand.description}</p>
+                    </div>
+                ) : (
+                    <p>No player information available.</p>
+                )}
+            </div>
         </div>
     );
 };
