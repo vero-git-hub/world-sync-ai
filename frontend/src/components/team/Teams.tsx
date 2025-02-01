@@ -88,43 +88,45 @@ const Teams: React.FC = () => {
 
     return (
         <div className="teams-page">
-            <h1 className="teams-title">⚾ All MLB Teams</h1>
+            <div className="glass-background">
+                <h1 className="teams-title">⚾ All MLB Teams</h1>
 
-            <div className="filters">
-                <input
-                    type="text"
-                    placeholder="Search teams..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input"
-                />
-                <button onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")} className="sort-button">
-                    Sort {sortOrder === "asc" ? "↓" : "↑"}
-                </button>
-                <button onClick={() => navigate("/")} className="back-button">⬅ Back</button>
-            </div>
+                <div className="filters glass-background">
+                    <input
+                        type="text"
+                        placeholder="Search teams..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                    <button onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")} className="sort-button">
+                        Sort {sortOrder === "asc" ? "↓" : "↑"}
+                    </button>
+                    <button onClick={() => navigate("/schedule")}>⬅ Back</button>
+                </div>
 
-            <div className="teams-list">
-                {filteredTeams.map((team) => (
-                    <Link to={`/team/${team.id}`} key={team.id} className="team-card">
-                        <div className="team-card-inner">
-                            <div className="team-logo-container">
-                                {logos[team.id] && (
-                                    <img
-                                        src={logos[team.id]}
-                                        alt={`${team.name} logo`}
-                                        className="team-logo"
-                                    />
-                                )}
+                <div className="teams-list">
+                    {filteredTeams.map((team) => (
+                        <Link to={`/team/${team.id}`} key={team.id} className="team-card">
+                            <div className="team-card-inner">
+                                <div className="team-logo-container">
+                                    {logos[team.id] && (
+                                        <img
+                                            src={logos[team.id]}
+                                            alt={`${team.name} logo`}
+                                            className="team-logo"
+                                        />
+                                    )}
+                                </div>
+                                <div className="team-info">
+                                    <h3 className="team-name">{team.name}</h3>
+                                    <p className="team-location">{team.locationName}</p>
+                                    <p className="team-stadium">🏟 {team.venue.name}</p>
+                                </div>
                             </div>
-                            <div className="team-info">
-                                <h3 className="team-name">{team.name}</h3>
-                                <p className="team-location">{team.locationName}</p>
-                                <p className="team-stadium">🏟 {team.venue.name}</p>
-                            </div>
-                        </div>
-                    </Link>
-                ))}
+                        </Link>
+                    ))}
+                </div>
             </div>
         </div>
     );

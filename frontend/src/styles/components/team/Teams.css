@@ -1,11 +1,9 @@
-/* Background */
 .teams-page {
-    background: url('/public/images/background/autumn-stadium.webp') no-repeat center center/cover;
-    padding: 40px 20px;
     text-align: center;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
+    color: #333;
+    background: url('/public/images/background/autumn-stadium.webp') no-repeat center center/cover;
+    padding-top: 4%;
+    padding-bottom: 1%;
 }
 
 .header {
@@ -16,10 +14,6 @@
     background: rgba(0, 0, 0, 0.85);
     z-index: 100;
     padding: 10px 20px;
-}
-
-.teams-page {
-    padding-top: 80px;
 }
 
 /* Header */
@@ -34,10 +28,19 @@
 
 /* Filters */
 .filters {
+    max-width: clamp(100px, 30vw, 600px);
+    width: 100%;
+    margin: 0 auto;
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.filters > * {
+    flex-grow: 1;
+    min-width: 180px;
 }
 
 .search-input {
@@ -60,7 +63,7 @@
 }
 
 .sort-button {
-    background-color: #ffdc00;
+    background: linear-gradient(90deg, #ff4136, #ff851b);
     color: black;
 }
 
@@ -79,9 +82,13 @@
 
 /* Team grid */
 .teams-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    justify-content: center;
+    max-width: clamp(1200px, 90vw, 1788px);
+    margin: auto;
+    padding: 20px;
 }
 
 /* Team card */
