@@ -18,7 +18,10 @@ button:disabled {
     cursor: not-allowed;
 }
 
-.widget-button {
+/* Animation button */
+.animation-button {
+    position: relative;
+    overflow: hidden;
     width: calc(100% - 24px);
     max-width: 350px;
     padding: 12px;
@@ -35,13 +38,15 @@ button:disabled {
     letter-spacing: 1px;
 }
 
-.widget-button:hover {
+.animation-button:hover {
     background: linear-gradient(90deg, #ff851b, #ff4136);
     transform: scale(1.05);
     box-shadow: 0 8px 20px rgba(255, 65, 54, 0.7);
+    color: white;
+    font-weight: bold;
 }
 
-.widget-button::before {
+.animation-button::before {
     content: "";
     position: absolute;
     top: 50%;
@@ -51,10 +56,12 @@ button:disabled {
     background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 10%);
     transition: all 0.6s ease-out;
     transform: translate(-50%, -50%) scale(0);
+    border-radius: 50%;
+    pointer-events: none;
 }
 
-.widget-button:hover::before {
-    transform: translate(-50%, -50%) scale(1);
+.animation-button:hover::before {
+    transform: translate(-50%, -50%) scale(3);
 }
 
 /* Trivia button */
@@ -89,44 +96,4 @@ button:disabled {
     background: #ff851b;
     color: white;
     font-weight: bold;
-}
-
-/* Auth */
-.auth-button {
-    width: calc(100% - 24px);
-    max-width: 350px;
-    padding: 12px;
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
-    background: linear-gradient(90deg, #ff4136, #ff851b);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 15px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.auth-button:hover {
-    background: linear-gradient(90deg, #ff851b, #ff4136);
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(255, 65, 54, 0.7);
-}
-
-.auth-button::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300%;
-    height: 300%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 10%);
-    transition: all 0.6s ease-out;
-    transform: translate(-50%, -50%) scale(0);
-}
-
-.auth-button:hover::before {
-    transform: translate(-50%, -50%) scale(1);
 }

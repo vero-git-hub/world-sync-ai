@@ -103,7 +103,7 @@ const GameCard: React.FC<GameCardProps> = ({
                 </table>
             </div>
 
-            <button className="widget-button" onClick={handleAddToCalendar} title="Add game to Google Calendar">
+            <button className="animation-button" onClick={handleAddToCalendar} title="Add game to Google Calendar">
                 <FaCalendarPlus size={18}/> Add to Calendar
             </button>
         </div>

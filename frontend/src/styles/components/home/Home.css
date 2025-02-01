@@ -80,25 +80,6 @@
     color: gray;
 }
 
-.widget-button {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 15px;
-    background: #ffdc00;
-    color: black;
-    font-weight: bold;
-    text-transform: uppercase;
-    border-radius: 6px;
-    text-decoration: none;
-    transition: background 0.3s ease;
-}
-
-.widget-button:hover {
-    background: #ff851b;
-    color: white;
-    font-weight: bold;
-}
-
 .info-table {
     width: 100%;
     border-collapse: collapse;

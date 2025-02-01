@@ -71,7 +71,7 @@ const Register: React.FC = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                 />
-                <button type="submit" className="auth-button">Create account</button>
+                <button type="submit" className="animation-button">Create account</button>
             </form>
 
             <p className="auth-link">

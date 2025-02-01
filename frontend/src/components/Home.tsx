@@ -116,7 +116,7 @@ const Home: React.FC = () => {
                         ) : (
                             <p>No upcoming games available</p>
                         )}
-                        <Link to={`/schedule`} className="widget-button">All games</Link>
+                        <Link to={`/schedule`} className="animation-button">All games</Link>
                     </div>
                 </div>
 
@@ -161,7 +161,7 @@ const Home: React.FC = () => {
                                     </table>
                                 </div>
 
-                                <Link to={`/team/${randomTeam.id}`} className="widget-button">About Team</Link>
+                                <Link to={`/team/${randomTeam.id}`} className="animation-button">About Team</Link>
                             </>
                         ) : (
                             <p>No teams available</p>
@@ -203,7 +203,7 @@ const Home: React.FC = () => {
                             )}
                         </div>
                     </div>
-                    <Link to={`/profile`} className="widget-button">More info</Link>
+                    <Link to={`/profile`} className="animation-button">More info</Link>
                 </div>
             </div>
 
@@ -228,7 +228,7 @@ const Home: React.FC = () => {
                                     Ready to test your MLB knowledge? 🌟
                                 </p>
                                 <button
-                                    className="widget-button"
+                                    className="animation-button"
                                     onClick={() => setShowTrivia(true)}
                                 >
                                     Let's Play Trivia!
