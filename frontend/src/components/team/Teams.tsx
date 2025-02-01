@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import "../../styles/components/team/Teams.css";
 
 interface Team {
@@ -23,68 +23,72 @@ const Teams: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const fetchTeams = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const userToken = localStorage.getItem("token");
-            if (!userToken) {
-                throw new Error("❌ No authentication token found. Please log in.");
-            }
-
-            const response = await fetch('/api/teams/mlb/teams', {
-                method: "GET",
-                headers: {
-                    "Authorization": `Bearer ${userToken}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to fetch teams: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            setTeams(data.teams || []);
-
-            const logoPromises = data.teams.map(async (team: Team) => {
-                const logoResponse = await axios.get<Blob>(
-                    `/api/teams/mlb/team/${team.id}/logo`,
-                    {
-                        responseType: 'blob',
-                        headers: { "Authorization": `Bearer ${userToken}` },
-                    }
-                );
-
-                const logoUrl = URL.createObjectURL(logoResponse.data);
-                return { [team.id]: logoUrl };
-            });
-
-            const logosArray = await Promise.all(logoPromises);
-            setLogos(Object.assign({}, ...logosArray));
-        } catch (err) {
-            setError((err as Error).message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
+        const fetchTeams = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                const userToken = localStorage.getItem("token");
+                if (!userToken) {
+                    throw new Error("❌ No authentication token found. Please log in.");
+                }
+
+                const response = await fetch("/api/teams/mlb/teams", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${userToken}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch teams: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                setTeams(data.teams || []);
+
+                data.teams.forEach((team: Team) => {
+                    fetchTeamLogo(team.id, userToken);
+                });
+            } catch (err) {
+                setError((err as Error).message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
         fetchTeams();
     }, []);
 
-    const filteredTeams = teams
-        .filter(team => team.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => sortOrder === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
+    const fetchTeamLogo = async (teamId: number, userToken: string) => {
+        try {
+            const logoResponse = await axios.get<Blob>(
+                `/api/teams/mlb/team/${teamId}/logo`,
+                {
+                    responseType: "blob",
+                    headers: { Authorization: `Bearer ${userToken}` },
+                }
+            );
+            const logoUrl = URL.createObjectURL(logoResponse.data);
+            setLogos((prev) => ({ ...prev, [teamId]: logoUrl }));
+        } catch (error) {
+            console.error('Error fetching current user:', error);
+        }
+    };
 
-    if (loading) {
-        return <p className="loading">Loading teams...</p>;
-    }
-
-    if (error) {
-        return <div className="error-message">Error: {error}</div>;
-    }
+    const filteredTeams = useMemo(() => {
+        return teams
+            .filter((team) =>
+                team.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+            .sort((a, b) =>
+                sortOrder === "asc"
+                    ? a.name.localeCompare(b.name)
+                    : b.name.localeCompare(a.name)
+            );
+    }, [teams, searchTerm, sortOrder]);
 
     return (
         <div className="teams-page">
@@ -99,34 +103,59 @@ const Teams: React.FC = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="search-input"
                     />
-                    <button onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")} className="sort-button">
+                    <button
+                        onClick={() =>
+                            setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                        }
+                        className="sort-button"
+                    >
                         Sort {sortOrder === "asc" ? "↓" : "↑"}
                     </button>
                     <button onClick={() => navigate("/schedule")}>⬅ Back</button>
                 </div>
 
-                <div className="teams-list">
-                    {filteredTeams.map((team) => (
-                        <Link to={`/team/${team.id}`} key={team.id} className="team-card">
-                            <div className="team-card-inner">
-                                <div className="team-logo-container">
-                                    {logos[team.id] && (
-                                        <img
-                                            src={logos[team.id]}
-                                            alt={`${team.name} logo`}
-                                            className="team-logo"
-                                        />
-                                    )}
+                {loading ? (
+                    <p className="loading">Loading teams...</p>
+                ) : error ? (
+                    <div className="error-message">Error: {error}</div>
+                ) : (
+                    <div className="teams-list">
+                        {filteredTeams.map((team) => (
+                            <Link
+                                to={`/team/${team.id}`}
+                                key={team.id}
+                                className="team-card"
+                            >
+                                <div className="team-card-inner">
+                                    <div className="team-logo-container">
+                                        {logos[team.id] ? (
+                                            <img
+                                                src={logos[team.id]}
+                                                alt={`${team.name} logo`}
+                                                className="team-logo"
+                                            />
+                                        ) : (
+                                            <div className="team-logo-placeholder">
+                                                🚫 No Logo
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="team-info">
+                                        <h3 className="team-name">
+                                            {team.name}
+                                        </h3>
+                                        <p className="team-location">
+                                            {team.locationName}
+                                        </p>
+                                        <p className="team-stadium">
+                                            🏟 {team.venue.name}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div className="team-info">
-                                    <h3 className="team-name">{team.name}</h3>
-                                    <p className="team-location">{team.locationName}</p>
-                                    <p className="team-stadium">🏟 {team.venue.name}</p>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
+                            </Link>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
