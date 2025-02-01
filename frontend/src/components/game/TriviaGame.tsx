@@ -8,7 +8,7 @@ const TriviaGame: React.FC = () => {
     const [question, setQuestion] = useState<string>("");
     const [options, setOptions] = useState<string[]>([]);
     const [questionId, setQuestionId] = useState<string>("");
-    const [selectedAnswer, setSelectedAnswer] = useState<string>("");
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [feedback, setFeedback] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [gameStarted, setGameStarted] = useState<boolean>(false);
@@ -21,7 +21,7 @@ const TriviaGame: React.FC = () => {
         setLoading(true);
         setGameStarted(true);
         setCorrectAnswer(null);
-        setSelectedAnswer("");
+        setSelectedAnswer(null);
         setFeedback("");
         setAnswered(false);
 
@@ -119,7 +119,9 @@ const TriviaGame: React.FC = () => {
                                         : option === selectedAnswer
                                             ? "incorrect"
                                             : ""
-                                    : ""
+                                    : option === selectedAnswer
+                                        ? "selected"
+                                        : ""
                                 }`}
                                 onClick={() => setSelectedAnswer(option)}
                                 disabled={answered}

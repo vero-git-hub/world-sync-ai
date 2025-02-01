@@ -2,9 +2,8 @@
     width: 100%;
     max-width: 500px;
     min-height: 350px;
-    background: #1c1c1e;
+    background: linear-gradient(135deg, #1e1e1e, #333);
     border-radius: 15px;
-    padding: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -99,7 +98,6 @@
     width: 100%;
     gap: 8px;
     padding: 12px;
-    background: #1c1c1e;
     border-top: 2px solid #fff;
     box-sizing: border-box;
 }

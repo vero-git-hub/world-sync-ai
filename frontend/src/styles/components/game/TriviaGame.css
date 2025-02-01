@@ -22,8 +22,9 @@
     max-width: 100%;
     height: 100%;
     max-height: 500px;
-    box-shadow: 0px 4px 10px rgba(255, 65, 54, 0.7);
     overflow-y: auto;
+    background: rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
 }
 
 .trivia-header {
@@ -34,7 +35,7 @@
 }
 
 .trivia-question {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
 }
@@ -42,7 +43,7 @@
 .trivia-options {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 90%;
     gap: 10px;
     margin-top: 10px;
     flex-grow: 1;
@@ -58,6 +59,12 @@
     border-radius: 6px;
     cursor: pointer;
     transition: 0.3s;
+}
+
+.trivia-options button.selected {
+    background: #ff851b;
+    border: 2px solid #ffdc00;
+    transform: scale(1.05);
 }
 
 .trivia-options button.correct {
@@ -154,7 +161,7 @@
 .trivia-actions {
     display: flex;
     justify-content: space-between;
-    width: 100%;
+    width: 90%;
     gap: 15px;
     margin-top: auto;
 }
