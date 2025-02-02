@@ -38,3 +38,4 @@ data
 
 ### Local ###
 /src/main/resources/application-local.properties
+/src/main/resources/credentials/cloud-sql-client-key.json

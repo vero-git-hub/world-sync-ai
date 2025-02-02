@@ -44,12 +44,10 @@ const Schedule: React.FC = () => {
             const cacheValid = cachedData && cachedTimestamp && (now - parseInt(cachedTimestamp)) < 10 * 60 * 1000;
 
             if (cacheValid) {
-                console.log("✅ Using cached MLB schedule data");
                 const data = JSON.parse(cachedData);
                 setSchedule(data.dates || []);
                 setFilteredSchedule(data.dates || []);
             } else {
-                console.log("🔄 Fetching new MLB schedule data...");
                 const response = await API.get<{ dates: ScheduleDate[] }>('/schedule/mlb');
 
                 setSchedule(response.data.dates || []);
