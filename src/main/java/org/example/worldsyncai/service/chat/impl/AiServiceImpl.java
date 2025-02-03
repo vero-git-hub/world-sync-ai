@@ -9,13 +9,16 @@ import com.google.gson.JsonParser;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.example.worldsyncai.service.chat.AiService;
+import org.example.worldsyncai.service.impl.SecretManagerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -28,8 +31,7 @@ import java.util.Scanner;
 @Slf4j
 public class AiServiceImpl implements AiService {
 
-    @Value("${google.cloud.project-id}")
-    private String projectId;
+    private final SecretManagerService secretManagerService;
 
     @Value("${google.cloud.location}")
     private String location;
@@ -37,21 +39,14 @@ public class AiServiceImpl implements AiService {
     @Value("${google.cloud.model-name}")
     private String modelName;
 
-    @Value("${google.cloud.credentials}")
-    private String credentialsPath;
-
     private AccessToken accessToken;
+
+    public AiServiceImpl(SecretManagerService secretManagerService) {
+        this.secretManagerService = secretManagerService;
+    }
 
     @PostConstruct
     public void initialize() {
-        init();
-    }
-
-    /**
-     * Initializing authentication.
-     */
-    public void init() {
-        System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
         refreshAccessToken();
     }
 
@@ -60,12 +55,21 @@ public class AiServiceImpl implements AiService {
      */
     private void refreshAccessToken() {
         try {
-            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(credentialsPath))
+            String jsonKey = secretManagerService.getCloudSqlClientKey();
+            if (jsonKey == null || jsonKey.isEmpty()) {
+                throw new RuntimeException("❌ Failed to get JSON key from Secret Manager");
+            }
+
+            log.info("🔑 Google credentials downloaded from Secret Manager");
+
+            InputStream credentialsStream = new ByteArrayInputStream(jsonKey.getBytes(StandardCharsets.UTF_8));
+            GoogleCredentials credentials = GoogleCredentials.fromStream(credentialsStream)
                     .createScoped("https://www.googleapis.com/auth/cloud-platform");
             credentials.refreshIfExpired();
             accessToken = credentials.getAccessToken();
         } catch (Exception e) {
-            log.error("Error getting Access Token.", e);
+            log.error("❌ Error receiving Access Token.", e);
+            throw new RuntimeException("Error receiving Access Token.", e);
         }
     }
 
@@ -76,10 +80,14 @@ public class AiServiceImpl implements AiService {
                 refreshAccessToken();
             }
 
+            String projectId = secretManagerService.getGoogleCloudProjectId();
+
             String endpoint = String.format(
                     "https://us-central1-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:streamGenerateContent",
                     projectId, location, modelName
             );
+
+            log.info("🔍 Request to AI: {}", endpoint);
 
             JsonObject requestBody = new JsonObject();
             JsonArray contentsArray = new JsonArray();
@@ -112,8 +120,6 @@ public class AiServiceImpl implements AiService {
             try (Scanner scanner = new Scanner(connection.getInputStream(), "utf-8")) {
                 response = scanner.useDelimiter("\\A").next();
             }
-
-//            log.info("Full AI Response: {}", response);
 
             JsonArray jsonArray = JsonParser.parseString(response).getAsJsonArray();
             StringBuilder fullResponse = new StringBuilder();
