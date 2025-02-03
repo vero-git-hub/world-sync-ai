@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.worldsyncai.service.GoogleCalendarService;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -22,7 +22,15 @@ import java.util.Collections;
 public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
     private static final String APPLICATION_NAME = "World Sync AI";
-    private static final String CREDENTIALS_FILE_PATH = "src/main/resources/credentials/google-credentials.json";
+
+    private final SecretManagerService secretManagerService;
+
+    private GoogleCredential getCredentialsFromSecretManager() throws IOException {
+        String credentialsJson = secretManagerService.getSecret("google-credentials");
+
+        return GoogleCredential.fromStream(new ByteArrayInputStream(credentialsJson.getBytes()))
+                .createScoped(Collections.singletonList("https://www.googleapis.com/auth/calendar.events"));
+    }
 
     @Override
     public Calendar getCalendarService(String accessToken) throws IOException {
@@ -42,8 +50,7 @@ public class GoogleCalendarServiceImpl implements GoogleCalendarService {
 
     @Override
     public Calendar getCalendarServiceFromCredentials() throws IOException {
-        GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(CREDENTIALS_FILE_PATH))
-                .createScoped(Collections.singletonList("https://www.googleapis.com/auth/calendar.events"));
+        GoogleCredential credential = getCredentialsFromSecretManager();
 
         return new Calendar.Builder(
                 credential.getTransport(),

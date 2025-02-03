@@ -34,8 +34,6 @@ build/
 
 ### Data ###
 data
-/src/main/resources/credentials/google-credentials.json
-/src/main/resources/credentials/cloud-sql-client-key.json
 
 ### Properties ###
 /src/main/resources/application-local.properties
