@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.worldsyncai.service.chat.NLPService;
+import org.example.worldsyncai.service.impl.SecretManagerService;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -21,12 +22,19 @@ public class NLPServiceImpl implements NLPService {
     @Value("${gemini.api.url}")
     private String geminiApiUrl;
 
-    @Value("${gemini.api.key}")
-    private String apiKey;
-
     private final RestTemplate restTemplate = new RestTemplate();
 
+    private final SecretManagerService secretManagerService;
+
     public String detectIntent(String message) {
+        String apiKey = secretManagerService.getGeminiApiKey();
+        log.info("🔍 API key from Secret Manager: {}", apiKey);
+
+        if (apiKey == null || apiKey.isEmpty() || apiKey.contains("gemini-api-key")) {
+            log.error("🚨 API key not loaded! Check your settings.");
+            throw new RuntimeException("There is no API key. Check your settings.");
+        }
+
         try {
             String requestBody = "{ " +
                     "\"contents\": [{ \"parts\": [{ \"text\": \"Classify this user question: '" + message +

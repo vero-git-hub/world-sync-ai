@@ -6,31 +6,40 @@ import io.jsonwebtoken.JwtException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.example.worldsyncai.service.impl.SecretManagerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Value;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Date;
 
 @Slf4j
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
-    private String secret;
-
     private Key key;
 
     private final long jwtExpirationMs = 86400000;
 
+    @Autowired
+    private SecretManagerService secretManagerService;
+
     @PostConstruct
     public void init() {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        String secret = secretManagerService.getSecret("jwt-secret");
+        log.info("✅ Uploaded JWT Secret: '{}'", secret);
+
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException("❌ Error: Secret key not loaded from Secret Manager!");
+        }
+
+        byte[] keyBytes = Base64.getDecoder().decode(secret.trim());
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
     /**

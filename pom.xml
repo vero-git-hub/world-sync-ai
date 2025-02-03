@@ -16,6 +16,19 @@
     <properties>
         <java.version>23</java.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.cloud</groupId>
+                <artifactId>libraries-bom</artifactId>
+                <version>26.53.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -48,10 +61,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <!-- Google OAuth Client -->
         <dependency>
@@ -125,6 +134,18 @@
             <groupId>com.google.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter</artifactId>
             <version>5.10.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.cloud/spring-cloud-gcp-starter-secretmanager -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>spring-cloud-gcp-starter-secretmanager</artifactId>
+            <version>5.10.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-secretmanager -->
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-secretmanager</artifactId>
+            <version>2.57.0</version>
         </dependency>
     </dependencies>
 

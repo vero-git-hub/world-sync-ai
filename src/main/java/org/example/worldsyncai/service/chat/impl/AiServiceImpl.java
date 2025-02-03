@@ -37,12 +37,6 @@ public class AiServiceImpl implements AiService {
     @Value("${google.cloud.model-name}")
     private String modelName;
 
-    @Value("${google.cloud.gemini.max-tokens}")
-    private int maxTokens;
-
-    @Value("${google.cloud.gemini.temperature}")
-    private float temperature;
-
     @Value("${google.cloud.credentials}")
     private String credentialsPath;
 
