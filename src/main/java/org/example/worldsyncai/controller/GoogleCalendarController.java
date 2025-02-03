@@ -3,7 +3,6 @@ package org.example.worldsyncai.controller;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.calendar.model.EventDateTime;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.worldsyncai.auth.JwtTokenProvider;
 import org.example.worldsyncai.dto.UserDto;
@@ -11,6 +10,7 @@ import org.example.worldsyncai.dto.calendar.EventRequestDto;
 import org.example.worldsyncai.dto.calendar.GameEventDto;
 import org.example.worldsyncai.model.User;
 import org.example.worldsyncai.service.UserService;
+import org.example.worldsyncai.service.impl.SecretManagerService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +19,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.example.worldsyncai.service.GoogleCalendarService;
 import com.google.api.services.calendar.model.Event;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/google/calendar")
-@RequiredArgsConstructor
 @Slf4j
 public class GoogleCalendarController {
 
@@ -35,14 +35,23 @@ public class GoogleCalendarController {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Value("${google.oauth2.client-id}")
-    private String clientId;
+    private final String clientId;
 
-    @Value("${google.oauth2.client-secret}")
-    private String clientSecret;
+    private final String clientSecret;
 
     @Value("${google.oauth2.redirect-uri}")
     private String redirectUri;
+
+    public GoogleCalendarController(GoogleCalendarService googleCalendarService,
+                                    UserService userService,
+                                    JwtTokenProvider jwtTokenProvider,
+                                    SecretManagerService secretManagerService) {
+        this.googleCalendarService = googleCalendarService;
+        this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.clientId = secretManagerService.getGoogleOAuthClientId();
+        this.clientSecret = secretManagerService.getGoogleOAuthClientSecret();
+    }
 
     @GetMapping("/auth")
     public ResponseEntity<Void> redirectToGoogleAuth(@RequestParam("auth") String token) {
@@ -52,10 +61,15 @@ public class GoogleCalendarController {
         }
 
         String currentUsername = jwtTokenProvider.getUsernameFromToken(token);
-        String authUrl = String.format(
-                "https://accounts.google.com/o/oauth2/v2/auth?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s",
-                clientId, redirectUri, "https://www.googleapis.com/auth/calendar.events", currentUsername
-        );
+
+        String authUrl = UriComponentsBuilder.fromHttpUrl("https://accounts.google.com/o/oauth2/v2/auth")
+                .queryParam("client_id", clientId)
+                .queryParam("redirect_uri", redirectUri)
+                .queryParam("response_type", "code")
+                .queryParam("scope", "https://www.googleapis.com/auth/calendar.events")
+                .queryParam("state", currentUsername)
+                .encode()
+                .toUriString();
 
         return ResponseEntity.status(302).location(URI.create(authUrl)).build();
     }
@@ -71,6 +85,7 @@ public class GoogleCalendarController {
             TokenResponse tokenPair = googleCalendarService.exchangeCodeForTokens(
                     code, clientId, clientSecret, redirectUri
             );
+
             String accessToken = tokenPair.getAccessToken();
             String refreshToken = tokenPair.getRefreshToken();
 
@@ -81,6 +96,8 @@ public class GoogleCalendarController {
             }
 
             Long userId = userDtoOpt.get().getId();
+
+            log.info("✅ Storing tokens for user {}: AccessToken: {}, RefreshToken: {}", username, accessToken, refreshToken);
             userService.updateUserCalendarTokens(userId, accessToken, refreshToken);
 
             URI redirectUri = URI.create("http://localhost:5173/profile");

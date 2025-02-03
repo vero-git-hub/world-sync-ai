@@ -62,4 +62,16 @@ public class SecretManagerService {
         log.info("🔍 Obtained Project ID from Secret Manager: {}", projectId);
         return projectId.trim();
     }
+
+    public String getGoogleOAuthClientId() {
+        String clientId = secretManagerTemplate.getSecretString("google-oauth-client-id");
+        log.info("🔍 Obtained Google OAuth Client ID from Secret Manager: {}", clientId);
+        return clientId.trim();
+    }
+
+    public String getGoogleOAuthClientSecret() {
+        String clientSecret = secretManagerTemplate.getSecretString("google-oauth-client-secret");
+        log.info("🔍 Obtained Google OAuth Client Secret from Secret Manager: {}", clientSecret);
+        return clientSecret.trim();
+    }
 }
