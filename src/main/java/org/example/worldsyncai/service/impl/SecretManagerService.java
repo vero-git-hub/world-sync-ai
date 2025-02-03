@@ -74,4 +74,28 @@ public class SecretManagerService {
         log.info("🔍 Obtained Google OAuth Client Secret from Secret Manager: {}", clientSecret);
         return clientSecret.trim();
     }
+
+    public String getDatabaseName() {
+        String dbName = secretManagerTemplate.getSecretString("DB_NAME");
+        log.info("🔍 Obtained DB Name from Secret Manager: {}", dbName);
+        return dbName != null ? dbName.trim() : null;
+    }
+
+    public String getDatabaseInstance() {
+        String dbInstance = secretManagerTemplate.getSecretString("DB_INSTANCE");
+        log.info("🔍 Obtained DB Instance from Secret Manager: {}", dbInstance);
+        return dbInstance.trim();
+    }
+
+    public String getDatabaseUser() {
+        String dbUser = secretManagerTemplate.getSecretString("DB_USER");
+        log.info("🔍 Obtained DB User from Secret Manager: {}", dbUser);
+        return dbUser.trim();
+    }
+
+    public String getDatabasePassword() {
+        String dbPassword = secretManagerTemplate.getSecretString("DB_PASSWORD");
+        log.info("🔍 Obtained DB Password from Secret Manager: {}", dbPassword);
+        return dbPassword.trim();
+    }
 }
