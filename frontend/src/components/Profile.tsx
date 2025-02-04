@@ -140,7 +140,7 @@ const Profile: React.FC = () => {
                 return;
             }
 
-            window.open(`http://localhost:8080/api/google/calendar/auth?auth=${userToken}`, '_blank');
+            window.open(`${import.meta.env.VITE_API_BASE_URL}/google/calendar/auth?auth=${userToken}`, '_blank');
         } catch (error) {
             console.error('Error connecting Google Calendar:', error);
             alert('Failed to connect Google Calendar.');

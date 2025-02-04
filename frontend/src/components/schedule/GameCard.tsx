@@ -38,7 +38,7 @@ const GameCard: React.FC<GameCardProps> = ({
                 endDateTime: end,
             };
 
-            const response = await fetch("http://localhost:8080/api/google/calendar/event/game", {
+            const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/google/calendar/event/game`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
