@@ -34,15 +34,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         String backendAllowedOrigin;
+        String frontendAllowedOrigin;
         try {
             backendAllowedOrigin = secretManagerService.getSecret("backend-allowed-origin");
-            log.info("✅ Loaded CORS allowed origin: {}", backendAllowedOrigin);
+            frontendAllowedOrigin = secretManagerService.getSecret("frontend-url");
+            log.info("✅ Loaded CORS allowed origins: backend={}, frontend={}", backendAllowedOrigin, frontendAllowedOrigin);
         } catch (Exception e) {
-            backendAllowedOrigin = "http://localhost:5173";
-            log.warn("⚠️ Failed to load CORS origin from Secret Manager, using fallback: {}", backendAllowedOrigin);
+            backendAllowedOrigin = "http://localhost:8080";
+            frontendAllowedOrigin = "http://localhost:5173";
+            log.warn("⚠️ Using fallback CORS origins: backend={}, frontend={}", backendAllowedOrigin, frontendAllowedOrigin);
         }
 
         final String finalBackendAllowedOrigin = backendAllowedOrigin;
+        final String finalFrontendAllowedOrigin = frontendAllowedOrigin;
 
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
@@ -62,11 +66,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new CorsConfiguration();
                     corsConfig.setAllowedOrigins(List.of(
-                            "http://localhost:5173",
+                            finalFrontendAllowedOrigin,
                             finalBackendAllowedOrigin
                     ));
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-CSRF-TOKEN"));
+                    corsConfig.setExposedHeaders(List.of("Authorization"));
                     corsConfig.setAllowCredentials(true);
                     return corsConfig;
                 }))

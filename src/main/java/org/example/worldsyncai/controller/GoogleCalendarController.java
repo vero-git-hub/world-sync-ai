@@ -11,7 +11,6 @@ import org.example.worldsyncai.dto.calendar.GameEventDto;
 import org.example.worldsyncai.model.User;
 import org.example.worldsyncai.service.UserService;
 import org.example.worldsyncai.service.impl.SecretManagerService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -41,6 +40,8 @@ public class GoogleCalendarController {
 
     private final String redirectUri;
 
+    private final String frontendUrl;
+
     public GoogleCalendarController(GoogleCalendarService googleCalendarService,
                                     UserService userService,
                                     JwtTokenProvider jwtTokenProvider,
@@ -51,6 +52,7 @@ public class GoogleCalendarController {
         this.clientId = secretManagerService.getGoogleOAuthClientId();
         this.clientSecret = secretManagerService.getGoogleOAuthClientSecret();
         this.redirectUri = secretManagerService.getGoogleOAuthRedirectUri();
+        this.frontendUrl = secretManagerService.getSecret("frontend-url");
     }
 
     @GetMapping("/auth")
@@ -100,11 +102,11 @@ public class GoogleCalendarController {
             log.info("✅ Storing tokens for user {}: AccessToken: {}, RefreshToken: {}", username, accessToken, refreshToken);
             userService.updateUserCalendarTokens(userId, accessToken, refreshToken);
 
-            URI redirectUri = URI.create("http://localhost:5173/profile");
+            URI redirectUri = URI.create(frontendUrl + "/profile");
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
         } catch (Exception e) {
             log.error("❌ Error during Google OAuth callback", e);
-            URI redirectUri = URI.create("http://localhost:5173/profile?error=google_auth_failed");
+            URI redirectUri = URI.create(frontendUrl + "/profile?error=google_auth_failed");
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
         }
     }

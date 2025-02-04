@@ -14,7 +14,7 @@ const Header: React.FC = () => {
     return (
         <header className="header">
             <div className="logo" style={{ display: 'flex', alignItems: 'center' }}>
-                <img className="logo-img" src="/public/images/logo_50.png" alt="World Sync AI logo"/>
+                <img className="logo-img" src="/images/logo_50.png" alt="World Sync AI logo"/>
                 <h1>World Sync AI</h1>
             </div>
             <nav className={`navigation ${menuOpen ? 'open' : ''}`}>
