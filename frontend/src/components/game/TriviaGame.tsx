@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import "../../styles/components/game/TriviaGame.css";
-
-const API_URL = "/api/trivia";
+import API from "../../api.ts";
 
 const TriviaGame: React.FC = () => {
     const [question, setQuestion] = useState<string>("");
@@ -26,26 +25,19 @@ const TriviaGame: React.FC = () => {
         setAnswered(false);
 
         try {
-            const response = await fetch(`${API_URL}/question`, {
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                    "Content-Type": "application/json"
-                }
-            });
+            const response = await API.get<{ question: string; options: string[]; id: string; correctAnswer: string }>(
+                "/trivia/question",
+                { headers: { Authorization: `Bearer ${userToken}` } }
+            );
 
-            if (!response.ok) {
-                throw new Error(`Failed to load question. Status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (!data.options || data.options.length === 0) {
+            if (!response.data.options || response.data.options.length === 0) {
                 throw new Error("No options available in question data.");
             }
 
-            setQuestion(data.question);
-            setOptions(data.options);
-            setQuestionId(data.id);
-            setCorrectAnswer(data.correctAnswer);
+            setQuestion(response.data.question);
+            setOptions(response.data.options);
+            setQuestionId(response.data.id);
+            setCorrectAnswer(response.data.correctAnswer);
 
             setTimeout(() => setLoading(false), 300);
         } catch (error) {
@@ -62,21 +54,13 @@ const TriviaGame: React.FC = () => {
         }
 
         try {
-            const response = await fetch(`${API_URL}/answer`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${userToken}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ questionId, userAnswer: selectedAnswer }),
-            });
+            const response = await API.post<{ reply: string }>(
+                "/trivia/answer",
+                { questionId, userAnswer: selectedAnswer },
+                { headers: { Authorization: `Bearer ${userToken}` } }
+            );
 
-            if (!response.ok) {
-                throw new Error(`Server error: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            setFeedback(data.reply);
+            setFeedback(response.data.reply);
             setAnswered(true);
         } catch (error) {
             console.error("Error checking answer:", error);

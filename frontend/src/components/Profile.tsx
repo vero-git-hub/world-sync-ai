@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Select from 'react-select';
-import axios from 'axios';
 import { Team } from "../types/schedule.ts";
 import "../styles/components/Profile.css";
 import { SelectOption, UserData } from "../types/profile.ts";
@@ -48,7 +47,7 @@ const Profile: React.FC = () => {
         }
 
         try {
-            const response = await axios.get('/api/google/calendar/check', {
+            const response = await API.get<string>('/google/calendar/check', {
                 headers: { Authorization: `Bearer ${userToken}` },
             });
 

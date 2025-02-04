@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import API from "../../api.ts";
 import "../../styles/components/team/Teams.css";
 
 interface Team {
@@ -34,24 +34,16 @@ const Teams: React.FC = () => {
                     throw new Error("❌ No authentication token found. Please log in.");
                 }
 
-                const response = await fetch("/api/teams/mlb/teams", {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${userToken}`,
-                        "Content-Type": "application/json",
-                    },
+                const response = await API.get<{ teams: Team[] }>("/teams/mlb/teams", {
+                    headers: { Authorization: `Bearer ${userToken}` },
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch teams: ${response.statusText}`);
-                }
+                setTeams(response.data.teams || []);
 
-                const data = await response.json();
-                setTeams(data.teams || []);
-
-                data.teams.forEach((team: Team) => {
+                response.data.teams.forEach((team: Team) => {
                     fetchTeamLogo(team.id, userToken);
                 });
+
             } catch (err) {
                 setError((err as Error).message);
             } finally {
@@ -64,8 +56,8 @@ const Teams: React.FC = () => {
 
     const fetchTeamLogo = async (teamId: number, userToken: string) => {
         try {
-            const logoResponse = await axios.get<Blob>(
-                `/api/teams/mlb/team/${teamId}/logo`,
+            const logoResponse = await API.get<Blob>(
+                `/teams/mlb/team/${teamId}/logo`,
                 {
                     responseType: "blob",
                     headers: { Authorization: `Bearer ${userToken}` },
