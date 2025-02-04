@@ -4,7 +4,7 @@
 .schedule-container {
     text-align: center;
     color: #333;
-    background: url('/public/images/background/spring-stadium.webp') no-repeat center center fixed;
+    background-image: url('/images/background/spring-stadium.webp');
     background-size: cover;
     width: 100%;
     min-height: 100vh;

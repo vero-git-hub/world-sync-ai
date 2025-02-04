@@ -98,4 +98,10 @@ public class SecretManagerService {
         log.info("🔍 Obtained DB Password from Secret Manager: {}", dbPassword);
         return dbPassword.trim();
     }
+
+    public String getGoogleOAuthRedirectUri() {
+        String redirectUri = secretManagerTemplate.getSecretString("google-oauth-redirect-uri");
+        log.info("🔍 Obtained Google OAuth Redirect URI from Secret Manager: {}", redirectUri);
+        return redirectUri.trim();
+    }
 }

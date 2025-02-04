@@ -39,8 +39,7 @@ public class GoogleCalendarController {
 
     private final String clientSecret;
 
-    @Value("${google.oauth2.redirect-uri}")
-    private String redirectUri;
+    private final String redirectUri;
 
     public GoogleCalendarController(GoogleCalendarService googleCalendarService,
                                     UserService userService,
@@ -51,6 +50,7 @@ public class GoogleCalendarController {
         this.jwtTokenProvider = jwtTokenProvider;
         this.clientId = secretManagerService.getGoogleOAuthClientId();
         this.clientSecret = secretManagerService.getGoogleOAuthClientSecret();
+        this.redirectUri = secretManagerService.getGoogleOAuthRedirectUri();
     }
 
     @GetMapping("/auth")

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.worldsyncai.auth.JwtTokenFilter;
 import org.example.worldsyncai.auth.JwtTokenProvider;
+import org.example.worldsyncai.service.impl.SecretManagerService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,20 +29,29 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
+    private final SecretManagerService secretManagerService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        String backendAllowedOrigin;
+        try {
+            backendAllowedOrigin = secretManagerService.getSecret("backend-allowed-origin");
+            log.info("✅ Loaded CORS allowed origin: {}", backendAllowedOrigin);
+        } catch (Exception e) {
+            backendAllowedOrigin = "http://localhost:5173";
+            log.warn("⚠️ Failed to load CORS origin from Secret Manager, using fallback: {}", backendAllowedOrigin);
+        }
+
+        final String finalBackendAllowedOrigin = backendAllowedOrigin;
+
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
                         new AntPathRequestMatcher("/h2-console/**"),
                         new AntPathRequestMatcher("/api/**")
                 ))
-
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(
-                                "/css/**", "/images/**", "/js/**", "/public/**"
-                        ).permitAll()
+                        .requestMatchers("/css/**", "/images/**", "/js/**", "/public/**").permitAll()
                         .requestMatchers(
                                 "/api/auth/login", "/api/auth/register",
                                 "/api/google/calendar/auth", "/api/google/calendar/callback",
@@ -49,25 +59,20 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("http://localhost:5173"));
+                    corsConfig.setAllowedOrigins(List.of(
+                            "http://localhost:5173",
+                            finalBackendAllowedOrigin
+                    ));
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-CSRF-TOKEN"));
                     corsConfig.setAllowCredentials(true);
                     return corsConfig;
                 }))
-
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
-
-                .headers(headers -> headers
-                        .frameOptions(frameOptions -> frameOptions.sameOrigin())
-                );
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
         return http.build();
     }
