@@ -1,8 +1,8 @@
 # World Sync AI:
 
-World Sync AI is a web application that integrates the capabilities of Google Cloud AI (Gemini, Vertex AI), MLB API, Google Calendar API, and Spring Security to provide a personalized experience for baseball fans.
+World Sync AI is a cloud-powered web application that integrates the capabilities of Google Cloud AI (Gemini, Vertex AI), MLB API, Google Calendar API, and Spring to provide a personalized experience for baseball fans.
 
-The project World Sync AI was developed as part of the ["Google Cloud x MLB(TM) Hackathon – Building with Gemini Models"](https://devpost.com/software/world-sync-ai) hackathon to demonstrate the potential of Google Cloud AI in enhancing fan engagement and delivering personalized event planning.
+The project was developed for the ["Google Cloud x MLB(TM) Hackathon – Building with Gemini Models"](https://devpost.com/software/project-fmbe1id7r0o2) hackathon to demonstrate the potential of Google Cloud AI in enhancing fan engagement and delivering personalized event planning.
 
 ## Technologies
 
@@ -22,17 +22,24 @@ The project World Sync AI was developed as part of the ["Google Cloud x MLB(TM) 
 
 🔹 **Backend:**
 
-* **Java 23.0.1**, **Spring Boot 3.4.1 + Spring Security** (authentication, REST API), **Maven 3.9.9**.
+* **Java 23.0.1**, **Spring Boot 3.4.1 + Spring Security** (OAuth2), **Maven 3.9.9**.
 
-* **H2 Database** (temporary storage for users, favorite teams, access tokens).
+* **Cloud SQL**, PostgreSQL (temporary storage for users, favorite teams, access tokens).
 
-* **OAuth 2.0 (Google Authentication)** (Google login, token management).
+* **Google Secret Manager** (secure storage of API keys and credentialst).
 
 🔹 **Frontend:**
 
-* **React + TypeScript** (Vite 6.0.7, SPA, widget management, UI components).
+* **React + TypeScript** (Vite 6.0.7, SPA).
 
-* **Axios** (API requests, MLB and Google Cloud data processing).
+* **State management & UI components** (interactive SPA experience).
+
+
+🔹 **Deployment & Infrastructure:**
+
+* **Google Cloud Run** (auto-scalable backend hosting).
+
+* **Firebase Hosting** (frontend deployment).
 
 🔹 **Tools:**
 
@@ -44,9 +51,9 @@ The project World Sync AI was developed as part of the ["Google Cloud x MLB(TM) 
 
 ### Authentication
 
-* Login via login page (Spring Security).
+* Login via login page (JWT token).
 
-* User registration: saving to H2 Database (email, password, username, access/refresh tokens Google OAuth2).
+* User registration: saving to Cloud SQL (email, password, username, access/refresh tokens Google OAuth2).
 
 * Connection to Google Calendar API via Google account login.
 
@@ -67,9 +74,9 @@ The main page consists of several widgets:
 
 - If the query is about a **team's schedule**, the chatbot retrieves data via MLB API:
 
-   * Gets teamId from https://statsapi.mlb.com/api/v1/teams?sportId=1.
+    * Gets teamId from https://statsapi.mlb.com/api/v1/teams?sportId=1.
 
-   * Requests the schedule from https://statsapi.mlb.com/api/v1/schedule?sportId=1&season=2025&gameType=R&teamId={teamId}.
+    * Requests the schedule from https://statsapi.mlb.com/api/v1/schedule?sportId=1&season=2025&gameType=R&teamId={teamId}.
 
 - **Forms context** (original query + MLB API data) and **generates a response with Gemini**.
 
@@ -77,7 +84,7 @@ The main page consists of several widgets:
 
 - User data from the database (name, email, favorite teams).
 
-- Modify favorite teams (saved in H2 Database).
+- Modify favorite teams (saved in Cloud SQL).
 
 - Access token verification for Google Calendar API.
 
@@ -87,11 +94,11 @@ The main page consists of several widgets:
 
 - **Filtering features**:
 
-   * By date.
+    * By date.
 
-   * By team.
+    * By team.
 
-   * Reset filters.
+    * Reset filters.
 
 - **Pagination**.
 
@@ -101,13 +108,13 @@ The main page consists of several widgets:
 
 - **Match card**:
 
-   * Team logos.
+    * Team logos.
 
-   * Match date.
+    * Match date.
 
-   * **Button to add to Google Calendar**.
+    * **Button to add to Google Calendar**.
 
-   * Clicking opens **team information, roster, and player details**.
+    * Clicking opens **team information, roster, and player details**.
 
 5️⃣ **Teams (MLB Teams)**
 
@@ -115,15 +122,15 @@ The main page consists of several widgets:
 
 - Team card:
 
-   * Logo, city, stadium.
+    * Logo, city, stadium.
 
-   * Clicking opens detailed team information:
+    * Clicking opens detailed team information:
 
-      * https://statsapi.mlb.com/api/v1/teams/{teamId}.
+        * https://statsapi.mlb.com/api/v1/teams/{teamId}.
 
-      * Team roster: https://statsapi.mlb.com/api/v1/teams/{teamId}/roster?season=2025.
+        * Team roster: https://statsapi.mlb.com/api/v1/teams/{teamId}/roster?season=2025.
 
-      * Player details page: https://statsapi.mlb.com/api/v1/people/{playerId} (displays personal data: birthdate, age, weight, height, etc.).
+        * Player details page: https://statsapi.mlb.com/api/v1/people/{playerId} (displays personal data: birthdate, age, weight, height, etc.).
 
 ## Installation
 
@@ -132,51 +139,24 @@ The main page consists of several widgets:
     git clone https://github.com/vero-git-hub/world-sync-ai
     cd world-sync-ai
 
-2️⃣ **Install dependencies**
+2️⃣ **Set Up Google Cloud Secrets**
 
-    mvn clean install
+1. Enable APIs → Vertex AI, Google Calendar API.
+2. Store credentials in Google Secret Manager.
 
-3️⃣ **Configure Google Cloud Credentials**
 
-1. Go to **Google Cloud Console**.
-
-2. Enable Vertex AI API, Google Calendar API.
-
-3. Create **OAuth 2.0 Client ID**, add redirect URI.
-
-4. Download JSON file google-credentials.json and place it in src/main/resources/.
-
-5. Add to application-local.properties:
-    ```
-    google.oauth2.client-id=your-client-id
-    google.oauth2.client-secret=your-client-secret
-    google.oauth2.redirect-uri=http://localhost:8080/login/oauth2/code/google
-   
-    google.cloud.credentials=classpath:google-credentials.json
-    google.cloud.project-id=your-project-id
-    google.cloud.location=us-central1
-    google.cloud.model-name=gemini
-   
-    google.cloud.gemini.max-tokens=200
-    google.cloud.gemini.temperature=0.7
-
-    gemini.api.key=your-gemini-api-key
-    gemini.api.url=https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent
-    ```
-
-4️⃣ **Run Backend (Spring Boot)**
+3️⃣ **Run Backend (Spring Boot)**
 
     mvn spring-boot:run
 
-5️⃣ **Run Frontend (React + TypeScript)**
+4️⃣ **Run Frontend (React + TypeScript)**
+
 
     cd frontend
     npm install
     npm start
 
-6️⃣ **Check your app**
-
-Open your browser and navigate to http://localhost:8080.
+5️⃣ **Check the App**
 
 ## Contribution
 
